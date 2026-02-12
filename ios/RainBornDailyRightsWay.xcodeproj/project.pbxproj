@@ -9,22 +9,44 @@
 /* Begin PBXBuildFile section */
 		0C80B921A6F3F58F76C31292 /* libPods-RainBornDailyRightsWay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-RainBornDailyRightsWay.a */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		42C0FB4967ED4762BFA2ECF2 /* Nunito-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2A7842C85A3E4459969CF475 /* Nunito-Medium.ttf */; };
+		58C7CCAFE9884C69A7799CD6 /* Nunito-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 89A65513949C43F6B162D1DB /* Nunito-Black.ttf */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		A45F2C05514F432BB23A7237 /* Nunito-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F56B8C2858DE4CD1B385CAEC /* Nunito-Bold.ttf */; };
+		C975A5BB9F6A433F902E466C /* Nunito-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0F14465D40054F3EA95BFC07 /* Nunito-Regular.ttf */; };
+		D170650E2F3DBEA1005B26FD /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D170650D2F3DBEA1005B26FD /* AVFoundation.framework */; };
+		D17065102F3DBEA7005B26FD /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D170650F2F3DBEA7005B26FD /* AVKit.framework */; };
+		D17065122F3DBEAC005B26FD /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D17065112F3DBEAC005B26FD /* AudioToolbox.framework */; };
+		D17065142F3E2018005B26FD /* turtlebeats-calm-acoustic-quiet-quest-251658.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = D17065132F3E2018005B26FD /* turtlebeats-calm-acoustic-quiet-quest-251658.mp3 */; };
+		DEFB758FF836439194C96BF0 /* Nunito-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6410C1C43A4F4C60BAD719B0 /* Nunito-Italic.ttf */; };
 		ECE67EAFDC209B0FB6F4D8B8 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
+		F7BC1B27FD064DA9ACBB65BE /* Nunito-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 607EC95E91FA4A67ACA0D24B /* Nunito-ExtraBold.ttf */; };
+		FDA2AE15BA084A2D98F94603 /* Nunito-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DF583E624F074D668B11F1CB /* Nunito-SemiBold.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0F14465D40054F3EA95BFC07 /* Nunito-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Nunito-Regular.ttf"; path = "../RainBornDailyRightsWay/RainBornAssets/fonts/Nunito-Regular.ttf"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* RainBornDailyRightsWay.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RainBornDailyRightsWay.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = RainBornDailyRightsWay/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = RainBornDailyRightsWay/Info.plist; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = RainBornDailyRightsWay/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		2A7842C85A3E4459969CF475 /* Nunito-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Nunito-Medium.ttf"; path = "../RainBornDailyRightsWay/RainBornAssets/fonts/Nunito-Medium.ttf"; sourceTree = "<group>"; };
 		3B4392A12AC88292D35C810B /* Pods-RainBornDailyRightsWay.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RainBornDailyRightsWay.debug.xcconfig"; path = "Target Support Files/Pods-RainBornDailyRightsWay/Pods-RainBornDailyRightsWay.debug.xcconfig"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-RainBornDailyRightsWay.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RainBornDailyRightsWay.release.xcconfig"; path = "Target Support Files/Pods-RainBornDailyRightsWay/Pods-RainBornDailyRightsWay.release.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-RainBornDailyRightsWay.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RainBornDailyRightsWay.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		607EC95E91FA4A67ACA0D24B /* Nunito-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Nunito-ExtraBold.ttf"; path = "../RainBornDailyRightsWay/RainBornAssets/fonts/Nunito-ExtraBold.ttf"; sourceTree = "<group>"; };
+		6410C1C43A4F4C60BAD719B0 /* Nunito-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Nunito-Italic.ttf"; path = "../RainBornDailyRightsWay/RainBornAssets/fonts/Nunito-Italic.ttf"; sourceTree = "<group>"; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = RainBornDailyRightsWay/AppDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = RainBornDailyRightsWay/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		89A65513949C43F6B162D1DB /* Nunito-Black.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Nunito-Black.ttf"; path = "../RainBornDailyRightsWay/RainBornAssets/fonts/Nunito-Black.ttf"; sourceTree = "<group>"; };
+		D170650D2F3DBEA1005B26FD /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		D170650F2F3DBEA7005B26FD /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
+		D17065112F3DBEAC005B26FD /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		D17065132F3E2018005B26FD /* turtlebeats-calm-acoustic-quiet-quest-251658.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "turtlebeats-calm-acoustic-quiet-quest-251658.mp3"; sourceTree = "<group>"; };
+		DF583E624F074D668B11F1CB /* Nunito-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Nunito-SemiBold.ttf"; path = "../RainBornDailyRightsWay/RainBornAssets/fonts/Nunito-SemiBold.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		F56B8C2858DE4CD1B385CAEC /* Nunito-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Nunito-Bold.ttf"; path = "../RainBornDailyRightsWay/RainBornAssets/fonts/Nunito-Bold.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,6 +54,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D17065122F3DBEAC005B26FD /* AudioToolbox.framework in Frameworks */,
+				D17065102F3DBEA7005B26FD /* AVKit.framework in Frameworks */,
+				D170650E2F3DBEA1005B26FD /* AVFoundation.framework in Frameworks */,
 				0C80B921A6F3F58F76C31292 /* libPods-RainBornDailyRightsWay.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -54,10 +79,28 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D17065112F3DBEAC005B26FD /* AudioToolbox.framework */,
+				D170650F2F3DBEA7005B26FD /* AVKit.framework */,
+				D170650D2F3DBEA1005B26FD /* AVFoundation.framework */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				5DCACB8F33CDC322A6C60F78 /* libPods-RainBornDailyRightsWay.a */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		6EEFD20817D24B5E8E44BA0E /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				2A7842C85A3E4459969CF475 /* Nunito-Medium.ttf */,
+				607EC95E91FA4A67ACA0D24B /* Nunito-ExtraBold.ttf */,
+				0F14465D40054F3EA95BFC07 /* Nunito-Regular.ttf */,
+				DF583E624F074D668B11F1CB /* Nunito-SemiBold.ttf */,
+				F56B8C2858DE4CD1B385CAEC /* Nunito-Bold.ttf */,
+				89A65513949C43F6B162D1DB /* Nunito-Black.ttf */,
+				6410C1C43A4F4C60BAD719B0 /* Nunito-Italic.ttf */,
+				D17065132F3E2018005B26FD /* turtlebeats-calm-acoustic-quiet-quest-251658.mp3 */,
+			);
+			name = Resources;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -75,6 +118,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
+				6EEFD20817D24B5E8E44BA0E /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -159,8 +203,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
+				D17065142F3E2018005B26FD /* turtlebeats-calm-acoustic-quiet-quest-251658.mp3 in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				ECE67EAFDC209B0FB6F4D8B8 /* PrivacyInfo.xcprivacy in Resources */,
+				42C0FB4967ED4762BFA2ECF2 /* Nunito-Medium.ttf in Resources */,
+				F7BC1B27FD064DA9ACBB65BE /* Nunito-ExtraBold.ttf in Resources */,
+				C975A5BB9F6A433F902E466C /* Nunito-Regular.ttf in Resources */,
+				FDA2AE15BA084A2D98F94603 /* Nunito-SemiBold.ttf in Resources */,
+				A45F2C05514F432BB23A7237 /* Nunito-Bold.ttf in Resources */,
+				58C7CCAFE9884C69A7799CD6 /* Nunito-Black.ttf in Resources */,
+				DEFB758FF836439194C96BF0 /* Nunito-Italic.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
