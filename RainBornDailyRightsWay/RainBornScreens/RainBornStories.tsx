@@ -525,13 +525,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Nunito-Bold',
     fontSize: 20,
     color: '#D9D9D9',
-    marginBottom: 12,
+    marginBottom: 10,
   },
   storyCardExcerpt: {
     fontFamily: 'Nunito-Regular',
-    fontSize: 13,
+    fontSize: 12,
     color: '#D9D9D9',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   readButtonWrap: {
     alignSelf: 'center',

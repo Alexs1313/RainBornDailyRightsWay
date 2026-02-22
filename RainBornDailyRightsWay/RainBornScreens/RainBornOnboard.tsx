@@ -39,6 +39,13 @@ const onboardButtonTexts: ImageSourcePropType[] = [
   require('../RainBornAssets/images/onboard/btnTxt4.png'),
 ];
 
+const onboardDescriptions: string[] = [
+  `This is a space for your daily mood. No rush, no rules, no unnecessary noise. Just a path that you walk at your own pace.`,
+  `Every day is a small moment for yourself. A short action, a calm thought or a mood that you want to capture. No ratings. Just you and today.`,
+  `No accounts or registrations. Everything is stored only on your device. This is your personal path — no one looks into it.`,
+  `Take the first step. The leprechaun is here — not to guide, but to remind: luck begins with attention to the moment.`,
+];
+
 const RainBornOnboard: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const navigation = useNavigation<NavigationProp>();
@@ -79,8 +86,7 @@ const RainBornOnboard: React.FC = () => {
           >
             <Image source={onboardTexts[currentIndex]} />
             <Text style={styles.textboardText}>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam,
-              quos.
+              {onboardDescriptions[currentIndex]}
             </Text>
             <TouchableOpacity onPress={handleRainBornNext} activeOpacity={0.8}>
               <ImageBackground
@@ -122,9 +128,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: 'Nunito-Regular',
     color: '#fff',
-    paddingHorizontal: 90,
+    paddingHorizontal: 85,
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: 10,
     marginBottom: 30,
   },
 });
