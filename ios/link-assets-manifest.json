@@ -2,31 +2,31 @@
   "migIndex": 1,
   "data": [
     {
-      "path": "RainBornDailyRightsWay/RainBornAssets/fonts/Nunito-Medium.ttf",
+      "path": "DailRightssWaySrc/RainBornAssets/fonts/Nunito-Medium.ttf",
       "sha1": "75324fedc01df018cdf436bb5beba504bd82af0d"
     },
     {
-      "path": "RainBornDailyRightsWay/RainBornAssets/fonts/Nunito-ExtraBold.ttf",
+      "path": "DailRightssWaySrc/RainBornAssets/fonts/Nunito-ExtraBold.ttf",
       "sha1": "37ba2b2e9e7dd74a67b8b994a1aebe333af7fc39"
     },
     {
-      "path": "RainBornDailyRightsWay/RainBornAssets/fonts/Nunito-Regular.ttf",
+      "path": "DailRightssWaySrc/RainBornAssets/fonts/Nunito-Regular.ttf",
       "sha1": "929ddc840610489715952aaa10af50e9c1a6a4a6"
     },
     {
-      "path": "RainBornDailyRightsWay/RainBornAssets/fonts/Nunito-SemiBold.ttf",
+      "path": "DailRightssWaySrc/RainBornAssets/fonts/Nunito-SemiBold.ttf",
       "sha1": "c4a5281a3e088e1d2604635d4d09a1583d036db6"
     },
     {
-      "path": "RainBornDailyRightsWay/RainBornAssets/fonts/Nunito-Bold.ttf",
+      "path": "DailRightssWaySrc/RainBornAssets/fonts/Nunito-Bold.ttf",
       "sha1": "e50cf9134308e37008cbd39da1dc637aef022641"
     },
     {
-      "path": "RainBornDailyRightsWay/RainBornAssets/fonts/Nunito-Black.ttf",
+      "path": "DailRightssWaySrc/RainBornAssets/fonts/Nunito-Black.ttf",
       "sha1": "bede9c89e905ae0b91404768e1167e3e5d3c9c8e"
     },
     {
-      "path": "RainBornDailyRightsWay/RainBornAssets/fonts/Nunito-Italic.ttf",
+      "path": "DailRightssWaySrc/RainBornAssets/fonts/Nunito-Italic.ttf",
       "sha1": "0c994f04c2bb328d87069d32e7422b559c05d5a7"
     }
   ]

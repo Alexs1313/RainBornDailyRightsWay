@@ -3,5 +3,5 @@ module.exports = {
     ios: {},
     android: {},
   },
-  assets: ['./RainBornDailyRightsWay/RainBornAssets/fonts/'],
+  assets: ['./DailRightssWaySrc/RainBornAssets/fonts/'],
 };
