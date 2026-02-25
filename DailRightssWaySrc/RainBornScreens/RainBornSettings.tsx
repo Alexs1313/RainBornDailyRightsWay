@@ -202,12 +202,13 @@ const RainBornSettings: React.FC = () => {
           >
             <Image source={require('../RainBornAssets/images/aboutapp.png')} />
             <Text style={styles.aboutText}>
-              RainBorn: Daily Rights Way is a calm daily app for short moments
-              of attention. Every day you open one symbol and get a simple
-              action — no choice, no rush, no ratings. Here you can leave a
-              short note, read a gentle story or just stop for a few seconds.
-              Rainbow Way is designed for those who want less noise and more
-              presence in the moment.
+              RainBorn: Daily Rights Way is a calm daily app created for short
+              moments of attention. Each day you open one symbol and receive a
+              simple action — no choices, no rush, no ratings. You can leave a
+              short note, read a gentle story, or simply pause for a few
+              seconds. If you feel like a light distraction, take a short quiz
+              and unlock new stories along the way. RainBorn is designed for
+              those who want less noise and more presence in the moment.
             </Text>
           </View>
 
