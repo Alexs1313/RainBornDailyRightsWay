@@ -1,9 +1,9 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import RainBornRoutes from './RainBornDailyRightsWay/RainBornNavigation/RainBornRoutes';
-import { StoreProvider } from './RainBornDailyRightsWay/RainBornStore.tsx/rainBornContext';
+import RainBornRoutes from './Roter';
+import { StoreProvider } from './DailRightssWaySrc/RainBornStore.tsx/rainBornContext';
 
-const App: React.FC = () => {
+const CoreRborn: React.FC = () => {
   return (
     <NavigationContainer>
       <StoreProvider>
@@ -13,4 +13,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
+export default CoreRborn;

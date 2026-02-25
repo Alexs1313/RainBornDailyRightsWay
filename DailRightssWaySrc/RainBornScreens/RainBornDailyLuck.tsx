@@ -10,15 +10,19 @@ import {
   Share,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
+import TouchableOpacity from '../RainBornComponents/RainBornAnimatedTouchable';
 import type { StackNavigationProp } from '@react-navigation/stack';
-import type { RainBornRoutesList } from '../RainBornNavigation/RainBornRoutes';
+import type { RainBornRoutesList } from '../../Roter';
 
-type NavigationProp = StackNavigationProp<RainBornRoutesList, 'RainBornDailyLuck'>;
+type NavigationProp = StackNavigationProp<
+  RainBornRoutesList,
+  'RainBornDailyLuck'
+>;
 
 const STORAGE_KEY_PREFIX = '@RainBornDaily_';
+const COOLDOWN_MS = 24 * 60 * 60 * 1000;
 
 const TASKS: string[] = [
   'Stop and look around for a few seconds.',
@@ -100,14 +104,6 @@ const RainBornDailyLuck: React.FC = () => {
   const [doneToday, setDoneToday] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [cooldownSeconds, setCooldownSeconds] = useState(SECONDS_24H);
-  const prevStep = useRef<Step>('intro');
-
-  useEffect(() => {
-    if (step === 'cooldown' && prevStep.current !== 'cooldown') {
-      setCooldownSeconds(SECONDS_24H);
-    }
-    prevStep.current = step;
-  }, [step]);
 
   useEffect(() => {
     if (step !== 'cooldown') return;
@@ -125,10 +121,29 @@ const RainBornDailyLuck: React.FC = () => {
 
   const loadState = useCallback(async () => {
     try {
-      const done = await AsyncStorage.getItem(
-        `${STORAGE_KEY_PREFIX}dailyLuckDone_${todayKey}`,
+      const doneKey = `${STORAGE_KEY_PREFIX}dailyLuckDone_${todayKey}`;
+      const cooldownEndKey = `${STORAGE_KEY_PREFIX}dailyLuckCooldownEnd_${todayKey}`;
+      const [done, cooldownEndRaw] = await Promise.all([
+        AsyncStorage.getItem(doneKey),
+        AsyncStorage.getItem(cooldownEndKey),
+      ]);
+      const cooldownEndTs = Number(cooldownEndRaw ?? '0');
+      const remainingSeconds = Math.max(
+        0,
+        Math.floor((cooldownEndTs - Date.now()) / 1000),
       );
-      setDoneToday(done === '1');
+
+      if (done === '1' && remainingSeconds > 0) {
+        setDoneToday(true);
+        setCooldownSeconds(remainingSeconds);
+      } else {
+        setDoneToday(false);
+        setCooldownSeconds(SECONDS_24H);
+        await Promise.all([
+          AsyncStorage.removeItem(doneKey),
+          AsyncStorage.removeItem(cooldownEndKey),
+        ]);
+      }
     } catch (_) {
     } finally {
       setLoaded(true);
@@ -177,10 +192,16 @@ const RainBornDailyLuck: React.FC = () => {
 
   const onDone = useCallback(async () => {
     setStep('done');
+    setCooldownSeconds(SECONDS_24H);
     try {
+      const cooldownEndTs = Date.now() + COOLDOWN_MS;
       await AsyncStorage.setItem(
         `${STORAGE_KEY_PREFIX}dailyLuckDone_${todayKey}`,
         '1',
+      );
+      await AsyncStorage.setItem(
+        `${STORAGE_KEY_PREFIX}dailyLuckCooldownEnd_${todayKey}`,
+        String(cooldownEndTs),
       );
     } catch (_) {}
     setDoneToday(true);
@@ -210,6 +231,16 @@ const RainBornDailyLuck: React.FC = () => {
   useEffect(() => {
     if (loaded && doneToday && step === 'intro') setStep('cooldown');
   }, [loaded, doneToday, step]);
+
+  useEffect(() => {
+    if (step !== 'cooldown' || cooldownSeconds > 0) return;
+    const doneKey = `${STORAGE_KEY_PREFIX}dailyLuckDone_${todayKey}`;
+    const cooldownEndKey = `${STORAGE_KEY_PREFIX}dailyLuckCooldownEnd_${todayKey}`;
+    setDoneToday(false);
+    setStep('intro');
+    AsyncStorage.removeItem(doneKey).catch(() => {});
+    AsyncStorage.removeItem(cooldownEndKey).catch(() => {});
+  }, [step, cooldownSeconds, todayKey]);
 
   const showCooldown = doneToday && (step === 'intro' || step === 'cooldown');
 
@@ -260,7 +291,10 @@ const RainBornDailyLuck: React.FC = () => {
           <View style={styles.introScreen}>
             <View style={styles.introCard}>
               <View style={styles.horseshoeWrap}>
-                <Image source={require('../RainBornAssets/images/ldr.png')} />
+                <Image
+                  source={require('../RainBornAssets/images/hat.png')}
+                  style={{ width: 150, height: 150 }}
+                />
               </View>
               <Text style={styles.introText}>
                 Click to open today's moment.{'\n'}
@@ -288,7 +322,7 @@ const RainBornDailyLuck: React.FC = () => {
               ]}
             >
               <Image
-                source={require('../RainBornAssets/images/ldr.png')}
+                source={require('../RainBornAssets/images/hat.png')}
                 style={{ width: 180, height: 280 }}
                 resizeMode="contain"
               />
@@ -313,8 +347,8 @@ const RainBornDailyLuck: React.FC = () => {
                     source={require('../RainBornAssets/images/gametxt1.png')}
                   />
                   <Image
-                    source={require('../RainBornAssets/images/gameimg.png')}
-                    style={{ marginVertical: 10 }}
+                    source={require('../RainBornAssets/images/hat.png')}
+                    style={{ width: 110, height: 150 }}
                   />
 
                   <Text style={styles.taskLabel}>TASK:</Text>
@@ -322,8 +356,14 @@ const RainBornDailyLuck: React.FC = () => {
                 </View>
               </ImageBackground>
               <Image
-                source={require('../RainBornAssets/images/storyimg.png')}
-                style={{ position: 'absolute', top: -140, left: 20 }}
+                source={require('../RainBornAssets/images/lepricon.png')}
+                style={{
+                  position: 'absolute',
+                  top: -140,
+                  left: 20,
+                  width: 180,
+                  height: 280,
+                }}
               />
             </View>
             <TouchableOpacity
@@ -356,8 +396,13 @@ const RainBornDailyLuck: React.FC = () => {
         ) : step === 'done' ? (
           <View style={styles.doneScreen}>
             <Image
-              source={require('../RainBornAssets/images/storyimg.png')}
-              style={{ alignSelf: 'center', top: 20 }}
+              source={require('../RainBornAssets/images/lepricon.png')}
+              style={{
+                alignSelf: 'center',
+                top: 30,
+                width: 180,
+                height: 280,
+              }}
             />
             <ImageBackground
               source={require('../RainBornAssets/images/onboard/textboard.png')}

@@ -1,7 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  Alert,
   Animated,
   Image,
   ImageBackground,
@@ -9,11 +10,13 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
+  TextInput,
   View,
 } from 'react-native';
+import { launchImageLibrary } from 'react-native-image-picker';
+import TouchableOpacity from '../RainBornComponents/RainBornAnimatedTouchable';
 import type { StackNavigationProp } from '@react-navigation/stack';
-import type { RainBornRoutesList } from '../RainBornNavigation/RainBornRoutes';
+import type { RainBornRoutesList } from '../../Roter';
 import { useRainBornStore } from '../RainBornStore.tsx/rainBornContext';
 
 type NavigationProp = StackNavigationProp<
@@ -21,10 +24,29 @@ type NavigationProp = StackNavigationProp<
   'RainBornSettings'
 >;
 
+const PROFILE_NAME_KEY = '@RainBornDaily_profile_name';
+const PROFILE_PHOTO_KEY = '@RainBornDaily_profile_photo';
+
 const RainBornSettings: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const thumbAnim = useRef(new Animated.Value(1)).current;
   const { rainBornSoundEnabled, setRainBornSoundEnabled } = useRainBornStore();
+  const [profileName, setProfileName] = useState('');
+  const [profilePhotoUri, setProfilePhotoUri] = useState<string | null>(null);
+
+  const loadProfile = useCallback(async () => {
+    try {
+      const [savedName, savedPhoto] = await Promise.all([
+        AsyncStorage.getItem(PROFILE_NAME_KEY),
+        AsyncStorage.getItem(PROFILE_PHOTO_KEY),
+      ]);
+      setProfileName(savedName ?? '');
+      setProfilePhotoUri(savedPhoto ?? null);
+    } catch (_) {
+      setProfileName('');
+      setProfilePhotoUri(null);
+    }
+  }, []);
 
   const toggleSound = useCallback(
     async (selectedValue: boolean): Promise<void> => {
@@ -45,6 +67,28 @@ const RainBornSettings: React.FC = () => {
     if (navigation.canGoBack()) navigation.goBack();
   }, [navigation]);
 
+  const onPickProfilePhoto = useCallback(async () => {
+    try {
+      const result = await launchImageLibrary({
+        mediaType: 'photo',
+        selectionLimit: 1,
+        quality: 0.9,
+      });
+      if (result.didCancel) return;
+      const uri = result.assets?.[0]?.uri;
+      if (!uri) return;
+      setProfilePhotoUri(uri);
+      await AsyncStorage.setItem(PROFILE_PHOTO_KEY, uri);
+    } catch (_) {
+      Alert.alert('Error', 'Unable to open photo library.');
+    }
+  }, []);
+
+  const onChangeProfileName = useCallback((text: string) => {
+    setProfileName(text);
+    AsyncStorage.setItem(PROFILE_NAME_KEY, text).catch(() => {});
+  }, []);
+
   const resetData = useCallback(async () => {
     try {
       const keys = await AsyncStorage.getAllKeys();
@@ -53,13 +97,17 @@ const RainBornSettings: React.FC = () => {
       );
       await AsyncStorage.multiRemove(rainKeys);
     } catch (_) {}
-    setRainBornSoundEnabled(true);
-    if (navigation.canGoBack()) navigation.replace('RainBornOnboard');
-  }, [navigation, setRainBornSoundEnabled]);
+
+    navigation.replace('RainBornOnboard');
+  }, [navigation]);
 
   useEffect(() => {
     thumbAnim.setValue(rainBornSoundEnabled ? 1 : 0);
   }, [rainBornSoundEnabled]);
+
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
 
   const thumbTranslateX = thumbAnim.interpolate({
     inputRange: [0, 1],
@@ -100,7 +148,7 @@ const RainBornSettings: React.FC = () => {
           <Image source={require('../RainBornAssets/images/settttl.png')} />
         </View>
 
-        <View style={styles.scroll}>
+        <View style={{ width: '100%', alignItems: 'center' }}>
           {Platform.OS === 'ios' && (
             <View style={styles.panel}>
               <Image source={require('../RainBornAssets/images/mus.png')} />
@@ -124,23 +172,42 @@ const RainBornSettings: React.FC = () => {
             </View>
           )}
 
+          <View style={styles.profilePanel}>
+            <TouchableOpacity onPress={onPickProfilePhoto} activeOpacity={0.85}>
+              <Image
+                source={
+                  profilePhotoUri
+                    ? { uri: profilePhotoUri }
+                    : require('../RainBornAssets/images/homeLogo.png')
+                }
+                style={styles.profileAvatar}
+              />
+            </TouchableOpacity>
+            <Text style={styles.profileLabel}>Nickname:</Text>
+            <TextInput
+              value={profileName}
+              onChangeText={onChangeProfileName}
+              placeholder="Enter your name"
+              placeholderTextColor="rgba(255,255,255,0.6)"
+              style={styles.profileInput}
+              maxLength={32}
+            />
+          </View>
+
           <View
             style={[
               styles.panelAbout,
-              { marginTop: Platform.OS === 'ios' ? 0 : 40 },
+              { marginTop: Platform.OS === 'ios' ? 0 : 20 },
             ]}
           >
             <Image source={require('../RainBornAssets/images/aboutapp.png')} />
             <Text style={styles.aboutText}>
-              Rainbow Way: Your Daily Luck is a calm daily app for short moments
+              RainBorn: Daily Rights Way is a calm daily app for short moments
               of attention. Every day you open one symbol and get a simple
               action — no choice, no rush, no ratings. Here you can leave a
               short note, read a gentle story or just stop for a few seconds.
-            </Text>
-            <Text style={styles.aboutText}>
-              No accounts or registrations. Everything is stored only on your
-              device. Rainbow Way is designed for those who want less noise and
-              more presence in the moment.
+              Rainbow Way is designed for those who want less noise and more
+              presence in the moment.
             </Text>
           </View>
 
@@ -180,7 +247,52 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   headerBack: { position: 'absolute', left: 16 },
-  scroll: { flex: 1 },
+
+  profilePanel: {
+    backgroundColor: '#350909',
+    borderRadius: 6,
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+    marginBottom: 16,
+    borderWidth: 2,
+    borderColor: '#fff',
+    width: '86%',
+    marginTop: 2,
+    alignItems: 'center',
+  },
+  profileAvatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 32,
+    marginBottom: 12,
+  },
+  profileLabel: {
+    color: '#fff',
+    fontFamily: 'Nunito-Regular',
+    fontSize: 12,
+    alignSelf: 'flex-start',
+    marginBottom: 8,
+    marginTop: 10,
+  },
+  profileInput: {
+    width: '100%',
+    backgroundColor: '#350909',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.35)',
+    color: '#fff',
+    fontFamily: 'Nunito-Regular',
+    fontSize: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  profileHint: {
+    color: '#fff',
+    fontFamily: 'Nunito-Regular',
+    fontSize: 12,
+    marginTop: 12,
+    opacity: 0.8,
+  },
   panel: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -193,7 +305,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#fff',
     width: '86%',
-    marginTop: 40,
+    marginTop: 30,
   },
   switchTrack: {
     width: 56,

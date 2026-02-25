@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 import type { StackNavigationProp } from '@react-navigation/stack';
-import type { RainBornRoutesList } from '../RainBornNavigation/RainBornRoutes';
+import type { RainBornRoutesList } from '../../Roter';
 
 type NavigationProp = StackNavigationProp<RainBornRoutesList, 'RainBornLoader'>;
 
@@ -53,7 +53,7 @@ const RainBornLoader: React.FC = () => {
           style={[styles.horseshoeWrap, { transform: [{ rotate: spin }] }]}
         >
           <Image
-            source={require('../RainBornAssets/images/ldr.png')}
+            source={require('../RainBornAssets/images/hat.png')}
             style={styles.horseshoe}
             resizeMode="contain"
           />

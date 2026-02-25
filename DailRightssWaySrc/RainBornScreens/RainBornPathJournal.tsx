@@ -12,10 +12,10 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
+import TouchableOpacity from '../RainBornComponents/RainBornAnimatedTouchable';
 
 const STORAGE_KEY = '@RainBornDaily_journal';
 
@@ -274,10 +274,7 @@ const RainBornPathJournal: React.FC = () => {
                   return (
                     <TouchableOpacity
                       key={`d-${d}`}
-                      style={[
-                        styles.dayCell,
-                        isSelected && styles.dayCellSelected,
-                      ]}
+                      style={styles.dayCell}
                       onPress={() =>
                         setSelectedCalendarDate(
                           new Date(
@@ -289,14 +286,21 @@ const RainBornPathJournal: React.FC = () => {
                       }
                       activeOpacity={0.7}
                     >
-                      <Text
+                      <View
                         style={[
-                          styles.dayCellText,
-                          isSelected && styles.dayCellTextSelected,
+                          styles.dayCellCircle,
+                          isSelected && styles.dayCellSelected,
                         ]}
                       >
-                        {d}
-                      </Text>
+                        <Text
+                          style={[
+                            styles.dayCellText,
+                            isSelected && styles.dayCellTextSelected,
+                          ]}
+                        >
+                          {d}
+                        </Text>
+                      </View>
                     </TouchableOpacity>
                   );
                 })}
@@ -700,7 +704,7 @@ const styles = StyleSheet.create({
   calendarBox: {
     backgroundColor: '#fff',
     borderRadius: 12,
-    padding: 16,
+    padding: 14,
     marginBottom: 20,
   },
   calendarBoxHeader: {
@@ -728,7 +732,7 @@ const styles = StyleSheet.create({
   weekdayCell: {
     flex: 1,
     fontFamily: 'Nunito-Regular',
-    fontSize: 12,
+    fontSize: 11,
     color: '#757575',
     textAlign: 'center',
   },
@@ -742,9 +746,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  dayCellCircle: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+
+    borderColor: 'transparent',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   dayCellSelected: {
-    backgroundColor: 'rgba(33, 150, 243, 0.25)',
-    borderRadius: 20,
+    backgroundColor: 'rgba(0, 123, 255, 0.12)',
   },
   dayCellText: {
     fontFamily: 'Nunito-Regular',
@@ -752,7 +764,7 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   dayCellTextSelected: {
-    fontFamily: 'Nunito-Bold',
+    fontFamily: 'Nunito-Regular',
     color: '#007AFF',
   },
   noEntriesText: {

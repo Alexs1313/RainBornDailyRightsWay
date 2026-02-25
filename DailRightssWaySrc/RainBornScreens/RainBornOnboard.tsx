@@ -1,17 +1,20 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  Animated,
+  Easing,
   Image,
   ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
+import TouchableOpacity from '../RainBornComponents/RainBornAnimatedTouchable';
 import type { StackNavigationProp } from '@react-navigation/stack';
-import type { RainBornRoutesList } from '../RainBornNavigation/RainBornRoutes';
+import type { RainBornRoutesList } from '../../Roter';
 
 type NavigationProp = StackNavigationProp<
   RainBornRoutesList,
@@ -19,8 +22,8 @@ type NavigationProp = StackNavigationProp<
 >;
 
 const onboardImages: ImageSourcePropType[] = [
-  require('../RainBornAssets/images/onboard/1.png'),
-  require('../RainBornAssets/images/onboard/2.png'),
+  require('../RainBornAssets/images/onboard/lepricon.png'),
+  require('../RainBornAssets/images/onboard/hat.png'),
   require('../RainBornAssets/images/onboard/3.png'),
   require('../RainBornAssets/images/onboard/4.png'),
 ];
@@ -46,17 +49,39 @@ const onboardDescriptions: string[] = [
   `Take the first step. The leprechaun is here — not to guide, but to remind: luck begins with attention to the moment.`,
 ];
 
+const PROFILE_NAME_KEY = '@RainBornDaily_profile_name';
+
 const RainBornOnboard: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const navigation = useNavigation<NavigationProp>();
+  const imageFadeAnim = useRef(new Animated.Value(1)).current;
 
-  const handleRainBornNext = useCallback(() => {
-    setCurrentIndex(prev => {
-      const next = prev + 1;
-      if (next > 3) navigation.navigate('RainBornHome');
-      return Math.min(next, 3);
-    });
-  }, [navigation]);
+  useEffect(() => {
+    imageFadeAnim.setValue(0);
+    Animated.timing(imageFadeAnim, {
+      toValue: 1,
+      duration: 550,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [currentIndex, imageFadeAnim]);
+
+  const handleRainBornNext = useCallback(async () => {
+    if (currentIndex < 3) {
+      setCurrentIndex(prev => Math.min(prev + 1, 3));
+      return;
+    }
+
+    try {
+      const savedName = await AsyncStorage.getItem(PROFILE_NAME_KEY);
+      if ((savedName ?? '').trim()) {
+        navigation.replace('RainBornHome');
+        return;
+      }
+    } catch (_) {}
+
+    navigation.replace('RainBornCreateProfile');
+  }, [currentIndex, navigation]);
 
   return (
     <ImageBackground
@@ -75,16 +100,24 @@ const RainBornOnboard: React.FC = () => {
             paddingBottom: 55,
           }}
         >
-          <Image
+          <Animated.Image
             source={onboardImages[currentIndex]}
-            style={[styles.onboardImage, currentIndex === 0 && { top: 60 }]}
+            style={[
+              styles.onboardImage,
+              currentIndex === 0 && { top: 160, width: 300, height: 420 },
+              currentIndex === 1 && { width: 300, height: 300 },
+              { opacity: imageFadeAnim },
+            ]}
           />
 
           <ImageBackground
             source={require('../RainBornAssets/images/onboard/textboard.png')}
             style={styles.textboard}
           >
-            <Image source={onboardTexts[currentIndex]} />
+            <Animated.Image
+              source={onboardTexts[currentIndex]}
+              style={{ opacity: imageFadeAnim }}
+            />
             <Text style={styles.textboardText}>
               {onboardDescriptions[currentIndex]}
             </Text>
@@ -93,7 +126,10 @@ const RainBornOnboard: React.FC = () => {
                 source={require('../RainBornAssets/images/onboard/button.png')}
                 style={styles.button}
               >
-                <Image source={onboardButtonTexts[currentIndex]} />
+                <Animated.Image
+                  source={onboardButtonTexts[currentIndex]}
+                  style={{ opacity: imageFadeAnim }}
+                />
               </ImageBackground>
             </TouchableOpacity>
           </ImageBackground>

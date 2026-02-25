@@ -11,12 +11,12 @@ import {
   Share,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import type { StyleProp, TextStyle } from 'react-native';
+import TouchableOpacity from '../RainBornComponents/RainBornAnimatedTouchable';
 import type { StackNavigationProp } from '@react-navigation/stack';
-import type { RainBornRoutesList } from '../RainBornNavigation/RainBornRoutes';
+import type { RainBornRoutesList } from '../../Roter';
 import Orientation from 'react-native-orientation-locker';
 
 type NavigationProp = StackNavigationProp<
@@ -108,7 +108,17 @@ function getStoryIndexForToday(): number {
     hash = (hash << 5) - hash + key.charCodeAt(i);
     hash |= 0;
   }
-  return Math.abs(hash) % 3;
+  return Math.abs(hash);
+}
+
+function getStoryIndexForTodayWithUnlocked(unlockedCount: number): number {
+  const key = getTodayKey();
+  let hash = 0;
+  for (let i = 0; i < key.length; i++) {
+    hash = (hash << 5) - hash + key.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash) % Math.max(1, unlockedCount);
 }
 
 const SECONDS_24H = 24 * 60 * 60;
@@ -164,7 +174,12 @@ You can leave this place at any time, and you will. But knowing it exists makes 
 const RainBornStories: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const todayKey = getTodayKey();
-  const storyIndex = getStoryIndexForToday();
+  const [currentLevel, setCurrentLevel] = useState(1);
+  const unlockedStoriesCount = Math.max(
+    1,
+    Math.min(currentLevel, STORIES.length),
+  );
+  const storyIndex = getStoryIndexForTodayWithUnlocked(unlockedStoriesCount);
   const story = STORIES[storyIndex];
 
   const [readModalVisible, setReadModalVisible] = useState(false);
@@ -203,12 +218,23 @@ const RainBornStories: React.FC = () => {
 
   const loadState = useCallback(async () => {
     try {
-      const [read, attentionDismissed] = await Promise.all([
+      const [read, attentionDismissed, levelRaw] = await Promise.all([
         AsyncStorage.getItem(`${STORAGE_KEY_PREFIX}storyRead_${todayKey}`),
         AsyncStorage.getItem(`${STORAGE_KEY_PREFIX}storyAttention_${todayKey}`),
+        AsyncStorage.getItem(`${STORAGE_KEY_PREFIX}currentLevel`),
       ]);
       setStoryReadToday(read === '1');
       setAttentionDismissedToday(attentionDismissed === '1');
+      const parsedLevel = Number(levelRaw ?? '1');
+      if (
+        Number.isFinite(parsedLevel) &&
+        parsedLevel >= 1 &&
+        parsedLevel <= 10
+      ) {
+        setCurrentLevel(parsedLevel);
+      } else {
+        setCurrentLevel(1);
+      }
     } catch (_) {
       // ignore
     } finally {
@@ -292,12 +318,15 @@ const RainBornStories: React.FC = () => {
           />
         </View>
 
-        {/* Step 1: ATTENTION screen — only until user presses Okay */}
         {!attentionDismissedToday ? (
           <View style={styles.attentionScreen}>
             <Image
-              source={require('../RainBornAssets/images/storyimg.png')}
-              style={{ alignSelf: 'center', top: 10 }}
+              source={require('../RainBornAssets/images/lepricon.png')}
+              style={{
+                alignSelf: 'center',
+                width: 200,
+                height: 280,
+              }}
             />
             <View style={styles.introBlock}>
               <View style={styles.attentionIconCircle}>
@@ -509,7 +538,7 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
     width: '90%',
     alignSelf: 'center',
-    top: -50,
+    top: -80,
   },
   cardWrapper: {
     flex: 1,
@@ -555,6 +584,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Nunito-Black',
     fontSize: 15,
     color: '#000',
+  },
+  unlockedStoriesText: {
+    fontFamily: 'Nunito-Black',
+    fontSize: 13,
+    color: '#fff',
+    marginBottom: 10,
   },
   attentionIconCircle: {
     width: 75,
