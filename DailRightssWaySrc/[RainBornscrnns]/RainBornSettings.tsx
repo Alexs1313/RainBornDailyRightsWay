@@ -1,3 +1,7 @@
+// settings
+
+import type { RainBornRoutesList } from '../../RainWaystckrotes';
+import { useRainBornStore } from '../RainBornStore.tsx/rainBornContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -14,10 +18,8 @@ import {
   View,
 } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
-import TouchableOpacity from '../RainBornComponents/RainBornAnimatedTouchable';
+import TouchableOpacity from '../[RainBorncmpnts]/RainBornAnimatedTouchable';
 import type { StackNavigationProp } from '@react-navigation/stack';
-import type { RainBornRoutesList } from '../../Roter';
-import { useRainBornStore } from '../RainBornStore.tsx/rainBornContext';
 
 type NavigationProp = StackNavigationProp<
   RainBornRoutesList,
@@ -28,106 +30,119 @@ const PROFILE_NAME_KEY = '@RainBornDaily_profile_name';
 const PROFILE_PHOTO_KEY = '@RainBornDaily_profile_photo';
 
 const RainBornSettings: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
-  const thumbAnim = useRef(new Animated.Value(1)).current;
-  const { rainBornSoundEnabled, setRainBornSoundEnabled } = useRainBornStore();
-  const [profileName, setProfileName] = useState('');
-  const [profilePhotoUri, setProfilePhotoUri] = useState<string | null>(null);
+  const dailyRightsNavigation = useNavigation<NavigationProp>();
+  const dailyRightsThumbAnim = useRef(new Animated.Value(1)).current;
+  const {
+    rainBornSoundEnabled: dailyRightsRainBornSoundEnabled,
+    setRainBornSoundEnabled: setDailyRightsRainBornSoundEnabled,
+  } = useRainBornStore();
+  const [dailyRightsProfileName, setDailyRightsProfileName] = useState('');
+  const [dailyRightsProfilePhotoUri, setDailyRightsProfilePhotoUri] = useState<
+    string | null
+  >(null);
 
-  const loadProfile = useCallback(async () => {
+  const loadDailyRightsProfile = useCallback(async () => {
     try {
-      const [savedName, savedPhoto] = await Promise.all([
+      const [dailyRightsSavedName, dailyRightsSavedPhoto] = await Promise.all([
         AsyncStorage.getItem(PROFILE_NAME_KEY),
         AsyncStorage.getItem(PROFILE_PHOTO_KEY),
       ]);
-      setProfileName(savedName ?? '');
-      setProfilePhotoUri(savedPhoto ?? null);
+      setDailyRightsProfileName(dailyRightsSavedName ?? '');
+      setDailyRightsProfilePhotoUri(dailyRightsSavedPhoto ?? null);
     } catch (_) {
-      setProfileName('');
-      setProfilePhotoUri(null);
+      setDailyRightsProfileName('');
+      setDailyRightsProfilePhotoUri(null);
     }
   }, []);
 
-  const toggleSound = useCallback(
-    async (selectedValue: boolean): Promise<void> => {
+  const toggleDailyRightsSound = useCallback(
+    async (dailyRightsSelectedValue: boolean): Promise<void> => {
       try {
         await AsyncStorage.setItem(
           'bg_app_music_enabled',
-          JSON.stringify(selectedValue),
+          JSON.stringify(dailyRightsSelectedValue),
         );
-        setRainBornSoundEnabled(selectedValue);
+        setDailyRightsRainBornSoundEnabled(dailyRightsSelectedValue);
       } catch (error) {
         console.log('Error', error);
       }
     },
-    [setRainBornSoundEnabled],
+    [setDailyRightsRainBornSoundEnabled],
   );
 
-  const goBack = useCallback(() => {
-    if (navigation.canGoBack()) navigation.goBack();
-  }, [navigation]);
+  const dailyRightsGoBack = useCallback(() => {
+    if (dailyRightsNavigation.canGoBack()) dailyRightsNavigation.goBack();
+  }, [dailyRightsNavigation]);
 
   const onPickProfilePhoto = useCallback(async () => {
     try {
-      const result = await launchImageLibrary({
+      const dailyRightsPickResult = await launchImageLibrary({
         mediaType: 'photo',
         selectionLimit: 1,
         quality: 0.9,
       });
-      if (result.didCancel) return;
-      const uri = result.assets?.[0]?.uri;
-      if (!uri) return;
-      setProfilePhotoUri(uri);
-      await AsyncStorage.setItem(PROFILE_PHOTO_KEY, uri);
+      if (dailyRightsPickResult.didCancel) return;
+      const dailyRightsUri = dailyRightsPickResult.assets?.[0]?.uri;
+      if (!dailyRightsUri) return;
+      setDailyRightsProfilePhotoUri(dailyRightsUri);
+      await AsyncStorage.setItem(PROFILE_PHOTO_KEY, dailyRightsUri);
     } catch (_) {
       Alert.alert('Error', 'Unable to open photo library.');
     }
   }, []);
 
-  const onChangeProfileName = useCallback((text: string) => {
-    setProfileName(text);
-    AsyncStorage.setItem(PROFILE_NAME_KEY, text).catch(() => {});
-  }, []);
+  const onDailyRightsChangeProfileName = useCallback(
+    (dailyRightsText: string) => {
+      setDailyRightsProfileName(dailyRightsText);
+      AsyncStorage.setItem(PROFILE_NAME_KEY, dailyRightsText).catch(() => {});
+    },
+    [],
+  );
 
-  const resetData = useCallback(async () => {
+  const resetDailyRightsData = useCallback(async () => {
     try {
-      const keys = await AsyncStorage.getAllKeys();
-      const rainKeys = keys.filter((k: string) =>
-        k.startsWith('@RainBornDaily_'),
+      const dailyRightsKeys = await AsyncStorage.getAllKeys();
+      const dailyRightsRainKeys = dailyRightsKeys.filter(
+        (dailyRightsKey: string) =>
+          dailyRightsKey.startsWith('@RainBornDaily_'),
       );
-      await AsyncStorage.multiRemove(rainKeys);
+      await AsyncStorage.multiRemove(dailyRightsRainKeys);
     } catch (_) {}
 
-    navigation.replace('RainBornOnboard');
-  }, [navigation]);
+    dailyRightsNavigation.replace('RainBornOnboard');
+  }, [dailyRightsNavigation]);
 
   useEffect(() => {
-    thumbAnim.setValue(rainBornSoundEnabled ? 1 : 0);
-  }, [rainBornSoundEnabled]);
+    dailyRightsThumbAnim.setValue(dailyRightsRainBornSoundEnabled ? 1 : 0);
+  }, [dailyRightsRainBornSoundEnabled, dailyRightsThumbAnim]);
 
   useEffect(() => {
-    loadProfile();
-  }, [loadProfile]);
+    loadDailyRightsProfile();
+  }, [loadDailyRightsProfile]);
 
-  const thumbTranslateX = thumbAnim.interpolate({
+  const dailyRightsThumbTranslateX = dailyRightsThumbAnim.interpolate({
     inputRange: [0, 1],
     outputRange: [0, 24],
   });
 
-  const handleToggleSound = useCallback(() => {
-    const next = !rainBornSoundEnabled;
-    Animated.timing(thumbAnim, {
-      toValue: next ? 1 : 0,
+  const handleDailyRightsToggleSound = useCallback(() => {
+    const dailyRightsNext = !dailyRightsRainBornSoundEnabled;
+    Animated.timing(dailyRightsThumbAnim, {
+      toValue: dailyRightsNext ? 1 : 0,
       duration: 200,
       useNativeDriver: true,
     }).start();
-    toggleSound(next);
-  }, [rainBornSoundEnabled, thumbAnim]);
+    toggleDailyRightsSound(dailyRightsNext);
+  }, [
+    dailyRightsRainBornSoundEnabled,
+    dailyRightsThumbAnim,
+    toggleDailyRightsSound,
+  ]);
 
   return (
     <ImageBackground
       source={require('../RainBornAssets/images/settBg.png')}
-      style={styles.background}
+      style={rainWayStyles.rainWayBackground}
     >
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -137,11 +152,11 @@ const RainBornSettings: React.FC = () => {
           paddingBottom: 20,
         }}
       >
-        <View style={styles.header}>
+        <View style={rainWayStyles.rainWayHeader}>
           <TouchableOpacity
-            onPress={goBack}
+            onPress={dailyRightsGoBack}
             activeOpacity={0.8}
-            style={styles.headerBack}
+            style={rainWayStyles.rainWayHeaderBack}
           >
             <Image source={require('../RainBornAssets/images/back.png')} />
           </TouchableOpacity>
@@ -150,21 +165,21 @@ const RainBornSettings: React.FC = () => {
 
         <View style={{ width: '100%', alignItems: 'center' }}>
           {Platform.OS === 'ios' && (
-            <View style={styles.panel}>
+            <View style={rainWayStyles.rainWayPanel}>
               <Image source={require('../RainBornAssets/images/mus.png')} />
               <TouchableOpacity
                 activeOpacity={1}
-                onPress={handleToggleSound}
-                style={styles.switchTrack}
+                onPress={handleDailyRightsToggleSound}
+                style={rainWayStyles.rainWaySwitchTrack}
               >
                 <Animated.View
                   style={[
-                    styles.switchThumb,
-                    rainBornSoundEnabled
+                    rainWayStyles.rainWaySwitchThumb,
+                    dailyRightsRainBornSoundEnabled
                       ? { backgroundColor: '#59d102' }
                       : { backgroundColor: '#D9D9D9' },
                     {
-                      transform: [{ translateX: thumbTranslateX }],
+                      transform: [{ translateX: dailyRightsThumbTranslateX }],
                     },
                   ]}
                 />
@@ -172,36 +187,36 @@ const RainBornSettings: React.FC = () => {
             </View>
           )}
 
-          <View style={styles.profilePanel}>
+          <View style={rainWayStyles.rainWayProfilePanel}>
             <TouchableOpacity onPress={onPickProfilePhoto} activeOpacity={0.85}>
               <Image
                 source={
-                  profilePhotoUri
-                    ? { uri: profilePhotoUri }
+                  dailyRightsProfilePhotoUri
+                    ? { uri: dailyRightsProfilePhotoUri }
                     : require('../RainBornAssets/images/homeLogo.png')
                 }
-                style={styles.profileAvatar}
+                style={rainWayStyles.rainWayProfileAvatar}
               />
             </TouchableOpacity>
-            <Text style={styles.profileLabel}>Nickname:</Text>
+            <Text style={rainWayStyles.rainWayProfileLabel}>Nickname:</Text>
             <TextInput
-              value={profileName}
-              onChangeText={onChangeProfileName}
+              value={dailyRightsProfileName}
+              onChangeText={onDailyRightsChangeProfileName}
               placeholder="Enter your name"
               placeholderTextColor="rgba(255,255,255,0.6)"
-              style={styles.profileInput}
+              style={rainWayStyles.rainWayProfileInput}
               maxLength={32}
             />
           </View>
 
-          <View
+          {/* <View
             style={[
-              styles.panelAbout,
+              rainWayStyles.rainWayPanelAbout,
               { marginTop: Platform.OS === 'ios' ? 0 : 20 },
             ]}
           >
             <Image source={require('../RainBornAssets/images/aboutapp.png')} />
-            <Text style={styles.aboutText}>
+            <Text style={rainWayStyles.rainWayAboutText}>
               RainBorn: Daily Rights Way is a calm daily app created for short
               moments of attention. Each day you open one symbol and receive a
               simple action — no choices, no rush, no ratings. You can leave a
@@ -210,16 +225,16 @@ const RainBornSettings: React.FC = () => {
               and unlock new stories along the way. RainBorn is designed for
               those who want less noise and more presence in the moment.
             </Text>
-          </View>
+          </View> */}
 
           <TouchableOpacity
-            onPress={resetData}
+            onPress={resetDailyRightsData}
             activeOpacity={0.8}
-            style={styles.resetButtonWrap}
+            style={rainWayStyles.rainWayResetButtonWrap}
           >
             <ImageBackground
               source={require('../RainBornAssets/images/onboard/button.png')}
-              style={styles.onboardStyleButton}
+              style={rainWayStyles.rainWayOnboardStyleButton}
             >
               <Image source={require('../RainBornAssets/images/reset.png')} />
             </ImageBackground>
@@ -230,9 +245,9 @@ const RainBornSettings: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  background: { flex: 1 },
-  header: {
+const rainWayStyles = StyleSheet.create({
+  rainWayBackground: { flex: 1 },
+  rainWayHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -247,9 +262,9 @@ const styles = StyleSheet.create({
     width: '86%',
     alignSelf: 'center',
   },
-  headerBack: { position: 'absolute', left: 16 },
+  rainWayHeaderBack: { position: 'absolute', left: 16 },
 
-  profilePanel: {
+  rainWayProfilePanel: {
     backgroundColor: '#350909',
     borderRadius: 6,
     paddingVertical: 20,
@@ -261,13 +276,13 @@ const styles = StyleSheet.create({
     marginTop: 2,
     alignItems: 'center',
   },
-  profileAvatar: {
+  rainWayProfileAvatar: {
     width: 100,
     height: 100,
     borderRadius: 32,
     marginBottom: 12,
   },
-  profileLabel: {
+  rainWayProfileLabel: {
     color: '#fff',
     fontFamily: 'Nunito-Regular',
     fontSize: 12,
@@ -275,7 +290,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     marginTop: 10,
   },
-  profileInput: {
+  rainWayProfileInput: {
     width: '100%',
     backgroundColor: '#350909',
     borderRadius: 8,
@@ -287,14 +302,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
   },
-  profileHint: {
+  rainWayProfileHint: {
     color: '#fff',
     fontFamily: 'Nunito-Regular',
     fontSize: 12,
     marginTop: 12,
     opacity: 0.8,
   },
-  panel: {
+  rainWayPanel: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -308,7 +323,7 @@ const styles = StyleSheet.create({
     width: '86%',
     marginTop: 30,
   },
-  switchTrack: {
+  rainWaySwitchTrack: {
     width: 56,
     height: 32,
     borderRadius: 16,
@@ -316,13 +331,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 5,
   },
-  switchThumb: {
+  rainWaySwitchThumb: {
     width: 22,
     height: 22,
     borderRadius: 11,
     backgroundColor: '#59d102',
   },
-  panelAbout: {
+  rainWayPanelAbout: {
     backgroundColor: '#350909',
     borderRadius: 6,
     padding: 20,
@@ -332,15 +347,15 @@ const styles = StyleSheet.create({
     width: '86%',
     paddingTop: 25,
   },
-  aboutText: {
+  rainWayAboutText: {
     fontFamily: 'Nunito-Regular',
     fontSize: 13,
     color: '#fff',
     lineHeight: 19,
     marginTop: 12,
   },
-  resetButtonWrap: { alignSelf: 'center' },
-  onboardStyleButton: {
+  rainWayResetButtonWrap: { alignSelf: 'center' },
+  rainWayOnboardStyleButton: {
     width: 236,
     height: 74,
     justifyContent: 'center',

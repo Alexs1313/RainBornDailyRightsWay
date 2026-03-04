@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BlurView } from '@react-native-community/blur';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Image,
   ImageBackground,
@@ -16,7 +16,7 @@ import {
 } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
 import type { StackNavigationProp } from '@react-navigation/stack';
-import type { RainBornRoutesList } from '../../Roter';
+import type { RainBornRoutesList } from '../../RainWaystckrotes';
 import Sound from 'react-native-sound';
 import { useRainBornStore } from '../RainBornStore.tsx/rainBornContext';
 import Orientation from 'react-native-orientation-locker';
@@ -138,286 +138,336 @@ const MOOD_OPTIONS: MoodOption[] = [
 ];
 
 const RainBornHome: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
-  const [moodSelectedToday, setMoodSelectedToday] = useState<MoodType>(null);
-  const [quoteShownToday, setQuoteShownToday] = useState(false);
-  const [selectedMood, setSelectedMood] = useState<MoodType>(null);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [dailyQuote] = useState(() => getQuoteForToday());
-  const [loaded, setLoaded] = useState(false);
-  const [sound, setSound] = useState<Sound | null>(null);
-  const [rainBornMusicIdx, setRainBornMusicIdx] = useState(0);
-  const [moodStatsVisible, setMoodStatsVisible] = useState(false);
-  const [calendarMonth, setCalendarMonth] = useState(() => new Date());
-  const [selectedStatsDate, setSelectedStatsDate] = useState<Date | null>(null);
-  const [selectedStatsMood, setSelectedStatsMood] = useState<MoodType>(null);
-  const [profileName, setProfileName] = useState('');
-  const [profilePhotoUri, setProfilePhotoUri] = useState<string | null>(null);
+  const dailyRightsNavigation = useNavigation<NavigationProp>();
+  const [dailyRightsMoodSelectedToday, setDailyRightsMoodSelectedToday] =
+    useState<MoodType>(null);
+  const [dailyRightsQuoteShownToday, setDailyRightsQuoteShownToday] =
+    useState(false);
+  const [dailyRightsSelectedMood, setDailyRightsSelectedMood] =
+    useState<MoodType>(null);
+  const [dailyRightsModalVisible, setDailyRightsModalVisible] = useState(false);
+  const [dailyRightsDailyQuote] = useState(() => getQuoteForToday());
+  const [dailyRightsLoaded, setDailyRightsLoaded] = useState(false);
+  const [dailyRightsSound, setDailyRightsSound] = useState<Sound | null>(null);
+  const [dailyRightsRainBornMusicIdx, setDailyRightsRainBornMusicIdx] =
+    useState(0);
+  const [dailyRightsMoodStatsVisible, setDailyRightsMoodStatsVisible] =
+    useState(false);
+  const [dailyRightsCalendarMonth, setDailyRightsCalendarMonth] = useState(
+    () => new Date(),
+  );
+  const [dailyRightsSelectedStatsDate, setDailyRightsSelectedStatsDate] =
+    useState<Date | null>(null);
+  const [dailyRightsSelectedStatsMood, setDailyRightsSelectedStatsMood] =
+    useState<MoodType>(null);
+  const [dailyRightsProfileName, setDailyRightsProfileName] = useState('');
+  const [dailyRightsProfilePhotoUri, setDailyRightsProfilePhotoUri] = useState<
+    string | null
+  >(null);
 
   useFocusEffect(
     useCallback(() => {
-      if (Platform.OS === 'android' && (modalVisible || moodStatsVisible)) {
+      if (
+        Platform.OS === 'android' &&
+        (dailyRightsModalVisible || dailyRightsMoodStatsVisible)
+      ) {
         Orientation.lockToPortrait();
       }
 
       return () => Orientation.unlockAllOrientations();
-    }, [modalVisible, moodStatsVisible]),
+    }, [dailyRightsModalVisible, dailyRightsMoodStatsVisible]),
   );
 
-  const todayKey = getTodayKey();
+  const dailyRightsTodayKey = getTodayKey();
 
-  const loadDailyState = useCallback(async () => {
+  const loadDailyRightsState = useCallback(async () => {
     try {
-      const moodKey = `${STORAGE_KEY_PREFIX}mood_${todayKey}`;
-      const quoteKey = `${STORAGE_KEY_PREFIX}quoteShown_${todayKey}`;
-      const [mood, quoteShown] = await Promise.all([
-        AsyncStorage.getItem(moodKey),
-        AsyncStorage.getItem(quoteKey),
+      const dailyRightsMoodKey = `${STORAGE_KEY_PREFIX}mood_${dailyRightsTodayKey}`;
+      const dailyRightsQuoteKey = `${STORAGE_KEY_PREFIX}quoteShown_${dailyRightsTodayKey}`;
+      const [dailyRightsMood, dailyRightsQuoteShown] = await Promise.all([
+        AsyncStorage.getItem(dailyRightsMoodKey),
+        AsyncStorage.getItem(dailyRightsQuoteKey),
       ]);
-      if (mood && (mood === 'sad' || mood === 'calm' || mood === 'happy')) {
-        setMoodSelectedToday(mood as MoodType);
-        setSelectedMood(mood as MoodType);
+      if (
+        dailyRightsMood &&
+        (dailyRightsMood === 'sad' ||
+          dailyRightsMood === 'calm' ||
+          dailyRightsMood === 'happy')
+      ) {
+        setDailyRightsMoodSelectedToday(dailyRightsMood as MoodType);
+        setDailyRightsSelectedMood(dailyRightsMood as MoodType);
       }
-      if (quoteShown === '1') setQuoteShownToday(true);
+      if (dailyRightsQuoteShown === '1') setDailyRightsQuoteShownToday(true);
     } catch (_) {
     } finally {
-      setLoaded(true);
+      setDailyRightsLoaded(true);
     }
-  }, [todayKey]);
+  }, [dailyRightsTodayKey]);
 
-  const rainBornTracksCycle: string[] = [
-    'turtlebeats-calm-acoustic-quiet-quest-251658.mp3',
-    'turtlebeats-calm-acoustic-quiet-quest-251658.mp3',
-  ];
-  const { rainBornSoundEnabled, setRainBornSoundEnabled } = useRainBornStore();
+  const dailyRightsRainBornTracksCycle = useMemo(
+    () => [
+      'turtlebeats-calm-acoustic-quiet-quest-251658.mp3',
+      'turtlebeats-calm-acoustic-quiet-quest-251658.mp3',
+    ],
+    [],
+  );
+  const {
+    rainBornSoundEnabled: dailyRightsRainBornSoundEnabled,
+    setRainBornSoundEnabled: setDailyRightsRainBornSoundEnabled,
+  } = useRainBornStore();
+
+  const loadDailyRightsRainBornBgMusic = useCallback(async () => {
+    try {
+      const dailyRightsRainBornMusicValue = await AsyncStorage.getItem(
+        'bg_app_music_enabled',
+      );
+      const dailyRightsIsRainBornMusicOn = JSON.parse(
+        dailyRightsRainBornMusicValue ?? 'true',
+      );
+      setDailyRightsRainBornSoundEnabled(!!dailyRightsIsRainBornMusicOn);
+    } catch (error) {
+      console.error('Error settings =>', error);
+    }
+  }, [setDailyRightsRainBornSoundEnabled]);
 
   useFocusEffect(
     useCallback(() => {
-      loadRainBornBgMusic();
-    }, []),
+      loadDailyRightsRainBornBgMusic();
+    }, [loadDailyRightsRainBornBgMusic]),
+  );
+
+  const playDailyRightsRainBornMusic = useCallback(
+    (dailyRightsIndex: number): void => {
+      if (dailyRightsSound) {
+        dailyRightsSound.stop(() => {
+          dailyRightsSound.release();
+        });
+      }
+      const dailyRightsRainBornTrackPath =
+        dailyRightsRainBornTracksCycle[dailyRightsIndex];
+      const newRainBornGameSound = new Sound(
+        dailyRightsRainBornTrackPath,
+        Sound.MAIN_BUNDLE,
+        (error: Error | null) => {
+          if (error) {
+            console.log('Error =>', error);
+            return;
+          }
+          newRainBornGameSound.play((success: boolean) => {
+            if (success) {
+              setDailyRightsRainBornMusicIdx(
+                (prevIndex: number) =>
+                  (prevIndex + 1) % dailyRightsRainBornTracksCycle.length,
+              );
+            } else {
+              console.log('Error =>');
+            }
+          });
+          setDailyRightsSound(newRainBornGameSound);
+        },
+      );
+    },
+    [dailyRightsSound, dailyRightsRainBornTracksCycle],
   );
 
   useEffect(() => {
-    playRainBornMusic(rainBornMusicIdx);
-
+    playDailyRightsRainBornMusic(dailyRightsRainBornMusicIdx);
     return () => {
-      if (sound) {
-        sound.stop(() => {
-          sound.release();
+      if (dailyRightsSound) {
+        dailyRightsSound.stop(() => {
+          dailyRightsSound.release();
         });
       }
     };
-  }, [rainBornMusicIdx]);
-
-  const playRainBornMusic = (index: number): void => {
-    if (sound) {
-      sound.stop(() => {
-        sound.release();
-      });
-    }
-    const rainBornTrackPath = rainBornTracksCycle[index];
-    const newRainBornGameSound = new Sound(
-      rainBornTrackPath,
-      Sound.MAIN_BUNDLE,
-      (error: Error | null) => {
-        if (error) {
-          console.log('Error =>', error);
-          return;
-        }
-        newRainBornGameSound.play((success: boolean) => {
-          if (success) {
-            setRainBornMusicIdx(
-              (prevIndex: number) =>
-                (prevIndex + 1) % rainBornTracksCycle.length,
-            );
-          } else {
-            console.log('Error =>');
-          }
-        });
-        setSound(newRainBornGameSound);
-      },
-    );
-  };
+  }, [
+    dailyRightsRainBornMusicIdx,
+    playDailyRightsRainBornMusic,
+    dailyRightsSound,
+  ]);
 
   useEffect(() => {
-    const setVolumeRainBornMusic = async () => {
+    const setDailyRightsVolumeRainBornMusic = async () => {
       try {
-        const rainBornMusicValue = await AsyncStorage.getItem(
+        const dailyRightsRainBornMusicValue = await AsyncStorage.getItem(
           'bg_app_music_enabled',
         );
 
-        const isRainBornMusicOn = JSON.parse(rainBornMusicValue ?? 'true');
-        setRainBornSoundEnabled(!!isRainBornMusicOn);
-        if (sound) {
-          sound.setVolume(isRainBornMusicOn ? 1 : 0);
+        const dailyRightsIsRainBornMusicOn = JSON.parse(
+          dailyRightsRainBornMusicValue ?? 'true',
+        );
+        setDailyRightsRainBornSoundEnabled(!!dailyRightsIsRainBornMusicOn);
+        if (dailyRightsSound) {
+          dailyRightsSound.setVolume(dailyRightsIsRainBornMusicOn ? 1 : 0);
         }
       } catch (error) {
         console.error('Error =>', error);
       }
     };
 
-    setVolumeRainBornMusic();
-  }, [sound]);
+    setDailyRightsVolumeRainBornMusic();
+  }, [dailyRightsSound, setDailyRightsRainBornSoundEnabled]);
 
   useEffect(() => {
-    if (sound) {
-      sound.setVolume(rainBornSoundEnabled ? 1 : 0);
+    if (dailyRightsSound) {
+      dailyRightsSound.setVolume(dailyRightsRainBornSoundEnabled ? 1 : 0);
     }
-  }, [rainBornSoundEnabled]);
+  }, [dailyRightsRainBornSoundEnabled, dailyRightsSound]);
 
-  const loadRainBornBgMusic = async () => {
+  const loadDailyRightsProfileData = useCallback(async () => {
     try {
-      const rainBornMusicValue = await AsyncStorage.getItem(
-        'bg_app_music_enabled',
-      );
-      const isRainBornMusicOn = JSON.parse(rainBornMusicValue ?? 'true');
-      setRainBornSoundEnabled(!!isRainBornMusicOn);
-    } catch (error) {
-      console.error('Error settings =>', error);
-    }
-  };
-
-  const loadProfileData = useCallback(async () => {
-    try {
-      const [savedName, savedPhoto] = await Promise.all([
+      const [dailyRightsSavedName, dailyRightsSavedPhoto] = await Promise.all([
         AsyncStorage.getItem(PROFILE_NAME_KEY),
         AsyncStorage.getItem(PROFILE_PHOTO_KEY),
       ]);
-      setProfileName(savedName ?? '');
-      setProfilePhotoUri(savedPhoto ?? null);
+      setDailyRightsProfileName(dailyRightsSavedName ?? '');
+      setDailyRightsProfilePhotoUri(dailyRightsSavedPhoto ?? null);
     } catch (_) {
-      setProfileName('');
-      setProfilePhotoUri(null);
+      setDailyRightsProfileName('');
+      setDailyRightsProfilePhotoUri(null);
     }
   }, []);
 
   useEffect(() => {
-    loadDailyState();
-  }, [loadDailyState]);
+    loadDailyRightsState();
+  }, [loadDailyRightsState]);
 
   useFocusEffect(
     useCallback(() => {
-      loadProfileData();
-    }, [loadProfileData]),
+      loadDailyRightsProfileData();
+    }, [loadDailyRightsProfileData]),
   );
 
-  const selectMood = useCallback(
-    async (mood: MoodType) => {
-      if (!mood) return;
-      setSelectedMood(mood);
-      setMoodSelectedToday(mood);
+  const selectDailyRightsMood = useCallback(
+    async (dailyRightsMood: MoodType) => {
+      if (!dailyRightsMood) return;
+      setDailyRightsSelectedMood(dailyRightsMood);
+      setDailyRightsMoodSelectedToday(dailyRightsMood);
       try {
         await AsyncStorage.setItem(
-          `${STORAGE_KEY_PREFIX}mood_${todayKey}`,
-          mood,
+          `${STORAGE_KEY_PREFIX}mood_${dailyRightsTodayKey}`,
+          dailyRightsMood,
         );
       } catch (_) {}
     },
-    [todayKey],
+    [dailyRightsTodayKey],
   );
 
-  const openQuoteModal = useCallback(() => {
-    setModalVisible(true);
+  const openDailyRightsQuoteModal = useCallback(() => {
+    setDailyRightsModalVisible(true);
   }, []);
 
-  const closeQuoteModal = useCallback(async () => {
-    setModalVisible(false);
-    setQuoteShownToday(true);
+  const closeDailyRightsQuoteModal = useCallback(async () => {
+    setDailyRightsModalVisible(false);
+    setDailyRightsQuoteShownToday(true);
     try {
       await AsyncStorage.setItem(
-        `${STORAGE_KEY_PREFIX}quoteShown_${todayKey}`,
+        `${STORAGE_KEY_PREFIX}quoteShown_${dailyRightsTodayKey}`,
         '1',
       );
     } catch (_) {}
-  }, [todayKey]);
+  }, [dailyRightsTodayKey]);
 
-  const handleShare = useCallback(async () => {
+  const handleDailyRightsShare = useCallback(async () => {
     try {
       await Share.share({
-        message: dailyQuote,
+        message: dailyRightsDailyQuote,
         title: 'Quote of the day',
       });
     } catch (_) {}
-  }, [dailyQuote]);
+  }, [dailyRightsDailyQuote]);
 
-  const openMoodStats = useCallback(async () => {
-    const now = new Date();
-    setCalendarMonth(now);
-    setSelectedStatsDate(now);
+  const openDailyRightsMoodStats = useCallback(async () => {
+    const dailyRightsNow = new Date();
+    setDailyRightsCalendarMonth(dailyRightsNow);
+    setDailyRightsSelectedStatsDate(dailyRightsNow);
     try {
-      const mood = await AsyncStorage.getItem(
-        `${STORAGE_KEY_PREFIX}mood_${getDateKey(now)}`,
+      const dailyRightsMood = await AsyncStorage.getItem(
+        `${STORAGE_KEY_PREFIX}mood_${getDateKey(dailyRightsNow)}`,
       );
-      if (mood === 'sad' || mood === 'calm' || mood === 'happy') {
-        setSelectedStatsMood(mood);
+      if (
+        dailyRightsMood === 'sad' ||
+        dailyRightsMood === 'calm' ||
+        dailyRightsMood === 'happy'
+      ) {
+        setDailyRightsSelectedStatsMood(dailyRightsMood);
       } else {
-        setSelectedStatsMood(null);
+        setDailyRightsSelectedStatsMood(null);
       }
     } catch (_) {
-      setSelectedStatsMood(null);
+      setDailyRightsSelectedStatsMood(null);
     }
-    setMoodStatsVisible(true);
+    setDailyRightsMoodStatsVisible(true);
   }, []);
 
-  const closeMoodStats = useCallback(() => {
-    setMoodStatsVisible(false);
+  const closeDailyRightsMoodStats = useCallback(() => {
+    setDailyRightsMoodStatsVisible(false);
   }, []);
 
-  const handleSelectStatsDate = useCallback(
-    async (day: number) => {
-      const date = new Date(
-        calendarMonth.getFullYear(),
-        calendarMonth.getMonth(),
-        day,
+  const handleDailyRightsSelectStatsDate = useCallback(
+    async (dailyRightsDay: number) => {
+      const dailyRightsDate = new Date(
+        dailyRightsCalendarMonth.getFullYear(),
+        dailyRightsCalendarMonth.getMonth(),
+        dailyRightsDay,
       );
-      setSelectedStatsDate(date);
+      setDailyRightsSelectedStatsDate(dailyRightsDate);
       try {
-        const mood = await AsyncStorage.getItem(
-          `${STORAGE_KEY_PREFIX}mood_${getDateKey(date)}`,
+        const dailyRightsMood = await AsyncStorage.getItem(
+          `${STORAGE_KEY_PREFIX}mood_${getDateKey(dailyRightsDate)}`,
         );
-        if (mood === 'sad' || mood === 'calm' || mood === 'happy') {
-          setSelectedStatsMood(mood);
+        if (
+          dailyRightsMood === 'sad' ||
+          dailyRightsMood === 'calm' ||
+          dailyRightsMood === 'happy'
+        ) {
+          setDailyRightsSelectedStatsMood(dailyRightsMood);
         } else {
-          setSelectedStatsMood(null);
+          setDailyRightsSelectedStatsMood(null);
         }
       } catch (_) {
-        setSelectedStatsMood(null);
+        setDailyRightsSelectedStatsMood(null);
       }
     },
-    [calendarMonth],
+    [dailyRightsCalendarMonth],
   );
 
-  if (!loaded) {
+  if (!dailyRightsLoaded) {
     return (
-      <View style={styles.centered}>
-        <Text style={styles.loadingText}>...</Text>
+      <View style={rainWayStyles.rainWayCentered}>
+        <Text style={rainWayStyles.rainWayLoadingText}>...</Text>
       </View>
     );
   }
 
-  if (moodSelectedToday === null) {
+  if (dailyRightsMoodSelectedToday === null) {
     return (
       <ImageBackground
         source={require('../RainBornAssets/images/bgs/main.png')}
-        style={styles.background}
+        style={rainWayStyles.rainWayBackground}
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ flexGrow: 1 }}
         >
-          <View style={styles.moodContainer}>
-            <View style={styles.banner}>
+          <View style={rainWayStyles.rainWayMoodContainer}>
+            <View style={rainWayStyles.rainWayBanner}>
               <Image source={require('../RainBornAssets/images/moodTxt.png')} />
             </View>
-            <View style={styles.moodButtons}>
+            <View style={rainWayStyles.rainWayMoodButtons}>
               {MOOD_OPTIONS.map(({ key, image, bg }) => (
                 <TouchableOpacity
                   key={key}
-                  style={[styles.moodButton, { backgroundColor: bg }]}
-                  onPress={() => selectMood(key)}
+                  style={[
+                    rainWayStyles.rainWayMoodButton,
+                    { backgroundColor: bg },
+                  ]}
+                  onPress={() => selectDailyRightsMood(key)}
                   activeOpacity={0.8}
                 >
-                  <Image source={image} style={styles.moodEmoji} />
+                  <Image
+                    source={image}
+                    style={rainWayStyles.rainWayMoodEmoji}
+                  />
                 </TouchableOpacity>
               ))}
             </View>
@@ -431,13 +481,13 @@ const RainBornHome: React.FC = () => {
   return (
     <ImageBackground
       source={require('../RainBornAssets/images/bgs/main.png')}
-      style={styles.background}
+      style={rainWayStyles.rainWayBackground}
     >
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ flexGrow: 1 }}
       >
-        <View style={styles.mainContainer}>
+        <View style={rainWayStyles.rainWayMainContainer}>
           <View
             style={{
               flexDirection: 'row',
@@ -446,43 +496,47 @@ const RainBornHome: React.FC = () => {
               justifyContent: 'space-between',
             }}
           >
-            <View style={styles.profileWrap}>
+            <View style={rainWayStyles.rainWayProfileWrap}>
               <Image
                 source={
-                  profilePhotoUri
-                    ? { uri: profilePhotoUri }
+                  dailyRightsProfilePhotoUri
+                    ? { uri: dailyRightsProfilePhotoUri }
                     : require('../RainBornAssets/images/homeLogo.png')
                 }
-                style={styles.profileAvatar}
+                style={rainWayStyles.rainWayProfileAvatar}
               />
-              {!!profileName && (
+              {!!dailyRightsProfileName && (
                 <View style={{ gap: 5 }}>
                   <Image
                     source={require('../RainBornAssets/images/goddday.png')}
                   />
-                  <Text style={styles.profileGreetingText}>{profileName}</Text>
+                  <Text style={rainWayStyles.rainWayProfileGreetingText}>
+                    {dailyRightsProfileName}
+                  </Text>
                 </View>
               )}
             </View>
-            {selectedMood &&
+            {dailyRightsSelectedMood &&
               (() => {
-                const option = MOOD_OPTIONS.find(o => o.key === selectedMood);
-                if (!option) return null;
+                const dailyRightsOption = MOOD_OPTIONS.find(
+                  o => o.key === dailyRightsSelectedMood,
+                );
+                if (!dailyRightsOption) return null;
                 return (
                   <TouchableOpacity
-                    onPress={openMoodStats}
-                    style={styles.moodChipsRow}
+                    onPress={openDailyRightsMoodStats}
+                    style={rainWayStyles.rainWayMoodChipsRow}
                   >
                     <View
                       style={[
-                        styles.moodChip,
-                        { backgroundColor: option.bg },
-                        styles.moodChipSelected,
+                        rainWayStyles.rainWayMoodChip,
+                        { backgroundColor: dailyRightsOption.bg },
+                        rainWayStyles.rainWayMoodChipSelected,
                       ]}
                     >
                       <Image
-                        source={option.image}
-                        style={styles.moodChipEmoji}
+                        source={dailyRightsOption.image}
+                        style={rainWayStyles.rainWayMoodChipEmoji}
                       />
                     </View>
                   </TouchableOpacity>
@@ -490,27 +544,30 @@ const RainBornHome: React.FC = () => {
               })()}
           </View>
 
-          {quoteShownToday ? (
-            <View style={styles.quotePanel}>
+          {dailyRightsQuoteShownToday ? (
+            <View style={rainWayStyles.rainWayQuotePanel}>
               <Image
                 source={require('../RainBornAssets/images/lepricon.png')}
                 style={{ width: 90, height: 130, borderRadius: 32 }}
               />
-              <Text style={styles.quotePanelText}>
-                {dailyQuote.toUpperCase()}
+              <Text style={rainWayStyles.rainWayQuotePanelText}>
+                {dailyRightsDailyQuote.toUpperCase()}
               </Text>
             </View>
           ) : (
-            <View style={styles.quotePlaceholder} />
+            <View style={rainWayStyles.rainWayQuotePlaceholder} />
           )}
 
-          <View style={styles.buttonsStack}>
-            {!quoteShownToday && (
-              <TouchableOpacity onPress={openQuoteModal} activeOpacity={0.8}>
+          <View style={rainWayStyles.rainWayButtonsStack}>
+            {!dailyRightsQuoteShownToday && (
+              <TouchableOpacity
+                onPress={openDailyRightsQuoteModal}
+                activeOpacity={0.8}
+              >
                 <ImageBackground
                   source={require('../RainBornAssets/images/onboard/button.png')}
                   style={[
-                    styles.onboardStyleButton,
+                    rainWayStyles.rainWayOnboardStyleButton,
                     { width: 334, height: 105 },
                   ]}
                 >
@@ -523,11 +580,11 @@ const RainBornHome: React.FC = () => {
 
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={() => navigation.navigate('RainBornStories')}
+              onPress={() => dailyRightsNavigation.navigate('RainBornStories')}
             >
               <ImageBackground
                 source={require('../RainBornAssets/images/onboard/button.png')}
-                style={styles.onboardStyleButton}
+                style={rainWayStyles.rainWayOnboardStyleButton}
               >
                 <Image
                   source={require('../RainBornAssets/images/calmstrs.png')}
@@ -536,22 +593,24 @@ const RainBornHome: React.FC = () => {
             </TouchableOpacity>
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={() => navigation.navigate('RainBornLevels')}
+              onPress={() => dailyRightsNavigation.navigate('RainBornLevels')}
             >
               <ImageBackground
                 source={require('../RainBornAssets/images/onboard/button.png')}
-                style={styles.onboardStyleButton}
+                style={rainWayStyles.rainWayOnboardStyleButton}
               >
                 <Image source={require('../RainBornAssets/images/play.png')} />
               </ImageBackground>
             </TouchableOpacity>
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={() => navigation.navigate('RainBornDailyLuck')}
+              onPress={() =>
+                dailyRightsNavigation.navigate('RainBornDailyLuck')
+              }
             >
               <ImageBackground
                 source={require('../RainBornAssets/images/onboard/button.png')}
-                style={styles.onboardStyleButton}
+                style={rainWayStyles.rainWayOnboardStyleButton}
               >
                 <Image
                   source={require('../RainBornAssets/images/dailylck.png')}
@@ -560,11 +619,13 @@ const RainBornHome: React.FC = () => {
             </TouchableOpacity>
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={() => navigation.navigate('RainBornPathJournal')}
+              onPress={() =>
+                dailyRightsNavigation.navigate('RainBornPathJournal')
+              }
             >
               <ImageBackground
                 source={require('../RainBornAssets/images/onboard/button.png')}
-                style={styles.onboardStyleButton}
+                style={rainWayStyles.rainWayOnboardStyleButton}
               >
                 <Image source={require('../RainBornAssets/images/pathj.png')} />
               </ImageBackground>
@@ -572,11 +633,11 @@ const RainBornHome: React.FC = () => {
 
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={() => navigation.navigate('RainBornSettings')}
+              onPress={() => dailyRightsNavigation.navigate('RainBornSettings')}
             >
               <ImageBackground
                 source={require('../RainBornAssets/images/onboard/button.png')}
-                style={styles.onboardStyleButton}
+                style={rainWayStyles.rainWayOnboardStyleButton}
               >
                 <Image source={require('../RainBornAssets/images/sett.png')} />
               </ImageBackground>
@@ -585,10 +646,10 @@ const RainBornHome: React.FC = () => {
         </View>
 
         <Modal
-          visible={modalVisible}
+          visible={dailyRightsModalVisible}
           transparent
           animationType="fade"
-          onRequestClose={closeQuoteModal}
+          onRequestClose={closeDailyRightsQuoteModal}
           statusBarTranslucent={Platform.OS === 'android'}
         >
           {Platform.OS === 'ios' && (
@@ -605,37 +666,40 @@ const RainBornHome: React.FC = () => {
             />
           )}
           <TouchableOpacity
-            style={styles.modalOverlay}
+            style={rainWayStyles.rainWayModalOverlay}
             activeOpacity={1}
-            onPress={closeQuoteModal}
+            onPress={closeDailyRightsQuoteModal}
           >
             <TouchableOpacity
-              style={styles.modalContent}
+              style={rainWayStyles.rainWayModalContent}
               activeOpacity={1}
               onPress={e => e.stopPropagation()}
             >
               <TouchableOpacity
-                style={styles.modalClose}
-                onPress={closeQuoteModal}
+                style={rainWayStyles.rainWayModalClose}
+                onPress={closeDailyRightsQuoteModal}
                 hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
               >
                 <Image source={require('../RainBornAssets/images/cls.png')} />
               </TouchableOpacity>
-              <View style={styles.modalCharacter}>
+              <View style={rainWayStyles.rainWayModalCharacter}>
                 <Image
                   source={require('../RainBornAssets/images/onboard/lepricon.png')}
                   style={{ width: 260, height: 390, top: 10 }}
                 />
               </View>
-              <View style={styles.modalQuoteBox}>
-                <Text style={styles.modalQuoteText}>
-                  {dailyQuote.toUpperCase()}
+              <View style={rainWayStyles.rainWayModalQuoteBox}>
+                <Text style={rainWayStyles.rainWayModalQuoteText}>
+                  {dailyRightsDailyQuote.toUpperCase()}
                 </Text>
               </View>
-              <TouchableOpacity onPress={handleShare} activeOpacity={0.8}>
+              <TouchableOpacity
+                onPress={handleDailyRightsShare}
+                activeOpacity={0.8}
+              >
                 <ImageBackground
                   source={require('../RainBornAssets/images/onboard/button.png')}
-                  style={styles.onboardStyleButton}
+                  style={rainWayStyles.rainWayOnboardStyleButton}
                 >
                   <Image
                     source={require('../RainBornAssets/images/share.png')}
@@ -646,10 +710,10 @@ const RainBornHome: React.FC = () => {
           </TouchableOpacity>
         </Modal>
         <Modal
-          visible={moodStatsVisible}
+          visible={dailyRightsMoodStatsVisible}
           transparent
           animationType="fade"
-          onRequestClose={closeMoodStats}
+          onRequestClose={closeDailyRightsMoodStats}
           statusBarTranslucent={Platform.OS === 'android'}
         >
           {Platform.OS === 'ios' && (
@@ -666,18 +730,21 @@ const RainBornHome: React.FC = () => {
             />
           )}
           <TouchableOpacity
-            style={styles.modalOverlay}
+            style={rainWayStyles.rainWayModalOverlay}
             activeOpacity={1}
-            onPress={closeMoodStats}
+            onPress={closeDailyRightsMoodStats}
           >
             <TouchableOpacity
-              style={styles.moodStatsModalContent}
+              style={rainWayStyles.rainWayMoodStatsModalContent}
               activeOpacity={1}
               onPress={e => e.stopPropagation()}
             >
               <TouchableOpacity
-                style={[styles.modalClose, { top: -55, right: -5 }]}
-                onPress={closeMoodStats}
+                style={[
+                  rainWayStyles.rainWayModalClose,
+                  { top: -55, right: -5 },
+                ]}
+                onPress={closeDailyRightsMoodStats}
                 hitSlop={{ top: 22, bottom: 12, left: 12, right: 12 }}
               >
                 <Image source={require('../RainBornAssets/images/cls.png')} />
@@ -686,80 +753,91 @@ const RainBornHome: React.FC = () => {
                 source={require('../RainBornAssets/images/rhythm.png')}
                 style={{ marginBottom: 20 }}
               />
-              <View style={styles.calendarBox}>
-                <View style={styles.calendarBoxHeader}>
-                  <Text style={styles.calendarMonthYear}>
-                    {MONTH_NAMES[calendarMonth.getMonth()]}{' '}
-                    {calendarMonth.getFullYear()}
+              <View style={rainWayStyles.rainWayCalendarBox}>
+                <View style={rainWayStyles.rainWayCalendarBoxHeader}>
+                  <Text style={rainWayStyles.rainWayCalendarMonthYear}>
+                    {MONTH_NAMES[dailyRightsCalendarMonth.getMonth()]}{' '}
+                    {dailyRightsCalendarMonth.getFullYear()}
                   </Text>
-                  <View style={styles.calendarNav}>
+                  <View style={rainWayStyles.rainWayCalendarNav}>
                     <TouchableOpacity
                       onPress={() =>
-                        setCalendarMonth(
+                        setDailyRightsCalendarMonth(
                           new Date(
-                            calendarMonth.getFullYear(),
-                            calendarMonth.getMonth() - 1,
+                            dailyRightsCalendarMonth.getFullYear(),
+                            dailyRightsCalendarMonth.getMonth() - 1,
                           ),
                         )
                       }
-                      style={styles.calendarNavBtn}
+                      style={rainWayStyles.rainWayCalendarNavBtn}
                     >
-                      <Text style={styles.calendarNavArrow}>‹</Text>
+                      <Text style={rainWayStyles.rainWayCalendarNavArrow}>
+                        ‹
+                      </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() =>
-                        setCalendarMonth(
+                        setDailyRightsCalendarMonth(
                           new Date(
-                            calendarMonth.getFullYear(),
-                            calendarMonth.getMonth() + 1,
+                            dailyRightsCalendarMonth.getFullYear(),
+                            dailyRightsCalendarMonth.getMonth() + 1,
                           ),
                         )
                       }
-                      style={styles.calendarNavBtn}
+                      style={rainWayStyles.rainWayCalendarNavBtn}
                     >
-                      <Text style={styles.calendarNavArrow}>›</Text>
+                      <Text style={rainWayStyles.rainWayCalendarNavArrow}>
+                        ›
+                      </Text>
                     </TouchableOpacity>
                   </View>
                 </View>
-                <View style={styles.weekdayRow}>
+                <View style={rainWayStyles.rainWayWeekdayRow}>
                   {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map(d => (
-                    <Text key={d} style={styles.weekdayCell}>
+                    <Text key={d} style={rainWayStyles.rainWayWeekdayCell}>
                       {d}
                     </Text>
                   ))}
                 </View>
-                <View style={styles.daysGrid}>
+                <View style={rainWayStyles.rainWayDaysGrid}>
                   {getCalendarDays(
-                    calendarMonth.getFullYear(),
-                    calendarMonth.getMonth(),
+                    dailyRightsCalendarMonth.getFullYear(),
+                    dailyRightsCalendarMonth.getMonth(),
                   ).map((d, i) => {
-                    const isSelected =
-                      selectedStatsDate &&
-                      selectedStatsDate.getDate() === d &&
-                      selectedStatsDate.getMonth() ===
-                        calendarMonth.getMonth() &&
-                      selectedStatsDate.getFullYear() ===
-                        calendarMonth.getFullYear();
+                    const dailyRightsIsSelected =
+                      dailyRightsSelectedStatsDate &&
+                      dailyRightsSelectedStatsDate.getDate() === d &&
+                      dailyRightsSelectedStatsDate.getMonth() ===
+                        dailyRightsCalendarMonth.getMonth() &&
+                      dailyRightsSelectedStatsDate.getFullYear() ===
+                        dailyRightsCalendarMonth.getFullYear();
                     if (d === null) {
-                      return <View key={`empty-${i}`} style={styles.dayCell} />;
+                      return (
+                        <View
+                          key={`empty-${i}`}
+                          style={rainWayStyles.rainWayDayCell}
+                        />
+                      );
                     }
                     return (
                       <TouchableOpacity
                         key={`day-${d}-${i}`}
-                        style={styles.dayCell}
-                        onPress={() => handleSelectStatsDate(d)}
+                        style={rainWayStyles.rainWayDayCell}
+                        onPress={() => handleDailyRightsSelectStatsDate(d)}
                         activeOpacity={0.7}
                       >
                         <View
                           style={[
-                            styles.dayCellCircle,
-                            isSelected && styles.dayCellSelectedCircle,
+                            rainWayStyles.rainWayDayCellCircle,
+                            dailyRightsIsSelected &&
+                              rainWayStyles.rainWayDayCellSelectedCircle,
                           ]}
                         >
                           <Text
                             style={[
-                              styles.dayCellText,
-                              isSelected && styles.dayCellTextSelected,
+                              rainWayStyles.rainWayDayCellText,
+                              dailyRightsIsSelected &&
+                                rainWayStyles.rainWayDayCellTextSelected,
                             ]}
                           >
                             {d}
@@ -770,29 +848,30 @@ const RainBornHome: React.FC = () => {
                   })}
                 </View>
               </View>
-              {selectedStatsDate ? (
-                selectedStatsMood ? (
-                  <View style={styles.statsMoodResult}>
-                    <Text style={styles.statsMoodDate}>
-                      {selectedStatsDate.toLocaleDateString('en-GB')}
+              {dailyRightsSelectedStatsDate ? (
+                dailyRightsSelectedStatsMood ? (
+                  <View style={rainWayStyles.rainWayStatsMoodResult}>
+                    <Text style={rainWayStyles.rainWayStatsMoodDate}>
+                      {dailyRightsSelectedStatsDate.toLocaleDateString('en-GB')}
                     </Text>
-                    <View style={styles.statsMoodChip}>
+                    <View style={rainWayStyles.rainWayStatsMoodChip}>
                       <Image
                         source={
-                          MOOD_OPTIONS.find(o => o.key === selectedStatsMood)!
-                            .image
+                          MOOD_OPTIONS.find(
+                            o => o.key === dailyRightsSelectedStatsMood,
+                          )!.image
                         }
-                        style={styles.statsMoodEmoji}
+                        style={rainWayStyles.rainWayStatsMoodEmoji}
                       />
                     </View>
                   </View>
                 ) : (
-                  <Text style={styles.statsMoodEmpty}>
+                  <Text style={rainWayStyles.rainWayStatsMoodEmpty}>
                     No mood selected for this day
                   </Text>
                 )
               ) : (
-                <Text style={styles.statsMoodHint}>
+                <Text style={rainWayStyles.rainWayStatsMoodHint}>
                   Select a day to see saved mood
                 </Text>
               )}
@@ -804,27 +883,27 @@ const RainBornHome: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  background: {
+const rainWayStyles = StyleSheet.create({
+  rainWayBackground: {
     flex: 1,
   },
-  centered: {
+  rainWayCentered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#1a3a1a',
   },
-  loadingText: {
+  rainWayLoadingText: {
     color: '#fff',
     fontFamily: 'Nunito-Regular',
   },
-  moodContainer: {
+  rainWayMoodContainer: {
     flex: 1,
     paddingTop: 80,
     paddingHorizontal: 24,
     alignItems: 'center',
   },
-  banner: {
+  rainWayBanner: {
     backgroundColor: '#123509',
     paddingVertical: 14,
     paddingHorizontal: 20,
@@ -835,11 +914,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minHeight: 90,
   },
-  moodButtons: {
+  rainWayMoodButtons: {
     alignItems: 'center',
     gap: 20,
   },
-  moodButton: {
+  rainWayMoodButton: {
     width: 111,
     height: 111,
     borderRadius: 6,
@@ -848,27 +927,27 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  moodEmoji: {
+  rainWayMoodEmoji: {
     width: 64,
     height: 64,
     resizeMode: 'contain',
   },
-  mainContainer: {
+  rainWayMainContainer: {
     flex: 1,
     paddingTop: 56,
     paddingHorizontal: 20,
   },
-  profileWrap: {
+  rainWayProfileWrap: {
     alignItems: 'center',
     flexDirection: 'row',
     gap: 5,
   },
-  profileAvatar: {
+  rainWayProfileAvatar: {
     width: 100,
     height: 100,
     borderRadius: 32,
   },
-  profileGreetingText: {
+  rainWayProfileGreetingText: {
     color: 'rgb(59, 7, 7)',
     fontFamily: 'Nunito-Black',
     fontSize: 20,
@@ -878,11 +957,11 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 4,
   },
-  moodChipsRow: {
+  rainWayMoodChipsRow: {
     flexDirection: 'row',
     gap: 12,
   },
-  moodChip: {
+  rainWayMoodChip: {
     width: 91,
     height: 91,
     borderRadius: 6,
@@ -891,18 +970,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  moodChipSelected: {
+  rainWayMoodChipSelected: {
     borderColor: '#fff',
   },
-  moodChipEmoji: {
+  rainWayMoodChipEmoji: {
     width: 56,
     height: 56,
     resizeMode: 'contain',
   },
-  quotePlaceholder: {
+  rainWayQuotePlaceholder: {
     minHeight: 24,
   },
-  quotePanel: {
+  rainWayQuotePanel: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#123509',
@@ -913,7 +992,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 20,
     paddingBottom: 0,
   },
-  quotePanelText: {
+  rainWayQuotePanelText: {
     flex: 1,
     fontFamily: 'Nunito-Bold',
     fontSize: 15,
@@ -921,37 +1000,37 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
     marginLeft: 10,
   },
-  buttonsStack: {
+  rainWayButtonsStack: {
     gap: 12,
     alignItems: 'center',
   },
-  onboardStyleButton: {
+  rainWayOnboardStyleButton: {
     width: 269,
     height: 84,
     justifyContent: 'center',
     alignItems: 'center',
     resizeMode: 'contain',
   },
-  modalOverlay: {
+  rainWayModalOverlay: {
     flex: 1,
     backgroundColor: '#000000D1',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
   },
-  modalContent: {
+  rainWayModalContent: {
     width: '100%',
     alignItems: 'center',
     paddingHorizontal: 10,
   },
-  modalClose: {
+  rainWayModalClose: {
     position: 'absolute',
     top: -22,
     right: 12,
     padding: 8,
   },
-  modalCharacter: {},
-  modalQuoteBox: {
+  rainWayModalCharacter: {},
+  rainWayModalQuoteBox: {
     backgroundColor: '#123509',
     paddingVertical: 18,
     paddingHorizontal: 20,
@@ -959,20 +1038,20 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     width: '100%',
   },
-  modalQuoteText: {
+  rainWayModalQuoteText: {
     fontFamily: 'Nunito-Bold',
     fontSize: 16,
     color: '#fff',
     textAlign: 'center',
     letterSpacing: 0.3,
   },
-  moodStatsButtonText: {
+  rainWayMoodStatsButtonText: {
     fontFamily: 'Nunito-Black',
     fontSize: 24,
     color: 'rgba(169, 22, 0, 1)',
     letterSpacing: 0.5,
   },
-  moodStatsModalContent: {
+  rainWayMoodStatsModalContent: {
     width: '95%',
     backgroundColor: '#123509',
     borderRadius: 10,
@@ -981,58 +1060,58 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     alignItems: 'center',
   },
-  moodStatsTitle: {
+  rainWayMoodStatsTitle: {
     fontFamily: 'Nunito-Black',
     fontSize: 20,
     color: '#fff',
     marginBottom: 12,
   },
-  calendarBox: {
+  rainWayCalendarBox: {
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 14,
     width: '100%',
   },
-  calendarBoxHeader: {
+  rainWayCalendarBoxHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 12,
   },
-  calendarMonthYear: {
+  rainWayCalendarMonthYear: {
     fontFamily: 'Nunito-Bold',
     fontSize: 16,
     color: '#000',
   },
-  calendarNav: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  calendarNavBtn: { padding: 8 },
-  calendarNavArrow: {
+  rainWayCalendarNav: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  rainWayCalendarNavBtn: { padding: 8 },
+  rainWayCalendarNavArrow: {
     fontSize: 24,
     color: '#2196F3',
     fontFamily: 'Nunito-Bold',
   },
-  weekdayRow: {
+  rainWayWeekdayRow: {
     flexDirection: 'row',
     marginBottom: 8,
   },
-  weekdayCell: {
+  rainWayWeekdayCell: {
     flex: 1,
     fontFamily: 'Nunito-Regular',
     fontSize: 11,
     color: '#757575',
     textAlign: 'center',
   },
-  daysGrid: {
+  rainWayDaysGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
-  dayCell: {
+  rainWayDayCell: {
     width: '14.28%',
     aspectRatio: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  dayCellCircle: {
+  rainWayDayCellCircle: {
     width: 34,
     height: 34,
     borderRadius: 17,
@@ -1041,41 +1120,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  dayCellSelectedCircle: {
+  rainWayDayCellSelectedCircle: {
     backgroundColor: 'rgba(0, 123, 255, 0.12)',
   },
-  dayCellText: {
+  rainWayDayCellText: {
     fontFamily: 'Nunito-Regular',
     fontSize: 15,
     color: '#000',
   },
-  dayCellTextSelected: {
+  rainWayDayCellTextSelected: {
     fontFamily: 'Nunito-Regular',
     color: '#007AFF',
   },
-  statsMoodHint: {
+  rainWayStatsMoodHint: {
     marginTop: 16,
     color: 'rgba(255,255,255,0.85)',
     fontFamily: 'Nunito-Regular',
     fontSize: 14,
   },
-  statsMoodEmpty: {
+  rainWayStatsMoodEmpty: {
     marginTop: 16,
     color: 'rgba(255,255,255,0.85)',
     fontFamily: 'Nunito-Regular',
     fontSize: 14,
   },
-  statsMoodResult: {
+  rainWayStatsMoodResult: {
     marginTop: 14,
     alignItems: 'center',
     gap: 10,
   },
-  statsMoodDate: {
+  rainWayStatsMoodDate: {
     color: '#fff',
     fontFamily: 'Nunito-Bold',
     fontSize: 14,
   },
-  statsMoodChip: {
+  rainWayStatsMoodChip: {
     width: 90,
     height: 90,
     borderRadius: 6,
@@ -1084,7 +1163,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  statsMoodEmoji: {
+  rainWayStatsMoodEmoji: {
     width: 54,
     height: 54,
     resizeMode: 'contain',

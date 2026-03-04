@@ -1,3 +1,6 @@
+// loader
+import type { StackNavigationProp } from '@react-navigation/stack';
+import type { RainBornRoutesList } from '../../RainWaystckrotes';
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useRef } from 'react';
 import {
@@ -7,37 +10,35 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import type { StackNavigationProp } from '@react-navigation/stack';
-import type { RainBornRoutesList } from '../../Roter';
 
 type NavigationProp = StackNavigationProp<RainBornRoutesList, 'RainBornLoader'>;
 
 const LOADER_DURATION_MS = 5000;
 
 const RainBornLoader: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
-  const spinAnim = useRef(new Animated.Value(0)).current;
+  const dailyRightsNavigation = useNavigation<NavigationProp>();
+  const dailyRightsSpinAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    const loop = Animated.loop(
-      Animated.timing(spinAnim, {
+    const dailyRightsLoop = Animated.loop(
+      Animated.timing(dailyRightsSpinAnim, {
         toValue: 1,
         duration: 1000,
         useNativeDriver: true,
       }),
     );
-    loop.start();
-    return () => loop.stop();
-  }, [spinAnim]);
+    dailyRightsLoop.start();
+    return () => dailyRightsLoop.stop();
+  }, [dailyRightsSpinAnim]);
 
   useEffect(() => {
-    const t = setTimeout(() => {
-      navigation.replace('RainBornOnboard');
+    const dailyRightsTimeout = setTimeout(() => {
+      dailyRightsNavigation.replace('RainBornOnboard');
     }, LOADER_DURATION_MS);
-    return () => clearTimeout(t);
-  }, [navigation]);
+    return () => clearTimeout(dailyRightsTimeout);
+  }, [dailyRightsNavigation]);
 
-  const spin = spinAnim.interpolate({
+  const dailyRightsSpin = dailyRightsSpinAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg'],
   });
@@ -45,16 +46,19 @@ const RainBornLoader: React.FC = () => {
   return (
     <ImageBackground
       source={require('../RainBornAssets/images/bgs/onboard.png')}
-      style={styles.background}
+      style={rainWayStyles.rainWayBackground}
       resizeMode="cover"
     >
-      <View style={styles.centered}>
+      <View style={rainWayStyles.rainWayCentered}>
         <Animated.View
-          style={[styles.horseshoeWrap, { transform: [{ rotate: spin }] }]}
+          style={[
+            rainWayStyles.rainWayHorseshoeWrap,
+            { transform: [{ rotate: dailyRightsSpin }] },
+          ]}
         >
           <Image
             source={require('../RainBornAssets/images/hat.png')}
-            style={styles.horseshoe}
+            style={rainWayStyles.rainWayHorseshoe}
             resizeMode="contain"
           />
         </Animated.View>
@@ -63,20 +67,20 @@ const RainBornLoader: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  background: {
+const rainWayStyles = StyleSheet.create({
+  rainWayBackground: {
     flex: 1,
   },
-  centered: {
+  rainWayCentered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  horseshoeWrap: {
+  rainWayHorseshoeWrap: {
     alignItems: 'center',
     justifyContent: 'center',
   },
-  horseshoe: {
+  rainWayHorseshoe: {
     width: 180,
     height: 280,
   },

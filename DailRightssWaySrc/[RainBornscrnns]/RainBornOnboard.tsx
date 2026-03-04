@@ -1,10 +1,16 @@
+// onboard
+
+import TouchableOpacity from '../[RainBorncmpnts]/RainBornAnimatedTouchable';
+import type { StackNavigationProp } from '@react-navigation/stack';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { useNavigation } from '@react-navigation/native';
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Easing,
-  Image,
   ImageBackground,
   ScrollView,
   StyleSheet,
@@ -12,9 +18,8 @@ import {
   View,
 } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
-import TouchableOpacity from '../RainBornComponents/RainBornAnimatedTouchable';
-import type { StackNavigationProp } from '@react-navigation/stack';
-import type { RainBornRoutesList } from '../../Roter';
+
+import type { RainBornRoutesList } from '../../RainWaystckrotes';
 
 type NavigationProp = StackNavigationProp<
   RainBornRoutesList,
@@ -52,41 +57,41 @@ const onboardDescriptions: string[] = [
 const PROFILE_NAME_KEY = '@RainBornDaily_profile_name';
 
 const RainBornOnboard: React.FC = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const navigation = useNavigation<NavigationProp>();
-  const imageFadeAnim = useRef(new Animated.Value(1)).current;
+  const [dailyRightsCurrentIndex, setDailyRightsCurrentIndex] = useState(0);
+  const dailyRightsNavigation = useNavigation<NavigationProp>();
+  const dailyRightsImageFadeAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    imageFadeAnim.setValue(0);
-    Animated.timing(imageFadeAnim, {
+    dailyRightsImageFadeAnim.setValue(0);
+    Animated.timing(dailyRightsImageFadeAnim, {
       toValue: 1,
       duration: 550,
       easing: Easing.out(Easing.cubic),
       useNativeDriver: true,
     }).start();
-  }, [currentIndex, imageFadeAnim]);
+  }, [dailyRightsCurrentIndex, dailyRightsImageFadeAnim]);
 
   const handleRainBornNext = useCallback(async () => {
-    if (currentIndex < 3) {
-      setCurrentIndex(prev => Math.min(prev + 1, 3));
+    if (dailyRightsCurrentIndex < 3) {
+      setDailyRightsCurrentIndex(prev => Math.min(prev + 1, 3));
       return;
     }
 
     try {
-      const savedName = await AsyncStorage.getItem(PROFILE_NAME_KEY);
-      if ((savedName ?? '').trim()) {
-        navigation.replace('RainBornHome');
+      const dailyRightsSavedName = await AsyncStorage.getItem(PROFILE_NAME_KEY);
+      if ((dailyRightsSavedName ?? '').trim()) {
+        dailyRightsNavigation.replace('RainBornHome');
         return;
       }
     } catch (_) {}
 
-    navigation.replace('RainBornCreateProfile');
-  }, [currentIndex, navigation]);
+    dailyRightsNavigation.replace('RainBornCreateProfile');
+  }, [dailyRightsCurrentIndex, dailyRightsNavigation]);
 
   return (
     <ImageBackground
       source={require('../RainBornAssets/images/bgs/onboard.png')}
-      style={styles.background}
+      style={rainWayStyles.rainWayBackground}
     >
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
@@ -101,34 +106,38 @@ const RainBornOnboard: React.FC = () => {
           }}
         >
           <Animated.Image
-            source={onboardImages[currentIndex]}
+            source={onboardImages[dailyRightsCurrentIndex]}
             style={[
-              styles.onboardImage,
-              currentIndex === 0 && { top: 160, width: 300, height: 420 },
-              currentIndex === 1 && { width: 300, height: 300 },
-              { opacity: imageFadeAnim },
+              rainWayStyles.rainWayOnboardImage,
+              dailyRightsCurrentIndex === 0 && {
+                top: 160,
+                width: 300,
+                height: 420,
+              },
+              dailyRightsCurrentIndex === 1 && { width: 300, height: 300 },
+              { opacity: dailyRightsImageFadeAnim },
             ]}
           />
 
           <ImageBackground
             source={require('../RainBornAssets/images/onboard/textboard.png')}
-            style={styles.textboard}
+            style={rainWayStyles.rainWayTextboard}
           >
             <Animated.Image
-              source={onboardTexts[currentIndex]}
-              style={{ opacity: imageFadeAnim }}
+              source={onboardTexts[dailyRightsCurrentIndex]}
+              style={{ opacity: dailyRightsImageFadeAnim }}
             />
-            <Text style={styles.textboardText}>
-              {onboardDescriptions[currentIndex]}
+            <Text style={rainWayStyles.rainWayTextboardText}>
+              {onboardDescriptions[dailyRightsCurrentIndex]}
             </Text>
             <TouchableOpacity onPress={handleRainBornNext} activeOpacity={0.8}>
               <ImageBackground
                 source={require('../RainBornAssets/images/onboard/button.png')}
-                style={styles.button}
+                style={rainWayStyles.rainWayButton}
               >
                 <Animated.Image
-                  source={onboardButtonTexts[currentIndex]}
-                  style={{ opacity: imageFadeAnim }}
+                  source={onboardButtonTexts[dailyRightsCurrentIndex]}
+                  style={{ opacity: dailyRightsImageFadeAnim }}
                 />
               </ImageBackground>
             </TouchableOpacity>
@@ -139,28 +148,28 @@ const RainBornOnboard: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  background: {
+const rainWayStyles = StyleSheet.create({
+  rainWayBackground: {
     flex: 1,
   },
-  textboard: {
+  rainWayTextboard: {
     width: 386,
     height: 386,
     justifyContent: 'center',
     alignItems: 'center',
     resizeMode: 'contain',
   },
-  onboardImage: {
+  rainWayOnboardImage: {
     marginBottom: 20,
   },
-  button: {
+  rainWayButton: {
     width: 236,
     height: 74,
     justifyContent: 'center',
     alignItems: 'center',
     resizeMode: 'contain',
   },
-  textboardText: {
+  rainWayTextboardText: {
     fontSize: 13,
     fontFamily: 'Nunito-Regular',
     color: '#fff',

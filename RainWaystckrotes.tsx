@@ -1,15 +1,18 @@
+// router
+
+import RainBornHome from './DailRightssWaySrc/[RainBornscrnns]/RainBornHome';
+import RainBornStories from './DailRightssWaySrc/[RainBornscrnns]/RainBornStories';
+import RainBornDailyLuck from './DailRightssWaySrc/[RainBornscrnns]/RainBornDailyLuck';
+import RainBornPathJournal from './DailRightssWaySrc/[RainBornscrnns]/RainBornPathJournal';
+import RainBornSettings from './DailRightssWaySrc/[RainBornscrnns]/RainBornSettings';
+import RainBornCreateProfile from './DailRightssWaySrc/[RainBornscrnns]/RainBornCreateProfile';
+import RainBornLevels from './DailRightssWaySrc/[RainBornscrnns]/RainBornLevels';
+import RainBornQuiz from './DailRightssWaySrc/[RainBornscrnns]/RainBornQuiz';
+
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import RainBornLoader from './DailRightssWaySrc/RainBornScreens/RainBornLoader';
-import RainBornOnboard from './DailRightssWaySrc/RainBornScreens/RainBornOnboard';
-import RainBornHome from './DailRightssWaySrc/RainBornScreens/RainBornHome';
-import RainBornStories from './DailRightssWaySrc/RainBornScreens/RainBornStories';
-import RainBornDailyLuck from './DailRightssWaySrc/RainBornScreens/RainBornDailyLuck';
-import RainBornPathJournal from './DailRightssWaySrc/RainBornScreens/RainBornPathJournal';
-import RainBornSettings from './DailRightssWaySrc/RainBornScreens/RainBornSettings';
-import RainBornCreateProfile from './DailRightssWaySrc/RainBornScreens/RainBornCreateProfile';
-import RainBornLevels from './DailRightssWaySrc/RainBornScreens/RainBornLevels';
-import RainBornQuiz from './DailRightssWaySrc/RainBornScreens/RainBornQuiz';
+import RainBornLoader from './DailRightssWaySrc/[RainBornscrnns]/RainBornLoader';
+import RainBornOnboard from './DailRightssWaySrc/[RainBornscrnns]/RainBornOnboard';
 
 export type RainBornRoutesList = {
   RainBornLoader: undefined;
@@ -26,7 +29,7 @@ export type RainBornRoutesList = {
 
 const Stack = createStackNavigator<RainBornRoutesList>();
 
-const RainBornRoutes: React.FC = () => {
+const RainWaystckrotes: React.FC = () => {
   return (
     <Stack.Navigator
       screenOptions={{ headerShown: false }}
@@ -52,4 +55,4 @@ const RainBornRoutes: React.FC = () => {
   );
 };
 
-export default RainBornRoutes;
+export default RainWaystckrotes;

@@ -1,5 +1,10 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+// create profile
+
+import TouchableOpacity from '../[RainBorncmpnts]/RainBornAnimatedTouchable';
+import type { StackNavigationProp } from '@react-navigation/stack';
+
+import type { RainBornRoutesList } from '../../RainWaystckrotes';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
@@ -9,84 +14,87 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  Text,
   TextInput,
   View,
 } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
-import TouchableOpacity from '../RainBornComponents/RainBornAnimatedTouchable';
-import type { StackNavigationProp } from '@react-navigation/stack';
-import type { RainBornRoutesList } from '../../Roter';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 
 type NavigationProp = StackNavigationProp<
   RainBornRoutesList,
   'RainBornCreateProfile'
 >;
 
-const PROFILE_NAME_KEY = '@RainBornDaily_profile_name';
-const PROFILE_PHOTO_KEY = '@RainBornDaily_profile_photo';
+const dailyRightsProfileNameKey = '@RainBornDaily_profile_name';
+const dailyRightsProfilePhotoKey = '@RainBornDaily_profile_photo';
 
 const RainBornCreateProfile: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
-  const [name, setName] = useState('');
-  const [photoUri, setPhotoUri] = useState<string | null>(null);
-  const continueShakeAnim = useState(new Animated.Value(0))[0];
+  const dailyRightsNavigation = useNavigation<NavigationProp>();
+  const [dailyRightsName, setDailyRightsName] = useState('');
+  const [dailyRightsPhotoUri, setDailyRightsPhotoUri] = useState<string | null>(
+    null,
+  );
+  const dailyRightsContinueShakeAnim = useState(new Animated.Value(0))[0];
 
   useEffect(() => {
-    const loadProfileDraft = async () => {
+    const loadDailyRightsProfileDraft = async () => {
       try {
-        const [savedName, savedPhoto] = await Promise.all([
-          AsyncStorage.getItem(PROFILE_NAME_KEY),
-          AsyncStorage.getItem(PROFILE_PHOTO_KEY),
-        ]);
-        if (savedName) setName(savedName);
-        if (savedPhoto) setPhotoUri(savedPhoto);
+        const [dailyRightsSavedName, dailyRightsSavedPhoto] = await Promise.all(
+          [
+            AsyncStorage.getItem(dailyRightsProfileNameKey),
+            AsyncStorage.getItem(dailyRightsProfilePhotoKey),
+          ],
+        );
+        if (dailyRightsSavedName) setDailyRightsName(dailyRightsSavedName);
+        if (dailyRightsSavedPhoto)
+          setDailyRightsPhotoUri(dailyRightsSavedPhoto);
       } catch (_) {}
     };
-    loadProfileDraft();
+    loadDailyRightsProfileDraft();
   }, []);
 
-  const onPickPhoto = useCallback(async () => {
+  const onDailyRightsPickPhoto = useCallback(async () => {
     try {
-      const result = await launchImageLibrary({
+      const dailyRightsPickResult = await launchImageLibrary({
         mediaType: 'photo',
         selectionLimit: 1,
         quality: 0.9,
       });
-      if (result.didCancel) return;
-      const uri = result.assets?.[0]?.uri;
-      if (uri) setPhotoUri(uri);
+      if (dailyRightsPickResult.didCancel) return;
+      const dailyRightsUri = dailyRightsPickResult.assets?.[0]?.uri;
+      if (dailyRightsUri) setDailyRightsPhotoUri(dailyRightsUri);
     } catch (_) {
       Alert.alert('Error', 'Unable to open photo library.');
     }
   }, []);
 
-  const onContinue = useCallback(async () => {
-    const trimmedName = name.trim();
-    if (!trimmedName || !photoUri) {
-      continueShakeAnim.setValue(0);
+  const onDailyRightsContinue = useCallback(async () => {
+    const dailyRightsTrimmedName = dailyRightsName.trim();
+    if (!dailyRightsTrimmedName || !dailyRightsPhotoUri) {
+      dailyRightsContinueShakeAnim.setValue(0);
       Animated.sequence([
-        Animated.timing(continueShakeAnim, {
+        Animated.timing(dailyRightsContinueShakeAnim, {
           toValue: 1,
           duration: 55,
           useNativeDriver: true,
         }),
-        Animated.timing(continueShakeAnim, {
+        Animated.timing(dailyRightsContinueShakeAnim, {
           toValue: -1,
           duration: 55,
           useNativeDriver: true,
         }),
-        Animated.timing(continueShakeAnim, {
+        Animated.timing(dailyRightsContinueShakeAnim, {
           toValue: 1,
           duration: 55,
           useNativeDriver: true,
         }),
-        Animated.timing(continueShakeAnim, {
+        Animated.timing(dailyRightsContinueShakeAnim, {
           toValue: -1,
           duration: 55,
           useNativeDriver: true,
         }),
-        Animated.timing(continueShakeAnim, {
+        Animated.timing(dailyRightsContinueShakeAnim, {
           toValue: 0,
           duration: 55,
           useNativeDriver: true,
@@ -95,63 +103,78 @@ const RainBornCreateProfile: React.FC = () => {
       return;
     }
     try {
-      const pairs: [string, string][] = [[PROFILE_NAME_KEY, trimmedName]];
-      if (photoUri) pairs.push([PROFILE_PHOTO_KEY, photoUri]);
-      await AsyncStorage.multiSet(pairs);
-      navigation.replace('RainBornHome');
+      const dailyRightsPairs: [string, string][] = [
+        [dailyRightsProfileNameKey, dailyRightsTrimmedName],
+      ];
+      if (dailyRightsPhotoUri) {
+        dailyRightsPairs.push([
+          dailyRightsProfilePhotoKey,
+          dailyRightsPhotoUri,
+        ]);
+      }
+      await AsyncStorage.multiSet(dailyRightsPairs);
+      dailyRightsNavigation.replace('RainBornHome');
     } catch (_) {
       Alert.alert('Error', 'Unable to save profile.');
     }
-  }, [name, photoUri, navigation, continueShakeAnim]);
+  }, [
+    dailyRightsName,
+    dailyRightsPhotoUri,
+    dailyRightsNavigation,
+    dailyRightsContinueShakeAnim,
+  ]);
 
   return (
     <ImageBackground
       source={require('../RainBornAssets/images/bgs/main.png')}
-      style={styles.background}
+      style={rainWayStyles.rainWayBackground}
     >
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ flexGrow: 1 }}
+        contentContainerStyle={rainWayStyles.rainWayScrollContent}
       >
-        <View style={styles.header}>
+        <View style={rainWayStyles.rainWayHeader}>
           <Image source={require('../RainBornAssets/images/create.png')} />
         </View>
 
-        <View style={styles.content}>
+        <View style={rainWayStyles.rainWayContent}>
           <TouchableOpacity
-            onPress={onPickPhoto}
+            onPress={onDailyRightsPickPhoto}
             activeOpacity={0.85}
-            style={styles.photoPickArea}
+            style={rainWayStyles.rainWayPhotoPickArea}
           >
-            {photoUri ? (
-              <Image source={{ uri: photoUri }} style={styles.profilePhoto} />
+            {dailyRightsPhotoUri ? (
+              <Image
+                source={{ uri: dailyRightsPhotoUri }}
+                style={rainWayStyles.rainWayProfilePhoto}
+              />
             ) : (
-              <View style={styles.photoPlaceholder}>
+              <View style={rainWayStyles.rainWayPhotoPlaceholder}>
                 <Image
                   source={require('../RainBornAssets/images/camera.png')}
-                  style={{ tintColor: '#fff', width: 30, height: 30 }}
+                  style={rainWayStyles.rainWayCameraIcon}
                 />
               </View>
             )}
           </TouchableOpacity>
 
           <TextInput
-            value={name}
-            onChangeText={setName}
+            value={dailyRightsName}
+            onChangeText={setDailyRightsName}
             placeholder="NICKNAME"
             placeholderTextColor="rgba(255,255,255,0.6)"
-            style={styles.nameInput}
+            style={rainWayStyles.rainWayNameInput}
             maxLength={32}
           />
         </View>
 
         <Animated.View
           style={[
-            styles.continueButton,
+            rainWayStyles.rainWayContinueButton,
             {
               transform: [
                 {
-                  translateX: continueShakeAnim.interpolate({
+                  translateX: dailyRightsContinueShakeAnim.interpolate({
                     inputRange: [-1, 1],
                     outputRange: [-8, 8],
                   }),
@@ -160,10 +183,10 @@ const RainBornCreateProfile: React.FC = () => {
             },
           ]}
         >
-          <TouchableOpacity onPress={onContinue} activeOpacity={0.8}>
+          <TouchableOpacity onPress={onDailyRightsContinue} activeOpacity={0.8}>
             <ImageBackground
               source={require('../RainBornAssets/images/onboard/button.png')}
-              style={styles.onboardStyleButton}
+              style={rainWayStyles.rainWayOnboardStyleButton}
             >
               <Image source={require('../RainBornAssets/images/okay.png')} />
             </ImageBackground>
@@ -174,9 +197,10 @@ const RainBornCreateProfile: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  background: { flex: 1 },
-  header: {
+const rainWayStyles = StyleSheet.create({
+  rainWayBackground: { flex: 1 },
+  rainWayScrollContent: { flexGrow: 1 },
+  rainWayHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -190,14 +214,14 @@ const styles = StyleSheet.create({
     width: '86%',
     alignSelf: 'center',
   },
-  headerBack: { position: 'absolute', left: 16 },
-  headerTitle: {
+  rainWayHeaderBack: { position: 'absolute', left: 16 },
+  rainWayHeaderTitle: {
     color: '#E87850',
     fontFamily: 'Nunito-Black',
     fontSize: 20,
     letterSpacing: 0.6,
   },
-  content: {
+  rainWayContent: {
     paddingHorizontal: 24,
     padding: 30,
     width: '84%',
@@ -208,10 +232,10 @@ const styles = StyleSheet.create({
     marginTop: 60,
     minHeight: 300,
   },
-  photoPickArea: {
+  rainWayPhotoPickArea: {
     marginBottom: 18,
   },
-  photoPlaceholder: {
+  rainWayPhotoPlaceholder: {
     width: 100,
     height: 100,
     borderRadius: 32,
@@ -222,20 +246,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
   },
-  photoPlaceholderText: {
+  rainWayPhotoPlaceholderText: {
     color: '#FFFFFF',
     fontFamily: 'Nunito-Bold',
     fontSize: 14,
     textAlign: 'center',
   },
-  profilePhoto: {
+  rainWayCameraIcon: {
+    tintColor: '#fff',
+    width: 30,
+    height: 30,
+  },
+  rainWayProfilePhoto: {
     width: 100,
     height: 100,
     borderRadius: 32,
     borderWidth: 1.5,
     borderColor: '#FFFFFF',
   },
-  nameInput: {
+  rainWayNameInput: {
     width: '100%',
     backgroundColor: '#123509',
     borderRadius: 8,
@@ -249,18 +278,18 @@ const styles = StyleSheet.create({
     marginBottom: 22,
     marginTop: 20,
   },
-  continueButton: {
+  rainWayContinueButton: {
     alignSelf: 'center',
     marginTop: 30,
   },
-  onboardStyleButton: {
+  rainWayOnboardStyleButton: {
     width: 236,
     height: 74,
     justifyContent: 'center',
     alignItems: 'center',
     resizeMode: 'contain',
   },
-  continueText: {
+  rainWayContinueText: {
     fontSize: 24,
     color: 'rgba(169, 22, 0, 1)',
     fontFamily: 'Nunito-Black',

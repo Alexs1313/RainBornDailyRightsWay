@@ -1,5 +1,9 @@
+// daily luck
+
+import type { RainBornRoutesList } from '../../RainWaystckrotes';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Animated,
@@ -12,9 +16,8 @@ import {
   Text,
   View,
 } from 'react-native';
-import TouchableOpacity from '../RainBornComponents/RainBornAnimatedTouchable';
+import TouchableOpacity from '../[RainBorncmpnts]/RainBornAnimatedTouchable';
 import type { StackNavigationProp } from '@react-navigation/stack';
-import type { RainBornRoutesList } from '../../Roter';
 
 type NavigationProp = StackNavigationProp<
   RainBornRoutesList,
@@ -95,180 +98,201 @@ function formatExecutionTime(seconds: number): string {
 type Step = 'intro' | 'loader' | 'task' | 'done' | 'cooldown';
 
 const RainBornDailyLuck: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
-  const todayKey = getTodayKey();
-  const taskIndex = getTaskIndexForToday();
-  const task = TASKS[taskIndex];
+  const dailyRightsNavigation = useNavigation<NavigationProp>();
+  const dailyRightsTodayKey = getTodayKey();
+  const dailyRightsTaskIndex = getTaskIndexForToday();
+  const dailyRightsTask = TASKS[dailyRightsTaskIndex];
 
-  const [step, setStep] = useState<Step>('intro');
-  const [doneToday, setDoneToday] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-  const [cooldownSeconds, setCooldownSeconds] = useState(SECONDS_24H);
+  const [dailyRightsStep, setDailyRightsStep] = useState<Step>('intro');
+  const [dailyRightsDoneToday, setDailyRightsDoneToday] = useState(false);
+  const [dailyRightsLoaded, setDailyRightsLoaded] = useState(false);
+  const [dailyRightsCooldownSeconds, setDailyRightsCooldownSeconds] =
+    useState(SECONDS_24H);
 
   useEffect(() => {
-    if (step !== 'cooldown') return;
-    const id = setInterval(() => {
-      setCooldownSeconds(s => Math.max(0, s - 1));
+    if (dailyRightsStep !== 'cooldown') return;
+    const dailyRightsIntervalId = setInterval(() => {
+      setDailyRightsCooldownSeconds(s => Math.max(0, s - 1));
     }, 1000);
-    return () => clearInterval(id);
-  }, [step]);
+    return () => clearInterval(dailyRightsIntervalId);
+  }, [dailyRightsStep]);
 
-  const cooldownTimer = formatCountdown(cooldownSeconds);
-  const [executionSeconds, setExecutionSeconds] = useState(0);
-  const spinAnim = useRef(new Animated.Value(0)).current;
-  const executionInterval = useRef<ReturnType<typeof setInterval> | null>(null);
-  const loaderLoopRef = useRef<Animated.CompositeAnimation | null>(null);
+  const dailyRightsCooldownTimer = formatCountdown(dailyRightsCooldownSeconds);
+  const [dailyRightsExecutionSeconds, setDailyRightsExecutionSeconds] =
+    useState(0);
+  const dailyRightsSpinAnim = useRef(new Animated.Value(0)).current;
+  const dailyRightsExecutionInterval = useRef<ReturnType<
+    typeof setInterval
+  > | null>(null);
+  const dailyRightsLoaderLoopRef = useRef<Animated.CompositeAnimation | null>(
+    null,
+  );
 
-  const loadState = useCallback(async () => {
+  const loadDailyRightsState = useCallback(async () => {
     try {
-      const doneKey = `${STORAGE_KEY_PREFIX}dailyLuckDone_${todayKey}`;
-      const cooldownEndKey = `${STORAGE_KEY_PREFIX}dailyLuckCooldownEnd_${todayKey}`;
-      const [done, cooldownEndRaw] = await Promise.all([
-        AsyncStorage.getItem(doneKey),
-        AsyncStorage.getItem(cooldownEndKey),
+      const dailyRightsDoneKey = `${STORAGE_KEY_PREFIX}dailyLuckDone_${dailyRightsTodayKey}`;
+      const dailyRightsCooldownEndKey = `${STORAGE_KEY_PREFIX}dailyLuckCooldownEnd_${dailyRightsTodayKey}`;
+      const [dailyRightsDone, dailyRightsCooldownEndRaw] = await Promise.all([
+        AsyncStorage.getItem(dailyRightsDoneKey),
+        AsyncStorage.getItem(dailyRightsCooldownEndKey),
       ]);
-      const cooldownEndTs = Number(cooldownEndRaw ?? '0');
-      const remainingSeconds = Math.max(
+      const dailyRightsCooldownEndTs = Number(dailyRightsCooldownEndRaw ?? '0');
+      const dailyRightsRemainingSeconds = Math.max(
         0,
-        Math.floor((cooldownEndTs - Date.now()) / 1000),
+        Math.floor((dailyRightsCooldownEndTs - Date.now()) / 1000),
       );
 
-      if (done === '1' && remainingSeconds > 0) {
-        setDoneToday(true);
-        setCooldownSeconds(remainingSeconds);
+      if (dailyRightsDone === '1' && dailyRightsRemainingSeconds > 0) {
+        setDailyRightsDoneToday(true);
+        setDailyRightsCooldownSeconds(dailyRightsRemainingSeconds);
       } else {
-        setDoneToday(false);
-        setCooldownSeconds(SECONDS_24H);
+        setDailyRightsDoneToday(false);
+        setDailyRightsCooldownSeconds(SECONDS_24H);
         await Promise.all([
-          AsyncStorage.removeItem(doneKey),
-          AsyncStorage.removeItem(cooldownEndKey),
+          AsyncStorage.removeItem(dailyRightsDoneKey),
+          AsyncStorage.removeItem(dailyRightsCooldownEndKey),
         ]);
       }
     } catch (_) {
     } finally {
-      setLoaded(true);
+      setDailyRightsLoaded(true);
     }
-  }, [todayKey]);
+  }, [dailyRightsTodayKey]);
 
   useEffect(() => {
-    loadState();
-  }, [loadState]);
+    loadDailyRightsState();
+  }, [loadDailyRightsState]);
 
-  const goBack = useCallback(() => {
-    if (navigation.canGoBack()) navigation.goBack();
-  }, [navigation]);
+  const dailyRightsGoBack = useCallback(() => {
+    if (dailyRightsNavigation.canGoBack()) dailyRightsNavigation.goBack();
+  }, [dailyRightsNavigation]);
 
-  const onStart = useCallback(() => {
-    setStep('loader');
-    spinAnim.setValue(0);
-    loaderLoopRef.current = Animated.loop(
-      Animated.timing(spinAnim, {
+  const onDailyRightsStart = useCallback(() => {
+    setDailyRightsStep('loader');
+    dailyRightsSpinAnim.setValue(0);
+    dailyRightsLoaderLoopRef.current = Animated.loop(
+      Animated.timing(dailyRightsSpinAnim, {
         toValue: 1,
         duration: 1000,
         useNativeDriver: true,
       }),
     );
-    loaderLoopRef.current.start();
-  }, [spinAnim]);
+    dailyRightsLoaderLoopRef.current.start();
+  }, [dailyRightsSpinAnim]);
 
   useEffect(() => {
-    if (step !== 'loader') return;
-    const t = setTimeout(() => {
-      loaderLoopRef.current?.stop();
-      setStep('task');
+    if (dailyRightsStep !== 'loader') return;
+    const dailyRightsLoaderTimeout = setTimeout(() => {
+      dailyRightsLoaderLoopRef.current?.stop();
+      setDailyRightsStep('task');
     }, 3000);
-    return () => clearTimeout(t);
-  }, [step]);
+    return () => clearTimeout(dailyRightsLoaderTimeout);
+  }, [dailyRightsStep]);
 
   useEffect(() => {
-    if (step !== 'task') return;
-    executionInterval.current = setInterval(() => {
-      setExecutionSeconds(s => s + 1);
+    if (dailyRightsStep !== 'task') return;
+    dailyRightsExecutionInterval.current = setInterval(() => {
+      setDailyRightsExecutionSeconds(s => s + 1);
     }, 1000);
     return () => {
-      if (executionInterval.current) clearInterval(executionInterval.current);
+      if (dailyRightsExecutionInterval.current)
+        clearInterval(dailyRightsExecutionInterval.current);
     };
-  }, [step]);
+  }, [dailyRightsStep]);
 
-  const onDone = useCallback(async () => {
-    setStep('done');
-    setCooldownSeconds(SECONDS_24H);
+  const onDailyRightsDone = useCallback(async () => {
+    setDailyRightsStep('done');
+    setDailyRightsCooldownSeconds(SECONDS_24H);
     try {
-      const cooldownEndTs = Date.now() + COOLDOWN_MS;
+      const dailyRightsCooldownEndTs = Date.now() + COOLDOWN_MS;
       await AsyncStorage.setItem(
-        `${STORAGE_KEY_PREFIX}dailyLuckDone_${todayKey}`,
+        `${STORAGE_KEY_PREFIX}dailyLuckDone_${dailyRightsTodayKey}`,
         '1',
       );
       await AsyncStorage.setItem(
-        `${STORAGE_KEY_PREFIX}dailyLuckCooldownEnd_${todayKey}`,
-        String(cooldownEndTs),
+        `${STORAGE_KEY_PREFIX}dailyLuckCooldownEnd_${dailyRightsTodayKey}`,
+        String(dailyRightsCooldownEndTs),
       );
     } catch (_) {}
-    setDoneToday(true);
-  }, [todayKey]);
+    setDailyRightsDoneToday(true);
+  }, [dailyRightsTodayKey]);
 
-  const onBackHome = useCallback(() => {
-    if (navigation.canGoBack()) navigation.goBack();
-  }, [navigation]);
+  const onDailyRightsBackHome = useCallback(() => {
+    if (dailyRightsNavigation.canGoBack()) dailyRightsNavigation.goBack();
+  }, [dailyRightsNavigation]);
 
-  const handleShare = useCallback(async () => {
-    const message =
-      step === 'task'
-        ? `Daily Luck Moment: ${task}`
-        : step === 'done'
-        ? `I spent ${executionSeconds} seconds on today's moment. That's enough for today. Come back tomorrow.`
+  const handleDailyRightsShare = useCallback(async () => {
+    const dailyRightsMessage =
+      dailyRightsStep === 'task'
+        ? `Daily Luck Moment: ${dailyRightsTask}`
+        : dailyRightsStep === 'done'
+        ? `I spent ${dailyRightsExecutionSeconds} seconds on today's moment. That's enough for today. Come back tomorrow.`
         : '';
     try {
-      await Share.share({ message, title: 'Daily Luck Moment' });
+      await Share.share({
+        message: dailyRightsMessage,
+        title: 'Daily Luck Moment',
+      });
     } catch (_) {}
-  }, [step, task, executionSeconds]);
+  }, [dailyRightsStep, dailyRightsTask, dailyRightsExecutionSeconds]);
 
-  const spin = spinAnim.interpolate({
+  const dailyRightsSpin = dailyRightsSpinAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg'],
   });
 
   useEffect(() => {
-    if (loaded && doneToday && step === 'intro') setStep('cooldown');
-  }, [loaded, doneToday, step]);
+    if (
+      dailyRightsLoaded &&
+      dailyRightsDoneToday &&
+      dailyRightsStep === 'intro'
+    )
+      setDailyRightsStep('cooldown');
+  }, [dailyRightsLoaded, dailyRightsDoneToday, dailyRightsStep]);
 
   useEffect(() => {
-    if (step !== 'cooldown' || cooldownSeconds > 0) return;
-    const doneKey = `${STORAGE_KEY_PREFIX}dailyLuckDone_${todayKey}`;
-    const cooldownEndKey = `${STORAGE_KEY_PREFIX}dailyLuckCooldownEnd_${todayKey}`;
-    setDoneToday(false);
-    setStep('intro');
-    AsyncStorage.removeItem(doneKey).catch(() => {});
-    AsyncStorage.removeItem(cooldownEndKey).catch(() => {});
-  }, [step, cooldownSeconds, todayKey]);
+    if (dailyRightsStep !== 'cooldown' || dailyRightsCooldownSeconds > 0)
+      return;
+    const dailyRightsDoneKey = `${STORAGE_KEY_PREFIX}dailyLuckDone_${dailyRightsTodayKey}`;
+    const dailyRightsCooldownEndKey = `${STORAGE_KEY_PREFIX}dailyLuckCooldownEnd_${dailyRightsTodayKey}`;
+    setDailyRightsDoneToday(false);
+    setDailyRightsStep('intro');
+    AsyncStorage.removeItem(dailyRightsDoneKey).catch(() => {});
+    AsyncStorage.removeItem(dailyRightsCooldownEndKey).catch(() => {});
+  }, [dailyRightsStep, dailyRightsCooldownSeconds, dailyRightsTodayKey]);
 
-  const showCooldown = doneToday && (step === 'intro' || step === 'cooldown');
+  const dailyRightsShowCooldown =
+    dailyRightsDoneToday &&
+    (dailyRightsStep === 'intro' || dailyRightsStep === 'cooldown');
 
-  if (!loaded) {
+  if (!dailyRightsLoaded) {
     return (
-      <View style={styles.centered}>
+      <View style={rainWayStyles.rainWayCentered}>
         <Image source={require('../RainBornAssets/images/ldr.png')} />
       </View>
     );
   }
 
-  const backgroundSource =
-    step === 'task' || step === 'done'
+  const dailyRightsBackgroundSource =
+    dailyRightsStep === 'task' || dailyRightsStep === 'done'
       ? require('../RainBornAssets/images/bgs/onboard.png')
       : require('../RainBornAssets/images/bgs/main.png');
 
   return (
-    <ImageBackground source={backgroundSource} style={styles.background}>
+    <ImageBackground
+      source={dailyRightsBackgroundSource}
+      style={rainWayStyles.rainWayBackground}
+    >
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ flexGrow: 1 }}
       >
-        {step !== 'task' && step !== 'done' && (
-          <View style={styles.header}>
+        {dailyRightsStep !== 'task' && dailyRightsStep !== 'done' && (
+          <View style={rainWayStyles.rainWayHeader}>
             <TouchableOpacity
-              onPress={goBack}
+              onPress={dailyRightsGoBack}
               activeOpacity={0.8}
-              style={styles.headerBack}
+              style={rainWayStyles.rainWayHeaderBack}
             >
               <Image source={require('../RainBornAssets/images/back.png')} />
             </TouchableOpacity>
@@ -276,35 +300,44 @@ const RainBornDailyLuck: React.FC = () => {
           </View>
         )}
 
-        {showCooldown ? (
-          <View style={styles.cooldownBlock}>
-            <View style={styles.cooldownCard}>
-              <View style={styles.attentionIconCircle}>
-                <Text style={styles.attentionExclamation}>!</Text>
+        {dailyRightsShowCooldown ? (
+          <View style={rainWayStyles.rainWayCooldownBlock}>
+            <View style={rainWayStyles.rainWayCooldownCard}>
+              <View style={rainWayStyles.rainWayAttentionIconCircle}>
+                <Text style={rainWayStyles.rainWayAttentionExclamation}>!</Text>
               </View>
-              <Text style={styles.cooldownTitle}>That's enough for today.</Text>
-              <Text style={styles.cooldownSubtitle}>Come back in:</Text>
-              <Text style={styles.cooldownTimer}>{cooldownTimer}</Text>
+              <Text style={rainWayStyles.rainWayCooldownTitle}>
+                That's enough for today.
+              </Text>
+              <Text style={rainWayStyles.rainWayCooldownSubtitle}>
+                Come back in:
+              </Text>
+              <Text style={rainWayStyles.rainWayCooldownTimer}>
+                {dailyRightsCooldownTimer}
+              </Text>
             </View>
           </View>
-        ) : step === 'intro' ? (
-          <View style={styles.introScreen}>
-            <View style={styles.introCard}>
-              <View style={styles.horseshoeWrap}>
+        ) : dailyRightsStep === 'intro' ? (
+          <View style={rainWayStyles.rainWayIntroScreen}>
+            <View style={rainWayStyles.rainWayIntroCard}>
+              <View style={rainWayStyles.rainWayHorseshoeWrap}>
                 <Image
                   source={require('../RainBornAssets/images/hat.png')}
                   style={{ width: 150, height: 150 }}
                 />
               </View>
-              <Text style={styles.introText}>
+              <Text style={rainWayStyles.rainWayIntroText}>
                 Click to open today's moment.{'\n'}
                 After starting, an item and a{'\n'}
                 small task will appear.
               </Text>
-              <TouchableOpacity onPress={onStart} activeOpacity={0.8}>
+              <TouchableOpacity
+                onPress={onDailyRightsStart}
+                activeOpacity={0.8}
+              >
                 <ImageBackground
                   source={require('../RainBornAssets/images/onboard/button.png')}
-                  style={styles.onboardStyleButton}
+                  style={rainWayStyles.rainWayOnboardStyleButton}
                 >
                   <Image
                     source={require('../RainBornAssets/images/strt.png')}
@@ -313,12 +346,12 @@ const RainBornDailyLuck: React.FC = () => {
               </TouchableOpacity>
             </View>
           </View>
-        ) : step === 'loader' ? (
-          <View style={styles.loaderScreen}>
+        ) : dailyRightsStep === 'loader' ? (
+          <View style={rainWayStyles.rainWayLoaderScreen}>
             <Animated.View
               style={[
-                styles.horseshoeLoader,
-                { transform: [{ rotate: spin }] },
+                rainWayStyles.rainWayHorseshoeLoader,
+                { transform: [{ rotate: dailyRightsSpin }] },
               ]}
             >
               <Image
@@ -328,21 +361,21 @@ const RainBornDailyLuck: React.FC = () => {
               />
             </Animated.View>
           </View>
-        ) : step === 'task' ? (
-          <View style={styles.taskScreen}>
-            <View style={styles.executionTimerBox}>
+        ) : dailyRightsStep === 'task' ? (
+          <View style={rainWayStyles.rainWayTaskScreen}>
+            <View style={rainWayStyles.rainWayExecutionTimerBox}>
               <Image source={require('../RainBornAssets/images/time.png')} />
-              <Text style={styles.executionTimerValue}>
-                {formatExecutionTime(executionSeconds)}
+              <Text style={rainWayStyles.rainWayExecutionTimerValue}>
+                {formatExecutionTime(dailyRightsExecutionSeconds)}
               </Text>
             </View>
             <View>
               <ImageBackground
                 source={require('../RainBornAssets/images/onboard/textboard.png')}
-                style={styles.taskBg}
+                style={rainWayStyles.rainWayTaskBg}
                 resizeMode="contain"
               >
-                <View style={styles.taskCard}>
+                <View style={rainWayStyles.rainWayTaskCard}>
                   <Image
                     source={require('../RainBornAssets/images/gametxt1.png')}
                   />
@@ -351,8 +384,10 @@ const RainBornDailyLuck: React.FC = () => {
                     style={{ width: 110, height: 150 }}
                   />
 
-                  <Text style={styles.taskLabel}>TASK:</Text>
-                  <Text style={styles.taskText}>{task}</Text>
+                  <Text style={rainWayStyles.rainWayTaskLabel}>TASK:</Text>
+                  <Text style={rainWayStyles.rainWayTaskText}>
+                    {dailyRightsTask}
+                  </Text>
                 </View>
               </ImageBackground>
               <Image
@@ -367,25 +402,25 @@ const RainBornDailyLuck: React.FC = () => {
               />
             </View>
             <TouchableOpacity
-              onPress={onDone}
+              onPress={onDailyRightsDone}
               activeOpacity={0.8}
-              style={styles.taskButtonWrap}
+              style={rainWayStyles.rainWayTaskButtonWrap}
             >
               <ImageBackground
                 source={require('../RainBornAssets/images/onboard/button.png')}
-                style={styles.onboardStyleButton}
+                style={rainWayStyles.rainWayOnboardStyleButton}
               >
                 <Image source={require('../RainBornAssets/images/Done.png')} />
               </ImageBackground>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={handleShare}
+              onPress={handleDailyRightsShare}
               activeOpacity={0.8}
-              style={styles.taskButtonWrap}
+              style={rainWayStyles.rainWayTaskButtonWrap}
             >
               <ImageBackground
                 source={require('../RainBornAssets/images/onboard/button.png')}
-                style={styles.onboardStyleButton}
+                style={rainWayStyles.rainWayOnboardStyleButton}
               >
                 <Image
                   source={require('../RainBornAssets/images/sharel.png')}
@@ -393,8 +428,8 @@ const RainBornDailyLuck: React.FC = () => {
               </ImageBackground>
             </TouchableOpacity>
           </View>
-        ) : step === 'done' ? (
-          <View style={styles.doneScreen}>
+        ) : dailyRightsStep === 'done' ? (
+          <View style={rainWayStyles.rainWayDoneScreen}>
             <Image
               source={require('../RainBornAssets/images/lepricon.png')}
               style={{
@@ -406,14 +441,14 @@ const RainBornDailyLuck: React.FC = () => {
             />
             <ImageBackground
               source={require('../RainBornAssets/images/onboard/textboard.png')}
-              style={[styles.taskBg, { top: -60 }]}
+              style={[rainWayStyles.rainWayTaskBg, { top: -60 }]}
               resizeMode="contain"
             >
-              <View style={styles.doneCard}>
+              <View style={rainWayStyles.rainWayDoneCard}>
                 <Image
                   source={require('../RainBornAssets/images/gametxt12.png')}
                 />
-                <Text style={styles.doneTime}>
+                <Text style={rainWayStyles.rainWayDoneTime}>
                   Time spent on execution:{'\n'}
                 </Text>
                 <Text
@@ -425,16 +460,16 @@ const RainBornDailyLuck: React.FC = () => {
                     marginBottom: 15,
                   }}
                 >
-                  {executionSeconds} seconds
+                  {dailyRightsExecutionSeconds} seconds
                 </Text>
                 <TouchableOpacity
-                  onPress={handleShare}
+                  onPress={handleDailyRightsShare}
                   activeOpacity={0.8}
-                  style={styles.doneButtonWrap}
+                  style={rainWayStyles.rainWayDoneButtonWrap}
                 >
                   <ImageBackground
                     source={require('../RainBornAssets/images/onboard/button.png')}
-                    style={styles.onboardStyleButton}
+                    style={rainWayStyles.rainWayOnboardStyleButton}
                   >
                     <Image
                       source={require('../RainBornAssets/images/sharel.png')}
@@ -444,13 +479,16 @@ const RainBornDailyLuck: React.FC = () => {
               </View>
             </ImageBackground>
             <TouchableOpacity
-              onPress={onBackHome}
+              onPress={onDailyRightsBackHome}
               activeOpacity={0.8}
-              style={[styles.doneButtonWrap, { top: -60, alignSelf: 'center' }]}
+              style={[
+                rainWayStyles.rainWayDoneButtonWrap,
+                { top: -60, alignSelf: 'center' },
+              ]}
             >
               <ImageBackground
                 source={require('../RainBornAssets/images/onboard/button.png')}
-                style={styles.onboardStyleButton}
+                style={rainWayStyles.rainWayOnboardStyleButton}
               >
                 <Image source={require('../RainBornAssets/images/backh.png')} />
               </ImageBackground>
@@ -462,15 +500,15 @@ const RainBornDailyLuck: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  background: { flex: 1 },
-  centered: {
+const rainWayStyles = StyleSheet.create({
+  rainWayBackground: { flex: 1 },
+  rainWayCentered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#1a3a1a',
   },
-  taskBg: {
+  rainWayTaskBg: {
     width: 386,
     height: 386,
     justifyContent: 'center',
@@ -478,7 +516,7 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     zIndex: 1,
   },
-  header: {
+  rainWayHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -493,17 +531,17 @@ const styles = StyleSheet.create({
     width: '86%',
     alignSelf: 'center',
   },
-  headerBack: {
+  rainWayHeaderBack: {
     position: 'absolute',
     left: 16,
   },
-  cooldownBlock: {
+  rainWayCooldownBlock: {
     flex: 1,
     paddingTop: 24,
     paddingHorizontal: 16,
     justifyContent: 'center',
   },
-  cooldownCard: {
+  rainWayCooldownCard: {
     backgroundColor: '#350909',
     borderRadius: 12,
     paddingVertical: 28,
@@ -515,7 +553,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     top: -50,
   },
-  attentionIconCircle: {
+  rainWayAttentionIconCircle: {
     width: 48,
     height: 48,
     borderRadius: 24,
@@ -524,12 +562,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  attentionExclamation: {
+  rainWayAttentionExclamation: {
     fontFamily: 'Nunito-Black',
     fontSize: 28,
     color: '#000',
   },
-  cooldownTitle: {
+  rainWayCooldownTitle: {
     fontFamily: 'Nunito-Bold',
     fontSize: 15,
     color: '#D9D9D9',
@@ -537,25 +575,25 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 14,
   },
-  cooldownSubtitle: {
+  rainWayCooldownSubtitle: {
     fontFamily: 'Nunito-Regular',
     fontSize: 15,
     color: '#D9D9D9',
     marginBottom: 8,
   },
-  cooldownTimer: {
+  rainWayCooldownTimer: {
     fontFamily: 'Nunito-Black',
     fontSize: 28,
     color: '#FFFFFF',
     marginTop: 14,
   },
-  introScreen: {
+  rainWayIntroScreen: {
     flex: 1,
     paddingTop: 24,
     paddingHorizontal: 16,
     justifyContent: 'center',
   },
-  introCard: {
+  rainWayIntroCard: {
     backgroundColor: '#350909',
     borderRadius: 12,
     paddingVertical: 28,
@@ -567,28 +605,28 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     top: -50,
   },
-  horseshoeWrap: { marginBottom: 20 },
-  introText: {
+  rainWayHorseshoeWrap: { marginBottom: 20 },
+  rainWayIntroText: {
     fontFamily: 'Nunito-Regular',
     fontSize: 13,
     color: '#D9D9D9',
     textAlign: 'center',
     marginBottom: 24,
   },
-  loaderScreen: {
+  rainWayLoaderScreen: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  horseshoeLoader: { alignItems: 'center', justifyContent: 'center' },
-  onboardStyleButton: {
+  rainWayHorseshoeLoader: { alignItems: 'center', justifyContent: 'center' },
+  rainWayOnboardStyleButton: {
     width: 236,
     height: 74,
     justifyContent: 'center',
     alignItems: 'center',
     resizeMode: 'contain',
   },
-  taskScreen: {
+  rainWayTaskScreen: {
     flex: 1,
     paddingTop: 16,
     paddingHorizontal: 16,
@@ -596,7 +634,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 20,
   },
-  executionTimerBox: {
+  rainWayExecutionTimerBox: {
     alignSelf: 'flex-end',
     backgroundColor: '#123509',
     paddingVertical: 8,
@@ -606,51 +644,51 @@ const styles = StyleSheet.create({
     minHeight: 90,
     justifyContent: 'center',
   },
-  executionTimerValue: {
+  rainWayExecutionTimerValue: {
     fontFamily: 'Nunito-Black',
     fontSize: 20,
     color: '#FFF',
     marginTop: 7,
   },
-  taskCard: {
+  rainWayTaskCard: {
     flex: 1,
     paddingTop: 30,
     paddingHorizontal: 50,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  taskLabel: {
+  rainWayTaskLabel: {
     fontFamily: 'Nunito-Black',
     fontSize: 13,
     color: '#FFFFFF',
     marginBottom: 8,
   },
-  taskText: {
+  rainWayTaskText: {
     fontFamily: 'Nunito-Regular',
     fontSize: 13,
     color: '#D9D9D9',
     marginBottom: 24,
   },
-  taskButtonWrap: { alignSelf: 'center', marginTop: 12 },
-  doneScreen: {
+  rainWayTaskButtonWrap: { alignSelf: 'center', marginTop: 12 },
+  rainWayDoneScreen: {
     flex: 1,
     paddingTop: 24,
     paddingHorizontal: 16,
     justifyContent: 'center',
   },
-  doneCard: {
+  rainWayDoneCard: {
     paddingVertical: 30,
     paddingHorizontal: 50,
     alignItems: 'center',
   },
-  doneTime: {
+  rainWayDoneTime: {
     fontFamily: 'Nunito-Black',
     fontSize: 14,
     color: '#FFFFFF',
     textAlign: 'center',
     marginTop: 22,
   },
-  doneButtonWrap: { marginTop: 5 },
+  rainWayDoneButtonWrap: { marginTop: 5 },
 });
 
 export default RainBornDailyLuck;

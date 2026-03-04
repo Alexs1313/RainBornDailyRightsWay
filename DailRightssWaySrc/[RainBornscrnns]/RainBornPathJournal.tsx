@@ -1,6 +1,12 @@
+// path journal
+
+import Orientation from 'react-native-orientation-locker';
+import TouchableOpacity from '../[RainBorncmpnts]/RainBornAnimatedTouchable';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { BlurView } from '@react-native-community/blur';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Image,
@@ -14,8 +20,6 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import Orientation from 'react-native-orientation-locker';
-import TouchableOpacity from '../RainBornComponents/RainBornAnimatedTouchable';
 
 const STORAGE_KEY = '@RainBornDaily_journal';
 
@@ -59,146 +63,158 @@ function getCalendarDays(year: number, month: number): (number | null)[] {
 }
 
 const RainBornPathJournal: React.FC = () => {
-  const navigation = useNavigation();
-  const [notes, setNotes] = useState<JournalNote[]>([]);
-  const [loaded, setLoaded] = useState(false);
-  const [showAddNote, setShowAddNote] = useState(false);
-  const [newNoteText, setNewNoteText] = useState('');
-  const [selectedNote, setSelectedNote] = useState<JournalNote | null>(null);
-  const [showCalendar, setShowCalendar] = useState(false);
-  const [calendarMonth, setCalendarMonth] = useState(() => new Date());
-  const [selectedCalendarDate, setSelectedCalendarDate] = useState<Date | null>(
-    null,
+  const dailyRightsNavigation = useNavigation();
+  const [dailyRightsNotes, setDailyRightsNotes] = useState<JournalNote[]>([]);
+  const [dailyRightsLoaded, setDailyRightsLoaded] = useState(false);
+  const [dailyRightsShowAddNote, setDailyRightsShowAddNote] = useState(false);
+  const [dailyRightsNewNoteText, setDailyRightsNewNoteText] = useState('');
+  const [dailyRightsSelectedNote, setDailyRightsSelectedNote] =
+    useState<JournalNote | null>(null);
+  const [dailyRightsShowCalendar, setDailyRightsShowCalendar] = useState(false);
+  const [dailyRightsCalendarMonth, setDailyRightsCalendarMonth] = useState(
+    () => new Date(),
   );
+  const [dailyRightsSelectedCalendarDate, setDailyRightsSelectedCalendarDate] =
+    useState<Date | null>(null);
 
   useFocusEffect(
     useCallback(() => {
-      if (Platform.OS === 'android' && !!selectedNote) {
+      if (Platform.OS === 'android' && !!dailyRightsSelectedNote) {
         Orientation.lockToPortrait();
       }
 
       return () => Orientation.unlockAllOrientations();
-    }, [!!selectedNote]),
+    }, [!!dailyRightsSelectedNote]),
   );
 
-  const loadNotes = useCallback(async () => {
+  const loadDailyRightsNotes = useCallback(async () => {
     try {
-      const raw = await AsyncStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        setNotes(Array.isArray(parsed) ? parsed : []);
+      const dailyRightsRaw = await AsyncStorage.getItem(STORAGE_KEY);
+      if (dailyRightsRaw) {
+        const dailyRightsParsed = JSON.parse(dailyRightsRaw);
+        setDailyRightsNotes(
+          Array.isArray(dailyRightsParsed) ? dailyRightsParsed : [],
+        );
       } else {
-        setNotes([]);
+        setDailyRightsNotes([]);
       }
     } catch (_) {
-      setNotes([]);
+      setDailyRightsNotes([]);
     } finally {
-      setLoaded(true);
+      setDailyRightsLoaded(true);
     }
   }, []);
 
   useEffect(() => {
-    loadNotes();
-  }, [loadNotes]);
+    loadDailyRightsNotes();
+  }, [loadDailyRightsNotes]);
 
-  const saveNotes = useCallback(async (nextNotes: JournalNote[]) => {
-    setNotes(nextNotes);
-    try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(nextNotes));
-    } catch (_) {}
+  const saveDailyRightsNotes = useCallback(
+    async (dailyRightsNextNotes: JournalNote[]) => {
+      setDailyRightsNotes(dailyRightsNextNotes);
+      try {
+        await AsyncStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify(dailyRightsNextNotes),
+        );
+      } catch (_) {}
+    },
+    [],
+  );
+
+  const dailyRightsGoBack = useCallback(() => {
+    if (dailyRightsNavigation.canGoBack()) dailyRightsNavigation.goBack();
+  }, [dailyRightsNavigation]);
+
+  const onDailyRightsAddNote = useCallback(() => {
+    setDailyRightsNewNoteText('');
+    setDailyRightsShowAddNote(true);
   }, []);
 
-  const goBack = useCallback(() => {
-    if (navigation.canGoBack()) navigation.goBack();
-  }, [navigation]);
-
-  const onAddNote = useCallback(() => {
-    setNewNoteText('');
-    setShowAddNote(true);
-  }, []);
-
-  const onSaveNote = useCallback(() => {
-    const text = newNoteText.trim();
-    if (!text) return;
-    const note: JournalNote = {
+  const onDailyRightsSaveNote = useCallback(() => {
+    const dailyRightsText = dailyRightsNewNoteText.trim();
+    if (!dailyRightsText) return;
+    const dailyRightsNote: JournalNote = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
       date: formatDate(new Date()),
-      text,
+      text: dailyRightsText,
     };
-    saveNotes([note, ...notes]);
-    setNewNoteText('');
-    setShowAddNote(false);
-  }, [newNoteText, notes, saveNotes]);
+    saveDailyRightsNotes([dailyRightsNote, ...dailyRightsNotes]);
+    setDailyRightsNewNoteText('');
+    setDailyRightsShowAddNote(false);
+  }, [dailyRightsNewNoteText, dailyRightsNotes, saveDailyRightsNotes]);
 
-  const onOpenNote = useCallback((note: JournalNote) => {
-    setSelectedNote(note);
+  const onDailyRightsOpenNote = useCallback((dailyRightsNote: JournalNote) => {
+    setDailyRightsSelectedNote(dailyRightsNote);
   }, []);
 
-  const onCloseNote = useCallback(() => {
-    setSelectedNote(null);
+  const onDailyRightsCloseNote = useCallback(() => {
+    setDailyRightsSelectedNote(null);
   }, []);
 
-  const onDeleteNote = useCallback(() => {
-    if (!selectedNote) return;
-    saveNotes(notes.filter(n => n.id !== selectedNote.id));
-    setSelectedNote(null);
-  }, [selectedNote, notes, saveNotes]);
+  const onDailyRightsDeleteNote = useCallback(() => {
+    if (!dailyRightsSelectedNote) return;
+    saveDailyRightsNotes(
+      dailyRightsNotes.filter(note => note.id !== dailyRightsSelectedNote.id),
+    );
+    setDailyRightsSelectedNote(null);
+  }, [dailyRightsSelectedNote, dailyRightsNotes, saveDailyRightsNotes]);
 
-  const onShareNote = useCallback(async () => {
-    if (!selectedNote) return;
+  const onDailyRightsShareNote = useCallback(async () => {
+    if (!dailyRightsSelectedNote) return;
     try {
       await Share.share({
-        title: `Journal ${selectedNote.date}`,
-        message: selectedNote.text,
+        title: `Journal ${dailyRightsSelectedNote.date}`,
+        message: dailyRightsSelectedNote.text,
       });
     } catch (_) {}
-  }, [selectedNote]);
+  }, [dailyRightsSelectedNote]);
 
-  if (!loaded) {
+  if (!dailyRightsLoaded) {
     return (
-      <View style={styles.centered}>
-        <Text style={styles.loadingText}>...</Text>
+      <View style={rainWayStyles.rainWayCentered}>
+        <Text style={rainWayStyles.rainWayLoadingText}>...</Text>
       </View>
     );
   }
 
-  const isEmpty = notes.length === 0;
+  const dailyRightsIsEmpty = dailyRightsNotes.length === 0;
 
   return (
     <ImageBackground
       source={
-        isEmpty
+        dailyRightsIsEmpty
           ? require('../RainBornAssets/images/empybg.png')
           : require('../RainBornAssets/images/bgs/main.png')
       }
-      style={styles.background}
+      style={rainWayStyles.rainWayBackground}
     >
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ flexGrow: 1 }}
       >
-        <View style={styles.header}>
+        <View style={rainWayStyles.rainWayHeader}>
           <TouchableOpacity
             onPress={
-              showCalendar
+              dailyRightsShowCalendar
                 ? () => {
-                    setShowCalendar(false);
-                    setSelectedCalendarDate(null);
+                    setDailyRightsShowCalendar(false);
+                    setDailyRightsSelectedCalendarDate(null);
                   }
-                : goBack
+                : dailyRightsGoBack
             }
             activeOpacity={0.8}
-            style={styles.headerBack}
+            style={rainWayStyles.rainWayHeaderBack}
           >
             <Image source={require('../RainBornAssets/images/back.png')} />
           </TouchableOpacity>
-          {showCalendar ? (
+          {dailyRightsShowCalendar ? (
             <Image
               source={require('../RainBornAssets/images/calendarttl.png')}
             />
           ) : (
-            <Text style={styles.headerTitle}>
-              {showAddNote ? (
+            <Text style={rainWayStyles.rainWayHeaderTitle}>
+              {dailyRightsShowAddNote ? (
                 <Image
                   source={require('../RainBornAssets/images/addNotr.png')}
                 />
@@ -211,75 +227,82 @@ const RainBornPathJournal: React.FC = () => {
           )}
         </View>
 
-        {showCalendar ? (
-          <View style={styles.calendarScreen}>
-            <Text style={styles.chooseDayText}>CHOOSE A DAY:</Text>
-            <View style={styles.calendarBox}>
-              <View style={styles.calendarBoxHeader}>
-                <Text style={styles.calendarMonthYear}>
-                  {MONTH_NAMES[calendarMonth.getMonth()]}{' '}
-                  {calendarMonth.getFullYear()}
+        {dailyRightsShowCalendar ? (
+          <View style={rainWayStyles.rainWayCalendarScreen}>
+            <Text style={rainWayStyles.rainWayChooseDayText}>
+              CHOOSE A DAY:
+            </Text>
+            <View style={rainWayStyles.rainWayCalendarBox}>
+              <View style={rainWayStyles.rainWayCalendarBoxHeader}>
+                <Text style={rainWayStyles.rainWayCalendarMonthYear}>
+                  {MONTH_NAMES[dailyRightsCalendarMonth.getMonth()]}{' '}
+                  {dailyRightsCalendarMonth.getFullYear()}
                 </Text>
-                <View style={styles.calendarNav}>
+                <View style={rainWayStyles.rainWayCalendarNav}>
                   <TouchableOpacity
                     onPress={() =>
-                      setCalendarMonth(
+                      setDailyRightsCalendarMonth(
                         new Date(
-                          calendarMonth.getFullYear(),
-                          calendarMonth.getMonth() - 1,
+                          dailyRightsCalendarMonth.getFullYear(),
+                          dailyRightsCalendarMonth.getMonth() - 1,
                         ),
                       )
                     }
-                    style={styles.calendarNavBtn}
+                    style={rainWayStyles.rainWayCalendarNavBtn}
                   >
-                    <Text style={styles.calendarNavArrow}>‹</Text>
+                    <Text style={rainWayStyles.rainWayCalendarNavArrow}>‹</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() =>
-                      setCalendarMonth(
+                      setDailyRightsCalendarMonth(
                         new Date(
-                          calendarMonth.getFullYear(),
-                          calendarMonth.getMonth() + 1,
+                          dailyRightsCalendarMonth.getFullYear(),
+                          dailyRightsCalendarMonth.getMonth() + 1,
                         ),
                       )
                     }
-                    style={styles.calendarNavBtn}
+                    style={rainWayStyles.rainWayCalendarNavBtn}
                   >
-                    <Text style={styles.calendarNavArrow}>›</Text>
+                    <Text style={rainWayStyles.rainWayCalendarNavArrow}>›</Text>
                   </TouchableOpacity>
                 </View>
               </View>
-              <View style={styles.weekdayRow}>
+              <View style={rainWayStyles.rainWayWeekdayRow}>
                 {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map(d => (
-                  <Text key={d} style={styles.weekdayCell}>
+                  <Text key={d} style={rainWayStyles.rainWayWeekdayCell}>
                     {d}
                   </Text>
                 ))}
               </View>
-              <View style={styles.daysGrid}>
+              <View style={rainWayStyles.rainWayDaysGrid}>
                 {getCalendarDays(
-                  calendarMonth.getFullYear(),
-                  calendarMonth.getMonth(),
+                  dailyRightsCalendarMonth.getFullYear(),
+                  dailyRightsCalendarMonth.getMonth(),
                 ).map((d, i) => {
-                  const isSelected =
-                    selectedCalendarDate &&
-                    selectedCalendarDate.getDate() === d &&
-                    selectedCalendarDate.getMonth() ===
-                      calendarMonth.getMonth() &&
-                    selectedCalendarDate.getFullYear() ===
-                      calendarMonth.getFullYear();
+                  const dailyRightsIsSelected =
+                    dailyRightsSelectedCalendarDate &&
+                    dailyRightsSelectedCalendarDate.getDate() === d &&
+                    dailyRightsSelectedCalendarDate.getMonth() ===
+                      dailyRightsCalendarMonth.getMonth() &&
+                    dailyRightsSelectedCalendarDate.getFullYear() ===
+                      dailyRightsCalendarMonth.getFullYear();
                   if (d === null) {
-                    return <View key={`e-${i}`} style={styles.dayCell} />;
+                    return (
+                      <View
+                        key={`e-${i}`}
+                        style={rainWayStyles.rainWayDayCell}
+                      />
+                    );
                   }
                   return (
                     <TouchableOpacity
                       key={`d-${d}`}
-                      style={styles.dayCell}
+                      style={rainWayStyles.rainWayDayCell}
                       onPress={() =>
-                        setSelectedCalendarDate(
+                        setDailyRightsSelectedCalendarDate(
                           new Date(
-                            calendarMonth.getFullYear(),
-                            calendarMonth.getMonth(),
+                            dailyRightsCalendarMonth.getFullYear(),
+                            dailyRightsCalendarMonth.getMonth(),
                             d,
                           ),
                         )
@@ -288,14 +311,16 @@ const RainBornPathJournal: React.FC = () => {
                     >
                       <View
                         style={[
-                          styles.dayCellCircle,
-                          isSelected && styles.dayCellSelected,
+                          rainWayStyles.rainWayDayCellCircle,
+                          dailyRightsIsSelected &&
+                            rainWayStyles.rainWayDayCellSelected,
                         ]}
                       >
                         <Text
                           style={[
-                            styles.dayCellText,
-                            isSelected && styles.dayCellTextSelected,
+                            rainWayStyles.rainWayDayCellText,
+                            dailyRightsIsSelected &&
+                              rainWayStyles.rainWayDayCellTextSelected,
                           ]}
                         >
                           {d}
@@ -306,45 +331,54 @@ const RainBornPathJournal: React.FC = () => {
                 })}
               </View>
             </View>
-            {selectedCalendarDate &&
+            {dailyRightsSelectedCalendarDate &&
               (() => {
-                const dateStr = formatDate(selectedCalendarDate);
-                const notesForDay = notes.filter(n => n.date === dateStr);
-                if (notesForDay.length === 0) {
+                const dailyRightsDateStr = formatDate(
+                  dailyRightsSelectedCalendarDate,
+                );
+                const dailyRightsNotesForDay = dailyRightsNotes.filter(
+                  note => note.date === dailyRightsDateStr,
+                );
+                if (dailyRightsNotesForDay.length === 0) {
                   return (
-                    <Text style={styles.noEntriesText}>
+                    <Text style={rainWayStyles.rainWayNoEntriesText}>
                       No entries for this day
                     </Text>
                   );
                 }
                 return (
-                  <View style={styles.calendarCardsWrap}>
-                    {notesForDay.map(note => (
+                  <View style={rainWayStyles.rainWayCalendarCardsWrap}>
+                    {dailyRightsNotesForDay.map(note => (
                       <ImageBackground
                         source={require('../RainBornAssets/images/onboard/textboard.png')}
-                        style={styles.entryCardBg}
+                        style={rainWayStyles.rainWayEntryCardBg}
                         resizeMode="contain"
                         key={note.id}
                       >
-                        <View style={styles.entryCard}>
-                          <Text style={styles.entryDate}>{note.date}</Text>
-                          <Text style={styles.entrySnippet} numberOfLines={3}>
+                        <View style={rainWayStyles.rainWayEntryCard}>
+                          <Text style={rainWayStyles.rainWayEntryDate}>
+                            {note.date}
+                          </Text>
+                          <Text
+                            style={rainWayStyles.rainWayEntrySnippet}
+                            numberOfLines={3}
+                          >
                             {note.text}
                           </Text>
                         </View>
                         <TouchableOpacity
                           onPress={() => {
-                            setShowCalendar(false);
-                            onOpenNote(note);
+                            setDailyRightsShowCalendar(false);
+                            onDailyRightsOpenNote(note);
                           }}
                           activeOpacity={0.8}
-                          style={styles.openButtonWrap}
+                          style={rainWayStyles.rainWayOpenButtonWrap}
                         >
                           <ImageBackground
                             source={require('../RainBornAssets/images/onboard/button.png')}
                             style={[
-                              styles.onboardStyleButton,
-                              styles.openButton,
+                              rainWayStyles.rainWayOnboardStyleButton,
+                              rainWayStyles.rainWayOpenButton,
                             ]}
                           >
                             <Image
@@ -358,29 +392,31 @@ const RainBornPathJournal: React.FC = () => {
                 );
               })()}
           </View>
-        ) : showAddNote ? (
-          <View style={styles.addNoteScreen}>
-            <View style={styles.notePanel}>
-              <Text style={styles.noteDate}>{formatDate(new Date())}</Text>
+        ) : dailyRightsShowAddNote ? (
+          <View style={rainWayStyles.rainWayAddNoteScreen}>
+            <View style={rainWayStyles.rainWayNotePanel}>
+              <Text style={rainWayStyles.rainWayNoteDate}>
+                {formatDate(new Date())}
+              </Text>
               <TextInput
-                style={styles.noteInput}
+                style={rainWayStyles.rainWayNoteInput}
                 placeholder="HOW ARE YOU NOW?"
                 placeholderTextColor="rgba(255,255,255,0.5)"
-                value={newNoteText}
-                onChangeText={setNewNoteText}
+                value={dailyRightsNewNoteText}
+                onChangeText={setDailyRightsNewNoteText}
                 multiline
                 textAlignVertical="top"
               />
             </View>
-            {newNoteText && (
+            {dailyRightsNewNoteText && (
               <TouchableOpacity
-                onPress={onSaveNote}
+                onPress={onDailyRightsSaveNote}
                 activeOpacity={0.8}
-                style={styles.saveButtonWrap}
+                style={rainWayStyles.rainWaySaveButtonWrap}
               >
                 <ImageBackground
                   source={require('../RainBornAssets/images/onboard/button.png')}
-                  style={styles.onboardStyleButton}
+                  style={rainWayStyles.rainWayOnboardStyleButton}
                 >
                   <Image
                     source={require('../RainBornAssets/images/SAVE.png')}
@@ -389,9 +425,9 @@ const RainBornPathJournal: React.FC = () => {
               </TouchableOpacity>
             )}
           </View>
-        ) : isEmpty ? (
-          <View style={styles.emptyState}>
-            <View style={styles.avatarWrap}>
+        ) : dailyRightsIsEmpty ? (
+          <View style={rainWayStyles.rainWayEmptyState}>
+            <View style={rainWayStyles.rainWayAvatarWrap}>
               <Image
                 source={require('../RainBornAssets/images/welcomeimg.png')}
               />
@@ -399,18 +435,18 @@ const RainBornPathJournal: React.FC = () => {
             <Image
               source={require('../RainBornAssets/images/welcometxt.png')}
             />
-            <Text style={styles.emptyParagraph}>
+            <Text style={rainWayStyles.rainWayEmptyParagraph}>
               Add the first entry to the journal, and don't forget to share your
               thoughts here, I'm here and will accept any opinion you have.
             </Text>
             <TouchableOpacity
-              onPress={onAddNote}
+              onPress={onDailyRightsAddNote}
               activeOpacity={0.8}
-              style={styles.addNoteButtonWrap}
+              style={rainWayStyles.rainWayAddNoteButtonWrap}
             >
               <ImageBackground
                 source={require('../RainBornAssets/images/onboard/button.png')}
-                style={styles.onboardStyleButton}
+                style={rainWayStyles.rainWayOnboardStyleButton}
               >
                 <Image
                   source={require('../RainBornAssets/images/addNote.png')}
@@ -419,47 +455,55 @@ const RainBornPathJournal: React.FC = () => {
             </TouchableOpacity>
           </View>
         ) : (
-          <View style={styles.listScroll}>
+          <View style={rainWayStyles.rainWayListScroll}>
             <TouchableOpacity
               activeOpacity={0.8}
-              style={styles.calendarButtonWrap}
+              style={rainWayStyles.rainWayCalendarButtonWrap}
               onPress={() => {
                 const today = new Date();
-                setCalendarMonth(today);
-                setSelectedCalendarDate(today);
-                setShowCalendar(true);
+                setDailyRightsCalendarMonth(today);
+                setDailyRightsSelectedCalendarDate(today);
+                setDailyRightsShowCalendar(true);
               }}
             >
               <ImageBackground
                 source={require('../RainBornAssets/images/onboard/button.png')}
-                style={styles.onboardStyleButton}
+                style={rainWayStyles.rainWayOnboardStyleButton}
               >
                 <Image
                   source={require('../RainBornAssets/images/CALENDAR.png')}
                 />
               </ImageBackground>
             </TouchableOpacity>
-            {notes.map(note => (
+            {dailyRightsNotes.map(note => (
               <ImageBackground
                 source={require('../RainBornAssets/images/onboard/textboard.png')}
-                style={styles.entryCardBg}
+                style={rainWayStyles.rainWayEntryCardBg}
                 resizeMode="contain"
                 key={note.id}
               >
-                <View style={styles.entryCard}>
-                  <Text style={styles.entryDate}>{note.date}</Text>
-                  <Text style={styles.entrySnippet} numberOfLines={3}>
+                <View style={rainWayStyles.rainWayEntryCard}>
+                  <Text style={rainWayStyles.rainWayEntryDate}>
+                    {note.date}
+                  </Text>
+                  <Text
+                    style={rainWayStyles.rainWayEntrySnippet}
+                    numberOfLines={3}
+                  >
                     {note.text}
                   </Text>
                 </View>
                 <TouchableOpacity
-                  onPress={() => onOpenNote(note)}
+                  onPress={() => onDailyRightsOpenNote(note)}
                   activeOpacity={0.8}
-                  style={styles.openButtonWrap}
+                  style={rainWayStyles.rainWayOpenButtonWrap}
                 >
                   <ImageBackground
                     source={require('../RainBornAssets/images/onboard/button.png')}
-                    style={[styles.onboardStyleButton, styles.openButton]}
+                    style={[
+                      rainWayStyles.rainWayOnboardStyleButton,
+                      rainWayStyles.rainWayOpenButton,
+                    ]}
                   >
                     <Image
                       source={require('../RainBornAssets/images/opn.png')}
@@ -469,13 +513,13 @@ const RainBornPathJournal: React.FC = () => {
               </ImageBackground>
             ))}
             <TouchableOpacity
-              onPress={onAddNote}
+              onPress={onDailyRightsAddNote}
               activeOpacity={0.8}
-              style={styles.addNoteButtonWrap}
+              style={rainWayStyles.rainWayAddNoteButtonWrap}
             >
               <ImageBackground
                 source={require('../RainBornAssets/images/onboard/button.png')}
-                style={styles.onboardStyleButton}
+                style={rainWayStyles.rainWayOnboardStyleButton}
               >
                 <Image
                   source={require('../RainBornAssets/images/addNote.png')}
@@ -486,10 +530,10 @@ const RainBornPathJournal: React.FC = () => {
         )}
 
         <Modal
-          visible={!!selectedNote}
+          visible={!!dailyRightsSelectedNote}
           transparent
           animationType="fade"
-          onRequestClose={onCloseNote}
+          onRequestClose={onDailyRightsCloseNote}
           statusBarTranslucent={Platform.OS === 'android'}
         >
           {Platform.OS === 'ios' && (
@@ -505,23 +549,25 @@ const RainBornPathJournal: React.FC = () => {
               }}
             />
           )}
-          <View style={styles.viewNoteOverlay}>
-            <View style={styles.viewNoteContent}>
-              <View style={styles.viewNoteHeader}>
-                <Text style={styles.viewNoteDate}>{selectedNote?.date}</Text>
+          <View style={rainWayStyles.rainWayViewNoteOverlay}>
+            <View style={rainWayStyles.rainWayViewNoteContent}>
+              <View style={rainWayStyles.rainWayViewNoteHeader}>
+                <Text style={rainWayStyles.rainWayViewNoteDate}>
+                  {dailyRightsSelectedNote?.date}
+                </Text>
                 <TouchableOpacity
-                  onPress={onCloseNote}
+                  onPress={onDailyRightsCloseNote}
                   hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-                  style={styles.viewNoteCloseBtn}
+                  style={rainWayStyles.rainWayViewNoteCloseBtn}
                 >
                   <Image
                     source={require('../RainBornAssets/images/cls.png')}
-                    style={styles.closeIcon}
+                    style={rainWayStyles.rainWayCloseIcon}
                   />
                 </TouchableOpacity>
               </View>
-              <View style={styles.viewNoteScrollContent}>
-                <View style={styles.viewNoteCard}>
+              <View style={rainWayStyles.rainWayViewNoteScrollContent}>
+                <View style={rainWayStyles.rainWayViewNoteCard}>
                   <View
                     style={{
                       padding: 16,
@@ -531,29 +577,31 @@ const RainBornPathJournal: React.FC = () => {
                       marginBottom: 16,
                     }}
                   >
-                    <Text style={styles.viewNoteText}>
-                      {selectedNote?.text}
+                    <Text style={rainWayStyles.rainWayViewNoteText}>
+                      {dailyRightsSelectedNote?.text}
                     </Text>
                   </View>
                   <TouchableOpacity
-                    onPress={onDeleteNote}
-                    style={styles.deleteNoteWrap}
+                    onPress={onDailyRightsDeleteNote}
+                    style={rainWayStyles.rainWayDeleteNoteWrap}
                   >
                     <Image
                       source={require('../RainBornAssets/images/delete.png')}
                     />
-                    <Text style={styles.deleteNoteText}>Delete note</Text>
+                    <Text style={rainWayStyles.rainWayDeleteNoteText}>
+                      Delete note
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
               <TouchableOpacity
-                onPress={onShareNote}
+                onPress={onDailyRightsShareNote}
                 activeOpacity={0.8}
-                style={styles.shareButtonWrap}
+                style={rainWayStyles.rainWayShareButtonWrap}
               >
                 <ImageBackground
                   source={require('../RainBornAssets/images/onboard/button.png')}
-                  style={styles.onboardStyleButton}
+                  style={rainWayStyles.rainWayOnboardStyleButton}
                 >
                   <Image
                     source={require('../RainBornAssets/images/sharel.png')}
@@ -568,16 +616,16 @@ const RainBornPathJournal: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  background: { flex: 1 },
-  centered: {
+const rainWayStyles = StyleSheet.create({
+  rainWayBackground: { flex: 1 },
+  rainWayCentered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#1a3a1a',
   },
-  loadingText: { color: '#fff', fontFamily: 'Nunito-Regular' },
-  header: {
+  rainWayLoadingText: { color: '#fff', fontFamily: 'Nunito-Regular' },
+  rainWayHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -592,45 +640,45 @@ const styles = StyleSheet.create({
     width: '86%',
     alignSelf: 'center',
   },
-  headerBack: { position: 'absolute', left: 16 },
-  headerTitle: {
+  rainWayHeaderBack: { position: 'absolute', left: 16 },
+  rainWayHeaderTitle: {
     fontFamily: 'Nunito-Bold',
     fontSize: 16,
     color: '#E87850',
     letterSpacing: 0.5,
   },
-  emptyState: {
+  rainWayEmptyState: {
     flex: 1,
     paddingTop: 24,
     paddingHorizontal: 24,
   },
-  avatarWrap: {
+  rainWayAvatarWrap: {
     marginTop: 30,
     marginBottom: 20,
   },
-  entryCardBg: {
+  rainWayEntryCardBg: {
     width: 386,
     height: 386,
     resizeMode: 'contain',
   },
-  avatar: {
+  rainWayAvatar: {
     width: '100%',
     height: '100%',
   },
-  emptyTitle1: {
+  rainWayEmptyTitle1: {
     fontFamily: 'Nunito-Bold',
     fontSize: 20,
     color: '#fff',
     marginBottom: 4,
   },
-  emptyTitle2: {
+  rainWayEmptyTitle2: {
     fontFamily: 'Nunito-Bold',
     fontSize: 20,
     color: '#E87850',
     marginBottom: 16,
     textAlign: 'center',
   },
-  emptyParagraph: {
+  rainWayEmptyParagraph: {
     fontFamily: 'Nunito-Regular',
     fontSize: 13,
     color: '#D9D9D9',
@@ -638,25 +686,25 @@ const styles = StyleSheet.create({
     width: '80%',
     marginTop: 20,
   },
-  addNoteButtonWrap: { marginTop: 8 },
-  onboardStyleButton: {
+  rainWayAddNoteButtonWrap: { marginTop: 8 },
+  rainWayOnboardStyleButton: {
     width: 236,
     height: 74,
     justifyContent: 'center',
     alignItems: 'center',
     resizeMode: 'contain',
   },
-  onboardStyleButtonText: {
+  rainWayOnboardStyleButtonText: {
     fontSize: 24,
     color: 'rgba(169, 22, 0, 1)',
     fontFamily: 'Nunito-Black',
   },
-  addNoteScreen: {
+  rainWayAddNoteScreen: {
     flex: 1,
     paddingTop: 24,
     paddingHorizontal: 16,
   },
-  notePanel: {
+  rainWayNotePanel: {
     backgroundColor: '#123509',
     borderRadius: 6,
     padding: 35,
@@ -666,13 +714,13 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
   },
-  noteDate: {
+  rainWayNoteDate: {
     fontFamily: 'Nunito-Black',
     fontSize: 16,
     color: '#fff',
     marginBottom: 12,
   },
-  noteInput: {
+  rainWayNoteInput: {
     flex: 1,
     fontFamily: 'Nunito-Regular',
     fontSize: 16,
@@ -684,16 +732,24 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     minHeight: 200,
   },
-  saveButtonWrap: { alignSelf: 'center', marginVertical: 20 },
-  listScroll: { flex: 1, alignItems: 'center', paddingBottom: 20 },
-  listContent: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 24 },
-  calendarButtonWrap: { alignSelf: 'center', marginBottom: 20, marginTop: 20 },
-  calendarScreen: {
+  rainWaySaveButtonWrap: { alignSelf: 'center', marginVertical: 20 },
+  rainWayListScroll: { flex: 1, alignItems: 'center', paddingBottom: 20 },
+  rainWayListContent: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 24,
+  },
+  rainWayCalendarButtonWrap: {
+    alignSelf: 'center',
+    marginBottom: 20,
+    marginTop: 20,
+  },
+  rainWayCalendarScreen: {
     paddingHorizontal: 26,
     paddingTop: 16,
     paddingBottom: 24,
   },
-  chooseDayText: {
+  rainWayChooseDayText: {
     fontFamily: 'Nunito-Black',
     fontSize: 20,
     color: '#000',
@@ -701,52 +757,52 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     marginTop: 20,
   },
-  calendarBox: {
+  rainWayCalendarBox: {
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 14,
     marginBottom: 20,
   },
-  calendarBoxHeader: {
+  rainWayCalendarBoxHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 12,
   },
-  calendarMonthYear: {
+  rainWayCalendarMonthYear: {
     fontFamily: 'Nunito-Bold',
     fontSize: 16,
     color: '#000',
   },
-  calendarNav: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  calendarNavBtn: { padding: 8 },
-  calendarNavArrow: {
+  rainWayCalendarNav: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  rainWayCalendarNavBtn: { padding: 8 },
+  rainWayCalendarNavArrow: {
     fontSize: 24,
     color: '#2196F3',
     fontFamily: 'Nunito-Bold',
   },
-  weekdayRow: {
+  rainWayWeekdayRow: {
     flexDirection: 'row',
     marginBottom: 8,
   },
-  weekdayCell: {
+  rainWayWeekdayCell: {
     flex: 1,
     fontFamily: 'Nunito-Regular',
     fontSize: 11,
     color: '#757575',
     textAlign: 'center',
   },
-  daysGrid: {
+  rainWayDaysGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
-  dayCell: {
+  rainWayDayCell: {
     width: '14.28%',
     aspectRatio: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  dayCellCircle: {
+  rainWayDayCellCircle: {
     width: 34,
     height: 34,
     borderRadius: 17,
@@ -755,65 +811,69 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  dayCellSelected: {
+  rainWayDayCellSelected: {
     backgroundColor: 'rgba(0, 123, 255, 0.12)',
   },
-  dayCellText: {
+  rainWayDayCellText: {
     fontFamily: 'Nunito-Regular',
     fontSize: 15,
     color: '#000',
   },
-  dayCellTextSelected: {
+  rainWayDayCellTextSelected: {
     fontFamily: 'Nunito-Regular',
     color: '#007AFF',
   },
-  noEntriesText: {
+  rainWayNoEntriesText: {
     fontFamily: 'Nunito-Regular',
     fontSize: 14,
     color: 'rgba(255,255,255,0.8)',
     textAlign: 'center',
     marginTop: 8,
   },
-  calendarCardsWrap: { marginTop: 8, alignItems: 'center' },
-  entryCard: {
+  rainWayCalendarCardsWrap: { marginTop: 8, alignItems: 'center' },
+  rainWayEntryCard: {
     padding: 20,
     paddingHorizontal: 80,
     paddingTop: 80,
     marginBottom: 16,
   },
-  entryDate: {
+  rainWayEntryDate: {
     fontFamily: 'Nunito-Black',
     fontSize: 20,
     color: '#fff',
     marginBottom: 8,
   },
-  entrySnippet: {
+  rainWayEntrySnippet: {
     fontFamily: 'Nunito-Regular',
     fontSize: 13,
     color: 'rgb(255, 255, 255)',
     lineHeight: 22,
     marginBottom: 16,
   },
-  openButtonWrap: { alignSelf: 'center', position: 'absolute', bottom: 60 },
-  openButton: { marginTop: 4 },
-  viewNoteOverlay: {
+  rainWayOpenButtonWrap: {
+    alignSelf: 'center',
+    position: 'absolute',
+    bottom: 60,
+  },
+  rainWayOpenButton: { marginTop: 4 },
+  rainWayViewNoteOverlay: {
     flex: 1,
     backgroundColor: '#000000D1',
     justifyContent: 'center',
     padding: 20,
   },
-  viewNoteContent: {
+  rainWayViewNoteContent: {
     backgroundColor: 'transparent',
     maxHeight: '87%',
   },
-  viewNoteHeader: {
+  rainWayViewNoteHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 16,
     paddingHorizontal: 4,
   },
-  viewNoteDate: {
+  rainWayViewNoteDate: {
     fontFamily: 'Nunito-Black',
     fontSize: 20,
     color: '#FFFFFF',
@@ -821,13 +881,13 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 8,
   },
-  viewNoteCloseBtn: {
+  rainWayViewNoteCloseBtn: {
     padding: 4,
   },
-  closeIcon: { width: 28, height: 28 },
-  viewNoteScroll: { flex: 1 },
-  viewNoteScrollContent: { paddingBottom: 16 },
-  viewNoteCard: {
+  rainWayCloseIcon: { width: 28, height: 28 },
+  rainWayViewNoteScroll: { flex: 1 },
+  rainWayViewNoteScrollContent: { paddingBottom: 16 },
+  rainWayViewNoteCard: {
     backgroundColor: '#123509',
     borderRadius: 6,
     padding: 35,
@@ -836,30 +896,30 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: 20,
   },
-  viewNoteText: {
+  rainWayViewNoteText: {
     fontFamily: 'Nunito-Regular',
     fontSize: 12,
     color: '#fff',
     marginBottom: 20,
     textAlign: 'left',
   },
-  deleteNoteWrap: {
+  rainWayDeleteNoteWrap: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     alignSelf: 'flex-start',
     gap: 8,
   },
-  deleteNoteIcon: {
+  rainWayDeleteNoteIcon: {
     fontSize: 18,
     marginRight: 6,
   },
-  deleteNoteText: {
+  rainWayDeleteNoteText: {
     fontFamily: 'Nunito-Bold',
     fontSize: 14,
     color: '#E53935',
     textDecorationLine: 'underline',
   },
-  shareButtonWrap: { alignSelf: 'center', marginTop: 8 },
+  rainWayShareButtonWrap: { alignSelf: 'center', marginTop: 8 },
 });
 
 export default RainBornPathJournal;

@@ -10,11 +10,11 @@ export const StoreContext = createContext<RainBornStoreType | undefined>(
 );
 
 export function useRainBornStore(): RainBornStoreType {
-  const ctx = useContext(StoreContext);
-  if (ctx === undefined) {
+  const dailyRightsCtx = useContext(StoreContext);
+  if (dailyRightsCtx === undefined) {
     throw new Error('useRainBornStore must be used within StoreProvider');
   }
-  return ctx;
+  return dailyRightsCtx;
 }
 
 export interface StoreProviderProps {
@@ -26,7 +26,7 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
     false,
   );
 
-  const value = useMemo<RainBornStoreType>(
+  const dailyRightsValue = useMemo<RainBornStoreType>(
     () => ({
       rainBornSoundEnabled,
       setRainBornSoundEnabled,
@@ -35,7 +35,7 @@ export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
   );
 
   return (
-    <StoreContext.Provider value={value}>
+    <StoreContext.Provider value={dailyRightsValue}>
       {children}
     </StoreContext.Provider>
   );

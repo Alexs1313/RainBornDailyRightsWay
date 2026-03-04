@@ -1,6 +1,10 @@
+// levels
+
+import type { StackNavigationProp } from '@react-navigation/stack';
+import type { RainBornRoutesList } from '../../RainWaystckrotes';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   Animated,
   Image,
@@ -11,9 +15,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import type { StackNavigationProp } from '@react-navigation/stack';
-import type { RainBornRoutesList } from '../../Roter';
-import TouchableOpacity from '../RainBornComponents/RainBornAnimatedTouchable';
+import TouchableOpacity from '../[RainBorncmpnts]/RainBornAnimatedTouchable';
 
 type NavigationProp = StackNavigationProp<RainBornRoutesList, 'RainBornLevels'>;
 
@@ -21,120 +23,129 @@ const LEVELS_TOTAL = 12;
 const LEVEL_STORAGE_KEY = '@RainBornDaily_currentLevel';
 
 const RainBornLevels: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
-  const [currentLevel, setCurrentLevel] = useState(1);
-  const [shakingLevel, setShakingLevel] = useState<number | null>(null);
-  const shakeAnim = useState(new Animated.Value(0))[0];
+  const dailyRightsNavigation = useNavigation<NavigationProp>();
+  const [dailyRightsCurrentLevel, setDailyRightsCurrentLevel] = useState(1);
+  const [dailyRightsShakingLevel, setDailyRightsShakingLevel] = useState<
+    number | null
+  >(null);
+  const dailyRightsShakeAnim = useState(new Animated.Value(0))[0];
 
-  const loadLevel = useCallback(async () => {
+  const dailyRightsLoadLevel = useCallback(async () => {
     try {
       const raw = await AsyncStorage.getItem(LEVEL_STORAGE_KEY);
       const parsed = Number(raw ?? '1');
       if (Number.isFinite(parsed) && parsed >= 1 && parsed <= LEVELS_TOTAL) {
-        setCurrentLevel(parsed);
+        setDailyRightsCurrentLevel(parsed);
       } else {
-        setCurrentLevel(1);
+        setDailyRightsCurrentLevel(1);
       }
     } catch (_) {
-      setCurrentLevel(1);
+      setDailyRightsCurrentLevel(1);
     }
   }, []);
 
   useFocusEffect(
     useCallback(() => {
-      loadLevel();
-    }, [loadLevel]),
+      dailyRightsLoadLevel();
+    }, [dailyRightsLoadLevel]),
   );
 
-  const goBack = useCallback(() => {
-    if (navigation.canGoBack()) navigation.goBack();
-  }, [navigation]);
+  const dailyRightsGoBack = useCallback(() => {
+    if (dailyRightsNavigation.canGoBack()) dailyRightsNavigation.goBack();
+  }, [dailyRightsNavigation]);
 
-  const onStart = useCallback(() => {
-    navigation.navigate('RainBornQuiz', { level: currentLevel });
-  }, [currentLevel, navigation]);
+  const onDailyRightsStart = useCallback(() => {
+    dailyRightsNavigation.navigate('RainBornQuiz', {
+      level: dailyRightsCurrentLevel,
+    });
+  }, [dailyRightsCurrentLevel, dailyRightsNavigation]);
 
-  const onPressLevel = useCallback(
-    (level: number, unlocked: boolean) => {
-      if (unlocked) {
-        navigation.navigate('RainBornQuiz', { level });
+  const onDailyRightsPressLevel = useCallback(
+    (dailyRightsLevel: number, dailyRightsUnlocked: boolean) => {
+      if (dailyRightsUnlocked) {
+        dailyRightsNavigation.navigate('RainBornQuiz', {
+          level: dailyRightsLevel,
+        });
         return;
       }
 
-      setShakingLevel(level);
-      shakeAnim.setValue(0);
+      setDailyRightsShakingLevel(dailyRightsLevel);
+      dailyRightsShakeAnim.setValue(0);
       Animated.sequence([
-        Animated.timing(shakeAnim, {
+        Animated.timing(dailyRightsShakeAnim, {
           toValue: 1,
           duration: 55,
           useNativeDriver: true,
         }),
-        Animated.timing(shakeAnim, {
+        Animated.timing(dailyRightsShakeAnim, {
           toValue: -1,
           duration: 55,
           useNativeDriver: true,
         }),
-        Animated.timing(shakeAnim, {
+        Animated.timing(dailyRightsShakeAnim, {
           toValue: 1,
           duration: 55,
           useNativeDriver: true,
         }),
-        Animated.timing(shakeAnim, {
+        Animated.timing(dailyRightsShakeAnim, {
           toValue: -1,
           duration: 55,
           useNativeDriver: true,
         }),
-        Animated.timing(shakeAnim, {
+        Animated.timing(dailyRightsShakeAnim, {
           toValue: 0,
           duration: 55,
           useNativeDriver: true,
         }),
       ]).start(() => {
-        setShakingLevel(null);
+        setDailyRightsShakingLevel(null);
       });
     },
-    [navigation, shakeAnim],
+    [dailyRightsNavigation, dailyRightsShakeAnim],
   );
 
   return (
     <ImageBackground
       source={require('../RainBornAssets/images/bgs/main.png')}
-      style={styles.background}
+      style={rainWayStyles.rainWayBackground}
     >
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ flexGrow: 1 }}
       >
-        <View style={styles.header}>
+        <View style={rainWayStyles.rainWayHeader}>
           <TouchableOpacity
-            onPress={goBack}
+            onPress={dailyRightsGoBack}
             activeOpacity={0.8}
-            style={styles.headerBack}
+            style={rainWayStyles.rainWayHeaderBack}
           >
             <Image source={require('../RainBornAssets/images/back.png')} />
           </TouchableOpacity>
           <Image source={require('../RainBornAssets/images/lvls.png')} />
         </View>
 
-        <View style={styles.content}>
-          <View style={styles.levelsGrid}>
+        <View style={rainWayStyles.rainWayContent}>
+          <View style={rainWayStyles.rainWayLevelsGrid}>
             {Array.from({ length: LEVELS_TOTAL }, (_, i) => {
               const level = i + 1;
-              const unlocked = level <= currentLevel;
+              const dailyRightsUnlocked = level <= dailyRightsCurrentLevel;
               return (
                 <TouchableOpacity
                   key={`level-${level}`}
                   activeOpacity={0.9}
-                  onPress={() => onPressLevel(level, unlocked)}
+                  onPress={() =>
+                    onDailyRightsPressLevel(level, dailyRightsUnlocked)
+                  }
                 >
                   <Animated.View
                     style={[
-                      styles.levelCard,
-                      !unlocked && styles.levelCardLocked,
-                      shakingLevel === level && {
+                      rainWayStyles.rainWayLevelCard,
+                      !dailyRightsUnlocked &&
+                        rainWayStyles.rainWayLevelCardLocked,
+                      dailyRightsShakingLevel === level && {
                         transform: [
                           {
-                            translateX: shakeAnim.interpolate({
+                            translateX: dailyRightsShakeAnim.interpolate({
                               inputRange: [-1, 1],
                               outputRange: [-7, 7],
                             }),
@@ -143,13 +154,15 @@ const RainBornLevels: React.FC = () => {
                       },
                     ]}
                   >
-                    {!unlocked ? (
+                    {!dailyRightsUnlocked ? (
                       <Image
                         source={require('../RainBornAssets/images/lock.png')}
                         style={{ width: 50, height: 50 }}
                       />
                     ) : (
-                      <Text style={styles.levelNumber}>{level}</Text>
+                      <Text style={rainWayStyles.rainWayLevelNumber}>
+                        {level}
+                      </Text>
                     )}
                   </Animated.View>
                 </TouchableOpacity>
@@ -158,13 +171,13 @@ const RainBornLevels: React.FC = () => {
           </View>
 
           <TouchableOpacity
-            onPress={onStart}
+            onPress={onDailyRightsStart}
             activeOpacity={0.8}
-            style={styles.startButtonWrap}
+            style={rainWayStyles.rainWayStartButtonWrap}
           >
             <ImageBackground
               source={require('../RainBornAssets/images/onboard/button.png')}
-              style={styles.onboardStyleButton}
+              style={rainWayStyles.rainWayOnboardStyleButton}
             >
               <Image source={require('../RainBornAssets/images/strt.png')} />
             </ImageBackground>
@@ -175,9 +188,9 @@ const RainBornLevels: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  background: { flex: 1 },
-  header: {
+const rainWayStyles = StyleSheet.create({
+  rainWayBackground: { flex: 1 },
+  rainWayHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -191,20 +204,20 @@ const styles = StyleSheet.create({
     width: '86%',
     alignSelf: 'center',
   },
-  headerBack: { position: 'absolute', left: 16 },
-  headerTitle: {
+  rainWayHeaderBack: { position: 'absolute', left: 16 },
+  rainWayHeaderTitle: {
     color: '#E87850',
     fontFamily: 'Nunito-Black',
     fontSize: 20,
     letterSpacing: 0.6,
   },
-  content: {
+  rainWayContent: {
     flex: 1,
     paddingTop: 26,
     paddingHorizontal: 20,
     alignItems: 'center',
   },
-  levelsGrid: {
+  rainWayLevelsGrid: {
     width: '100%',
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -212,7 +225,7 @@ const styles = StyleSheet.create({
     gap: 10,
     marginTop: 20,
   },
-  levelCard: {
+  rainWayLevelCard: {
     width: 111,
     height: 111,
     backgroundColor: '#123509',
@@ -224,34 +237,34 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 10,
   },
-  levelCardLocked: {
+  rainWayLevelCardLocked: {
     opacity: 0.85,
     backgroundColor: 'rgba(53, 9, 9, 1)',
   },
-  levelNumber: {
+  rainWayLevelNumber: {
     color: '#fff',
     fontFamily: 'Nunito-Bold',
     fontSize: 32,
   },
-  levelStatus: {
+  rainWayLevelStatus: {
     marginTop: 4,
     color: '#E87850',
     fontFamily: 'Nunito-Black',
     fontSize: 12,
   },
-  startButtonWrap: {
+  rainWayStartButtonWrap: {
     marginTop: 34,
     alignSelf: 'center',
     marginBottom: 20,
   },
-  onboardStyleButton: {
+  rainWayOnboardStyleButton: {
     width: 236,
     height: 74,
     justifyContent: 'center',
     alignItems: 'center',
     resizeMode: 'contain',
   },
-  startText: {
+  rainWayStartText: {
     fontSize: 24,
     color: 'rgba(169, 22, 0, 1)',
     fontFamily: 'Nunito-Black',

@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import RainBornRoutes from './Roter';
+import RainBornRoutes from './RainWaystckrotes';
 import { StoreProvider } from './DailRightssWaySrc/RainBornStore.tsx/rainBornContext';
 
 const CoreRborn: React.FC = () => {

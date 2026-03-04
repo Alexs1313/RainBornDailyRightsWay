@@ -1,4 +1,3 @@
-import React, { useRef } from 'react';
 import {
   Animated,
   GestureResponderEvent,
@@ -7,14 +6,16 @@ import {
   TouchableOpacity,
   TouchableOpacityProps,
 } from 'react-native';
+import React, { useRef } from 'react';
 
-const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
+const AnimatedTouchableOpacity =
+  Animated.createAnimatedComponent(TouchableOpacity);
 
 const RainBornAnimatedTouchable: React.FC<TouchableOpacityProps> = props => {
-  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const dailyRightsScaleAnim = useRef(new Animated.Value(1)).current;
 
-  const onPressIn = (event: GestureResponderEvent) => {
-    Animated.spring(scaleAnim, {
+  const dailyRightsOnPressIn = (event: GestureResponderEvent) => {
+    Animated.spring(dailyRightsScaleAnim, {
       toValue: 0.96,
       useNativeDriver: true,
       speed: 35,
@@ -23,8 +24,8 @@ const RainBornAnimatedTouchable: React.FC<TouchableOpacityProps> = props => {
     props.onPressIn?.(event);
   };
 
-  const onPressOut = (event: GestureResponderEvent) => {
-    Animated.spring(scaleAnim, {
+  const dailyRightsOnPressOut = (event: GestureResponderEvent) => {
+    Animated.spring(dailyRightsScaleAnim, {
       toValue: 1,
       useNativeDriver: true,
       speed: 30,
@@ -33,17 +34,17 @@ const RainBornAnimatedTouchable: React.FC<TouchableOpacityProps> = props => {
     props.onPressOut?.(event);
   };
 
-  const styleWithPressAnim: StyleProp<ViewStyle> = [
+  const dailyRightsStyleWithPressAnim: StyleProp<ViewStyle> = [
     props.style as StyleProp<ViewStyle>,
-    { transform: [{ scale: scaleAnim }] },
+    { transform: [{ scale: dailyRightsScaleAnim }] },
   ];
 
   return (
     <AnimatedTouchableOpacity
       {...props}
-      style={styleWithPressAnim}
-      onPressIn={onPressIn}
-      onPressOut={onPressOut}
+      style={dailyRightsStyleWithPressAnim}
+      onPressIn={dailyRightsOnPressIn}
+      onPressOut={dailyRightsOnPressOut}
     />
   );
 };

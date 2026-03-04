@@ -1,6 +1,12 @@
+// stories scrn
+
+import type { RainBornRoutesList } from '../../RainWaystckrotes';
+import Orientation from 'react-native-orientation-locker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BlurView } from '@react-native-community/blur';
+
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Image,
@@ -14,10 +20,8 @@ import {
   View,
 } from 'react-native';
 import type { StyleProp, TextStyle } from 'react-native';
-import TouchableOpacity from '../RainBornComponents/RainBornAnimatedTouchable';
+import TouchableOpacity from '../[RainBorncmpnts]/RainBornAnimatedTouchable';
 import type { StackNavigationProp } from '@react-navigation/stack';
-import type { RainBornRoutesList } from '../../Roter';
-import Orientation from 'react-native-orientation-locker';
 
 type NavigationProp = StackNavigationProp<
   RainBornRoutesList,
@@ -43,45 +47,50 @@ const TypingText: React.FC<TypingTextProps> = ({
   onComplete,
   isActive = true,
 }) => {
-  const [displayedLength, setDisplayedLength] = useState(0);
-  const [cursorVisible, setCursorVisible] = useState(true);
-  const onCompleteRef = useRef(onComplete);
-  onCompleteRef.current = onComplete;
+  const [dailyRightsDisplayedLength, setDailyRightsDisplayedLength] =
+    useState(0);
+  const [dailyRightsCursorVisible, setDailyRightsCursorVisible] =
+    useState(true);
+  const dailyRightsOnCompleteRef = useRef(onComplete);
+  dailyRightsOnCompleteRef.current = onComplete;
 
   useEffect(() => {
-    if (!isActive || displayedLength >= text.length) {
-      if (displayedLength >= text.length && onCompleteRef.current) {
-        onCompleteRef.current();
+    if (!isActive || dailyRightsDisplayedLength >= text.length) {
+      if (
+        dailyRightsDisplayedLength >= text.length &&
+        dailyRightsOnCompleteRef.current
+      ) {
+        dailyRightsOnCompleteRef.current();
       }
       return;
     }
-    const t = setTimeout(() => {
-      setDisplayedLength(prev => Math.min(prev + 1, text.length));
+    const dailyRightsTimeout = setTimeout(() => {
+      setDailyRightsDisplayedLength(prev => Math.min(prev + 1, text.length));
     }, typingSpeed);
-    return () => clearTimeout(t);
-  }, [isActive, text, text.length, displayedLength, typingSpeed]);
+    return () => clearTimeout(dailyRightsTimeout);
+  }, [isActive, text, text.length, dailyRightsDisplayedLength, typingSpeed]);
 
   useEffect(() => {
     if (!showCursor) return;
-    const id = setInterval(() => {
-      setCursorVisible(v => !v);
+    const dailyRightsIntervalId = setInterval(() => {
+      setDailyRightsCursorVisible(v => !v);
     }, 530);
-    return () => clearInterval(id);
+    return () => clearInterval(dailyRightsIntervalId);
   }, [showCursor]);
 
-  const displayedText = text.slice(0, displayedLength);
-  const isComplete = displayedLength >= text.length;
+  const dailyRightsDisplayedText = text.slice(0, dailyRightsDisplayedLength);
+  const dailyRightsIsComplete = dailyRightsDisplayedLength >= text.length;
 
   return (
     <Text style={style}>
-      {displayedText}
-      {showCursor && !isComplete && (
+      {dailyRightsDisplayedText}
+      {showCursor && !dailyRightsIsComplete && (
         <Text
           style={[
             style,
-            cursorVisible
-              ? styles.typingCursorVisible
-              : styles.typingCursorHidden,
+            dailyRightsCursorVisible
+              ? rainWayStyles.rainWayTypingCursorVisible
+              : rainWayStyles.rainWayTypingCursorHidden,
           ]}
         >
           {cursorChar}
@@ -172,125 +181,145 @@ You can leave this place at any time, and you will. But knowing it exists makes 
 ];
 
 const RainBornStories: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
-  const todayKey = getTodayKey();
-  const [currentLevel, setCurrentLevel] = useState(1);
-  const unlockedStoriesCount = Math.max(
+  const dailyRightsNavigation = useNavigation<NavigationProp>();
+  const dailyRightsTodayKey = getTodayKey();
+  const [dailyRightsCurrentLevel, setDailyRightsCurrentLevel] = useState(1);
+  const dailyRightsUnlockedStoriesCount = Math.max(
     1,
-    Math.min(currentLevel, STORIES.length),
+    Math.min(dailyRightsCurrentLevel, STORIES.length),
   );
-  const storyIndex = getStoryIndexForTodayWithUnlocked(unlockedStoriesCount);
-  const story = STORIES[storyIndex];
+  const dailyRightsStoryIndex = getStoryIndexForTodayWithUnlocked(
+    dailyRightsUnlockedStoriesCount,
+  );
+  const dailyRightsStory = STORIES[dailyRightsStoryIndex];
 
-  const [readModalVisible, setReadModalVisible] = useState(false);
-  const [storyReadToday, setStoryReadToday] = useState(false);
-  const [attentionDismissedToday, setAttentionDismissedToday] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-  const [countdownSeconds, setCountdownSeconds] = useState(SECONDS_24H);
-  const prevStoryReadToday = useRef(false);
+  const [dailyRightsReadModalVisible, setDailyRightsReadModalVisible] =
+    useState(false);
+  const [dailyRightsStoryReadToday, setDailyRightsStoryReadToday] =
+    useState(false);
+  const [
+    dailyRightsAttentionDismissedToday,
+    setDailyRightsAttentionDismissedToday,
+  ] = useState(false);
+  const [dailyRightsLoaded, setDailyRightsLoaded] = useState(false);
+  const [dailyRightsCountdownSeconds, setDailyRightsCountdownSeconds] =
+    useState(SECONDS_24H);
+  const dailyRightsPrevStoryReadToday = useRef(false);
 
   useEffect(() => {
-    if (storyReadToday && !prevStoryReadToday.current) {
-      setCountdownSeconds(SECONDS_24H);
+    if (dailyRightsStoryReadToday && !dailyRightsPrevStoryReadToday.current) {
+      setDailyRightsCountdownSeconds(SECONDS_24H);
     }
-    prevStoryReadToday.current = storyReadToday;
-  }, [storyReadToday]);
+    dailyRightsPrevStoryReadToday.current = dailyRightsStoryReadToday;
+  }, [dailyRightsStoryReadToday]);
 
   useEffect(() => {
-    if (!storyReadToday) return;
-    const id = setInterval(() => {
-      setCountdownSeconds(s => Math.max(0, s - 1));
+    if (!dailyRightsStoryReadToday) return;
+    const dailyRightsIntervalId = setInterval(() => {
+      setDailyRightsCountdownSeconds(s => Math.max(0, s - 1));
     }, 1000);
-    return () => clearInterval(id);
-  }, [storyReadToday]);
+    return () => clearInterval(dailyRightsIntervalId);
+  }, [dailyRightsStoryReadToday]);
 
-  const nextStoryTimer = formatCountdown(countdownSeconds);
+  const dailyRightsNextStoryTimer = formatCountdown(
+    dailyRightsCountdownSeconds,
+  );
 
   useFocusEffect(
     useCallback(() => {
-      if (Platform.OS === 'android' && readModalVisible) {
+      if (Platform.OS === 'android' && dailyRightsReadModalVisible) {
         Orientation.lockToPortrait();
       }
 
       return () => Orientation.unlockAllOrientations();
-    }, [readModalVisible]),
+    }, [dailyRightsReadModalVisible]),
   );
 
-  const loadState = useCallback(async () => {
+  const loadDailyRightsState = useCallback(async () => {
     try {
-      const [read, attentionDismissed, levelRaw] = await Promise.all([
-        AsyncStorage.getItem(`${STORAGE_KEY_PREFIX}storyRead_${todayKey}`),
-        AsyncStorage.getItem(`${STORAGE_KEY_PREFIX}storyAttention_${todayKey}`),
+      const [
+        dailyRightsRead,
+        dailyRightsAttentionDismissed,
+        dailyRightsLevelRaw,
+      ] = await Promise.all([
+        AsyncStorage.getItem(
+          `${STORAGE_KEY_PREFIX}storyRead_${dailyRightsTodayKey}`,
+        ),
+        AsyncStorage.getItem(
+          `${STORAGE_KEY_PREFIX}storyAttention_${dailyRightsTodayKey}`,
+        ),
         AsyncStorage.getItem(`${STORAGE_KEY_PREFIX}currentLevel`),
       ]);
-      setStoryReadToday(read === '1');
-      setAttentionDismissedToday(attentionDismissed === '1');
-      const parsedLevel = Number(levelRaw ?? '1');
+      setDailyRightsStoryReadToday(dailyRightsRead === '1');
+      setDailyRightsAttentionDismissedToday(
+        dailyRightsAttentionDismissed === '1',
+      );
+      const dailyRightsParsedLevel = Number(dailyRightsLevelRaw ?? '1');
       if (
-        Number.isFinite(parsedLevel) &&
-        parsedLevel >= 1 &&
-        parsedLevel <= 10
+        Number.isFinite(dailyRightsParsedLevel) &&
+        dailyRightsParsedLevel >= 1 &&
+        dailyRightsParsedLevel <= 10
       ) {
-        setCurrentLevel(parsedLevel);
+        setDailyRightsCurrentLevel(dailyRightsParsedLevel);
       } else {
-        setCurrentLevel(1);
+        setDailyRightsCurrentLevel(1);
       }
     } catch (_) {
       // ignore
     } finally {
-      setLoaded(true);
+      setDailyRightsLoaded(true);
     }
-  }, [todayKey]);
+  }, [dailyRightsTodayKey]);
 
-  const dismissAttention = useCallback(async () => {
-    setAttentionDismissedToday(true);
+  const dismissDailyRightsAttention = useCallback(async () => {
+    setDailyRightsAttentionDismissedToday(true);
     try {
       await AsyncStorage.setItem(
-        `${STORAGE_KEY_PREFIX}storyAttention_${todayKey}`,
+        `${STORAGE_KEY_PREFIX}storyAttention_${dailyRightsTodayKey}`,
         '1',
       );
     } catch (_) {}
-  }, [todayKey]);
+  }, [dailyRightsTodayKey]);
 
   useEffect(() => {
-    loadState();
+    loadDailyRightsState();
     // AsyncStorage.clear();
-  }, [loadState]);
+  }, [loadDailyRightsState]);
 
-  const openReadModal = useCallback(() => {
-    setReadModalVisible(true);
+  const openDailyRightsReadModal = useCallback(() => {
+    setDailyRightsReadModalVisible(true);
   }, []);
 
-  const closeReadModal = useCallback(async () => {
-    setReadModalVisible(false);
-    setStoryReadToday(true);
+  const closeDailyRightsReadModal = useCallback(async () => {
+    setDailyRightsReadModalVisible(false);
+    setDailyRightsStoryReadToday(true);
     try {
       await AsyncStorage.setItem(
-        `${STORAGE_KEY_PREFIX}storyRead_${todayKey}`,
+        `${STORAGE_KEY_PREFIX}storyRead_${dailyRightsTodayKey}`,
         '1',
       );
     } catch (_) {}
-  }, [todayKey]);
+  }, [dailyRightsTodayKey]);
 
-  const handleShare = useCallback(async () => {
+  const handleDailyRightsShare = useCallback(async () => {
     try {
       await Share.share({
-        title: story.title,
-        message: `${story.title}\n\n${story.fullText}`,
+        title: dailyRightsStory.title,
+        message: `${dailyRightsStory.title}\n\n${dailyRightsStory.fullText}`,
       });
     } catch (_) {}
-  }, [story]);
+  }, [dailyRightsStory]);
 
-  const goBack = useCallback(() => {
-    if (navigation.canGoBack()) {
-      navigation.goBack();
+  const dailyRightsGoBack = useCallback(() => {
+    if (dailyRightsNavigation.canGoBack()) {
+      dailyRightsNavigation.goBack();
     }
-  }, [navigation]);
+  }, [dailyRightsNavigation]);
 
-  if (!loaded) {
+  if (!dailyRightsLoaded) {
     return (
-      <View style={styles.centered}>
-        <Text style={styles.loadingText}>...</Text>
+      <View style={rainWayStyles.rainWayCentered}>
+        <Text style={rainWayStyles.rainWayLoadingText}>...</Text>
       </View>
     );
   }
@@ -298,16 +327,16 @@ const RainBornStories: React.FC = () => {
   return (
     <ImageBackground
       source={require('../RainBornAssets/images/bgs/main.png')}
-      style={styles.background}
+      style={rainWayStyles.rainWayBackground}
     >
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ flexGrow: 1 }}
       >
         {/* Header */}
-        <View style={styles.header}>
+        <View style={rainWayStyles.rainWayHeader}>
           <TouchableOpacity
-            onPress={goBack}
+            onPress={dailyRightsGoBack}
             activeOpacity={0.8}
             style={{ position: 'absolute', left: 20 }}
           >
@@ -318,8 +347,8 @@ const RainBornStories: React.FC = () => {
           />
         </View>
 
-        {!attentionDismissedToday ? (
-          <View style={styles.attentionScreen}>
+        {!dailyRightsAttentionDismissedToday ? (
+          <View style={rainWayStyles.rainWayAttentionScreen}>
             <Image
               source={require('../RainBornAssets/images/lepricon.png')}
               style={{
@@ -328,22 +357,24 @@ const RainBornStories: React.FC = () => {
                 height: 280,
               }}
             />
-            <View style={styles.introBlock}>
-              <View style={styles.attentionIconCircle}>
-                <Text style={styles.attentionExclamation}>!</Text>
+            <View style={rainWayStyles.rainWayIntroBlock}>
+              <View style={rainWayStyles.rainWayAttentionIconCircle}>
+                <Text style={rainWayStyles.rainWayAttentionExclamation}>!</Text>
               </View>
-              <Text style={styles.attentionTitle}>ATTENTION!</Text>
-              <Text style={styles.attentionMessage}>
+              <Text style={rainWayStyles.rainWayAttentionTitle}>
+                ATTENTION!
+              </Text>
+              <Text style={rainWayStyles.rainWayAttentionMessage}>
                 Only one story is available for reading per day.
               </Text>
               <TouchableOpacity
-                onPress={dismissAttention}
+                onPress={dismissDailyRightsAttention}
                 activeOpacity={0.8}
-                style={styles.attentionOkayButton}
+                style={rainWayStyles.rainWayAttentionOkayButton}
               >
                 <ImageBackground
                   source={require('../RainBornAssets/images/onboard/button.png')}
-                  style={styles.onboardStyleButton}
+                  style={rainWayStyles.rainWayOnboardStyleButton}
                 >
                   <Image
                     source={require('../RainBornAssets/images/okay.png')}
@@ -354,39 +385,43 @@ const RainBornStories: React.FC = () => {
           </View>
         ) : (
           /* Step 2: Story card — READ opens full story in modal */
-          <View style={styles.cardWrapper}>
-            {storyReadToday && (
-              <View style={styles.nextStoryRow}>
+          <View style={rainWayStyles.rainWayCardWrapper}>
+            {dailyRightsStoryReadToday && (
+              <View style={rainWayStyles.rainWayNextStoryRow}>
                 <Image
                   source={require('../RainBornAssets/images/attent.png')}
                 />
-                <Text style={styles.nextStoryLabel}>
-                  NEXT STORY: {nextStoryTimer}
+                <Text style={rainWayStyles.rainWayNextStoryLabel}>
+                  NEXT STORY: {dailyRightsNextStoryTimer}
                 </Text>
               </View>
             )}
 
             <ImageBackground
               source={require('../RainBornAssets/images/onboard/textboard.png')}
-              style={styles.storyBg}
+              style={rainWayStyles.rainWayStoryBg}
               resizeMode="contain"
             >
-              <View style={styles.storyCard}>
+              <View style={rainWayStyles.rainWayStoryCard}>
                 <View>
-                  <Text style={styles.storyCardTitle}>{story.title}</Text>
-                  <Text style={styles.storyCardExcerpt}>{story.excerpt}</Text>
+                  <Text style={rainWayStyles.rainWayStoryCardTitle}>
+                    {dailyRightsStory.title}
+                  </Text>
+                  <Text style={rainWayStyles.rainWayStoryCardExcerpt}>
+                    {dailyRightsStory.excerpt}
+                  </Text>
                 </View>
 
                 <TouchableOpacity
-                  onPress={openReadModal}
+                  onPress={openDailyRightsReadModal}
                   activeOpacity={0.8}
-                  style={styles.readButtonWrap}
+                  style={rainWayStyles.rainWayReadButtonWrap}
                 >
                   <ImageBackground
                     source={require('../RainBornAssets/images/onboard/button.png')}
-                    style={styles.onboardStyleButton}
+                    style={rainWayStyles.rainWayOnboardStyleButton}
                   >
-                    {storyReadToday ? (
+                    {dailyRightsStoryReadToday ? (
                       <Image
                         source={require('../RainBornAssets/images/readaga.png')}
                       />
@@ -404,10 +439,10 @@ const RainBornStories: React.FC = () => {
 
         {/* Read story modal */}
         <Modal
-          visible={readModalVisible}
+          visible={dailyRightsReadModalVisible}
           transparent
           animationType="fade"
-          onRequestClose={closeReadModal}
+          onRequestClose={closeDailyRightsReadModal}
           statusBarTranslucent={Platform.OS === 'android'}
         >
           {Platform.OS === 'ios' && (
@@ -423,54 +458,58 @@ const RainBornStories: React.FC = () => {
               }}
             />
           )}
-          <View style={styles.readModalOverlay}>
-            <View style={styles.readModalContent}>
-              <View style={styles.readModalHeader}>
+          <View style={rainWayStyles.rainWayReadModalOverlay}>
+            <View style={rainWayStyles.rainWayReadModalContent}>
+              <View style={rainWayStyles.rainWayReadModalHeader}>
                 <Image
                   source={require('../RainBornAssets/images/readSt.png')}
                 />
                 <TouchableOpacity
-                  onPress={closeReadModal}
+                  onPress={closeDailyRightsReadModal}
                   hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-                  style={styles.readModalClose}
+                  style={rainWayStyles.rainWayReadModalClose}
                 >
                   <Image
                     source={require('../RainBornAssets/images/cls.png')}
-                    style={styles.closeIcon}
+                    style={rainWayStyles.rainWayCloseIcon}
                   />
                 </TouchableOpacity>
               </View>
               <ScrollView
-                style={styles.readModalScroll}
-                contentContainerStyle={styles.readModalScrollContent}
+                style={rainWayStyles.rainWayReadModalScroll}
+                contentContainerStyle={
+                  rainWayStyles.rainWayReadModalScrollContent
+                }
                 showsVerticalScrollIndicator={false}
               >
                 <Image
                   source={require('../RainBornAssets/images/bgs/main.png')}
-                  style={styles.storyImage}
+                  style={rainWayStyles.rainWayStoryImage}
                   resizeMode="cover"
                 />
-                <Text style={styles.readModalStoryTitle}>{story.title}</Text>
-                {readModalVisible && (
+                <Text style={rainWayStyles.rainWayReadModalStoryTitle}>
+                  {dailyRightsStory.title}
+                </Text>
+                {dailyRightsReadModalVisible && (
                   <TypingText
-                    key={`typing-${story.title}-${todayKey}`}
-                    text={story.fullText}
+                    key={`typing-${dailyRightsStory.title}-${dailyRightsTodayKey}`}
+                    text={dailyRightsStory.fullText}
                     typingSpeed={12}
                     showCursor={true}
                     cursorChar="|"
-                    style={styles.readModalStoryText}
-                    isActive={readModalVisible}
+                    style={rainWayStyles.rainWayReadModalStoryText}
+                    isActive={dailyRightsReadModalVisible}
                   />
                 )}
               </ScrollView>
               <TouchableOpacity
-                onPress={handleShare}
+                onPress={handleDailyRightsShare}
                 activeOpacity={0.8}
-                style={styles.shareButtonWrap}
+                style={rainWayStyles.rainWayShareButtonWrap}
               >
                 <ImageBackground
                   source={require('../RainBornAssets/images/onboard/button.png')}
-                  style={styles.onboardStyleButton}
+                  style={rainWayStyles.rainWayOnboardStyleButton}
                 >
                   <Image
                     source={require('../RainBornAssets/images/sharel.png')}
@@ -485,21 +524,21 @@ const RainBornStories: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  background: {
+const rainWayStyles = StyleSheet.create({
+  rainWayBackground: {
     flex: 1,
   },
-  centered: {
+  rainWayCentered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#1a3a1a',
   },
-  loadingText: {
+  rainWayLoadingText: {
     color: '#fff',
     fontFamily: 'Nunito-Regular',
   },
-  header: {
+  rainWayHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -514,20 +553,20 @@ const styles = StyleSheet.create({
     width: '86%',
     alignSelf: 'center',
   },
-  storyBg: {
+  rainWayStoryBg: {
     width: 386,
     height: 386,
     justifyContent: 'center',
     alignItems: 'center',
     resizeMode: 'contain',
   },
-  attentionScreen: {
+  rainWayAttentionScreen: {
     flex: 1,
     paddingTop: 12,
     paddingHorizontal: 16,
     justifyContent: 'center',
   },
-  introBlock: {
+  rainWayIntroBlock: {
     backgroundColor: '#350909',
     marginHorizontal: 0,
     borderRadius: 6,
@@ -540,58 +579,58 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     top: -80,
   },
-  cardWrapper: {
+  rainWayCardWrapper: {
     flex: 1,
     paddingTop: 34,
     alignItems: 'center',
   },
-  storyCard: {
+  rainWayStoryCard: {
     width: '100%',
     maxWidth: 280,
     padding: 30,
   },
-  storyCardTitle: {
+  rainWayStoryCardTitle: {
     fontFamily: 'Nunito-Bold',
     fontSize: 20,
     color: '#D9D9D9',
     marginBottom: 10,
   },
-  storyCardExcerpt: {
+  rainWayStoryCardExcerpt: {
     fontFamily: 'Nunito-Regular',
     fontSize: 12,
     color: '#D9D9D9',
     marginBottom: 10,
   },
-  readButtonWrap: {
+  rainWayReadButtonWrap: {
     alignSelf: 'center',
     marginTop: 10,
   },
-  onboardStyleButton: {
+  rainWayOnboardStyleButton: {
     width: 236,
     height: 74,
     justifyContent: 'center',
     alignItems: 'center',
     resizeMode: 'contain',
   },
-  nextStoryRow: {
+  rainWayNextStoryRow: {
     marginTop: 16,
     alignItems: 'center',
     flexDirection: 'row',
     gap: 10,
     marginBottom: 20,
   },
-  nextStoryLabel: {
+  rainWayNextStoryLabel: {
     fontFamily: 'Nunito-Black',
     fontSize: 15,
     color: '#000',
   },
-  unlockedStoriesText: {
+  rainWayUnlockedStoriesText: {
     fontFamily: 'Nunito-Black',
     fontSize: 13,
     color: '#fff',
     marginBottom: 10,
   },
-  attentionIconCircle: {
+  rainWayAttentionIconCircle: {
     width: 75,
     height: 75,
     borderRadius: 37.5,
@@ -600,83 +639,83 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
-  attentionExclamation: {
+  rainWayAttentionExclamation: {
     fontFamily: 'Nunito-Black',
     fontSize: 42,
     color: '#000',
   },
-  attentionTitle: {
+  rainWayAttentionTitle: {
     fontFamily: 'Nunito-Black',
     fontSize: 24,
     color: '#fff',
     marginBottom: 8,
   },
-  attentionMessage: {
+  rainWayAttentionMessage: {
     fontFamily: 'Nunito-Regular',
     fontSize: 13,
     color: '#D9D9D9',
     textAlign: 'center',
     width: '50%',
   },
-  attentionOkayButton: {
+  rainWayAttentionOkayButton: {
     marginTop: 28,
   },
-  readModalOverlay: {
+  rainWayReadModalOverlay: {
     flex: 1,
     backgroundColor: '#000000D1',
     justifyContent: 'center',
     padding: 15,
   },
-  readModalContent: {
+  rainWayReadModalContent: {
     flex: 1,
     maxHeight: '90%',
     borderRadius: 16,
     overflow: 'hidden',
   },
-  readModalHeader: {
+  rainWayReadModalHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 14,
   },
-  readModalClose: {
+  rainWayReadModalClose: {
     padding: 4,
   },
-  closeIcon: {
+  rainWayCloseIcon: {
     width: 24,
     height: 24,
   },
-  readModalScroll: {
+  rainWayReadModalScroll: {
     flex: 1,
   },
-  readModalScrollContent: {
+  rainWayReadModalScrollContent: {
     paddingBottom: 14,
   },
-  storyImage: {
+  rainWayStoryImage: {
     marginTop: 24,
     width: '100%',
     height: 224,
     borderRadius: 10,
     marginBottom: 16,
   },
-  readModalStoryTitle: {
+  rainWayReadModalStoryTitle: {
     fontFamily: 'Nunito-Black',
     fontSize: 20,
     color: '#D9D9D9',
     marginBottom: 12,
   },
-  readModalStoryText: {
+  rainWayReadModalStoryText: {
     fontFamily: 'Nunito-Regular',
     fontSize: 13,
     color: '#D9D9D9',
   },
-  typingCursorVisible: {
+  rainWayTypingCursorVisible: {
     opacity: 1,
   },
-  typingCursorHidden: {
+  rainWayTypingCursorHidden: {
     opacity: 0,
   },
-  shareButtonWrap: {
+  rainWayShareButtonWrap: {
     marginVertical: 16,
   },
 });
