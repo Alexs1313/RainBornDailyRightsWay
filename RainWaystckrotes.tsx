@@ -36,7 +36,7 @@ const RainWaystckrotes: React.FC = () => {
       initialRouteName="RainBornLoader"
     >
       <Stack.Screen name="RainBornLoader" component={RainBornLoader} />
-      <Stack.Screen name="RainBornOnboard" component={RainBornOnboar} />
+      <Stack.Screen name="RainBornOnboard" component={RainBornOnboard} />
       <Stack.Screen
         name="RainBornCreateProfile"
         component={RainBornCreateProfile}

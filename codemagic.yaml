@@ -1,19 +1,19 @@
 workflows:
   ios-workflow:
-    name: 'RainBorn: Daily Rights Way'
+    name: 'Rainbow Way: Your Daily Luck'
     max_build_duration: 120
     instance_type: mac_mini_m2
     integrations:
-      app_store_connect: RainBornDailyRightsWayAPIKey
+      app_store_connect: RainbowWayAPIKey
     environment:
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.dkjfdslkj.jsdhfeisfsejfs.djfklsfd
+        bundle_identifier: com.ddsfsfqrainb.jssjskska
       vars:
-        BUNDLE_ID: com.dkjfdslkj.jsdhfeisfsejfs.djfklsfd
+        BUNDLE_ID: com.ddsfsfqrainb.jssjskska
         XCODE_WORKSPACE: RainBornDailyRightsWay.xcworkspace
         XCODE_SCHEME: RainBornDailyRightsWay
-        APP_STORE_APPLE_ID: 6759623818
+        APP_STORE_APPLE_ID: 6760125527
     scripts:
       - name: Install npm dependencies
         script: |
@@ -44,4 +44,4 @@ workflows:
       app_store_connect:
         auth: integration
         submit_to_app_store: true
-        copyright: 'RainBorn: Daily Rights Way 2026'
+        copyright: 'Rainbow Way: Your Daily Luck 2026'
