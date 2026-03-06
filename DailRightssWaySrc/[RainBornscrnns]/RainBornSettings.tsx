@@ -53,8 +53,8 @@ const RainBornSettings: React.FC = () => {
   };
 
   const dailyRightsThumbTranslateX = dailyRightsThumbAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 24],
+    inputRange: [1, 10],
+    outputRange: [1, 24],
   });
 
   return (
@@ -94,7 +94,7 @@ const RainBornSettings: React.FC = () => {
                   style={[
                     rainWayStyles.rainWaySwitchThumb,
                     rainBornSoundEnabled
-                      ? { backgroundColor: '#59d102' }
+                      ? { backgroundColor: '#59d102', left: 22 }
                       : { backgroundColor: '#D9D9D9' },
                     {
                       transform: [{ translateX: dailyRightsThumbTranslateX }],

@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BlurView } from '@react-native-community/blur';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Image,
   ImageBackground,
@@ -74,7 +74,7 @@ function getQuoteForToday(): string {
     // use bitwise operations to produce a simple hash; disable lint rules
     // eslint-disable-next-line no-bitwise
     hash = (hash << 5) - hash + key.charCodeAt(i);
-    // eslint-disable-next-line no-bitwise
+
     hash |= 0;
   }
   const index = Math.abs(hash) % QUOTES.length;
@@ -150,13 +150,14 @@ const RainBornHome: React.FC = () => {
     useState<MoodType>(null);
   const [dailyRightsModalVisible, setDailyRightsModalVisible] = useState(false);
   const [dailyRightsDailyQuote] = useState(() => getQuoteForToday());
-  // `dailyRightsLoaded` was previously used to gate rendering but is no longer
-  // referenced anywhere. We keep the setter in effects but drop the state
-  // variable to avoid unused-variable warnings.
-  // const [dailyRightsLoaded, setDailyRightsLoaded] = useState(false);
-  const [dailyRightsSound, setDailyRightsSound] = useState<Sound | null>(null);
-  const [dailyRightsRainBornMusicIdx, setDailyRightsRainBornMusicIdx] =
-    useState(0);
+
+  const [sound, setSound] = useState<Sound | null>(null);
+  const [rainBornMusicIdx, setRainBornMusicIdx] = useState(0);
+
+  const rainBornTracksCycle: string[] = [
+    'turtlebeats-calm-acoustic-quiet-quest-251658.mp3',
+    'turtlebeats-calm-acoustic-quiet-quest-251658.mp3',
+  ];
   const [dailyRightsMoodStatsVisible, setDailyRightsMoodStatsVisible] =
     useState(false);
   const [dailyRightsCalendarMonth, setDailyRightsCalendarMonth] = useState(
@@ -170,6 +171,95 @@ const RainBornHome: React.FC = () => {
   const [dailyRightsProfilePhotoUri, setDailyRightsProfilePhotoUri] = useState<
     string | null
   >(null);
+  const { rainBornSoundEnabled, setRainBornSoundEnabled } = useRainBornStore();
+
+  useFocusEffect(
+    useCallback(() => {
+      loadRainBornBgMusic();
+    }, []),
+  );
+
+  useEffect(() => {
+    playRainBornMusic(rainBornMusicIdx);
+
+    return () => {
+      if (sound) {
+        sound.stop(() => {
+          sound.release();
+        });
+      }
+    };
+  }, [rainBornMusicIdx]);
+
+  const playRainBornMusic = (index: number): void => {
+    if (sound) {
+      sound.stop(() => {
+        sound.release();
+      });
+    }
+    const rainBornTrackPath = rainBornTracksCycle[index];
+    const newRainBornMusicSound = new Sound(
+      rainBornTrackPath,
+      Sound.MAIN_BUNDLE,
+      (error: Error | null) => {
+        if (error) {
+          console.log('Error =>', error);
+          return;
+        }
+        newRainBornMusicSound.play((success: boolean) => {
+          if (success) {
+            setRainBornMusicIdx(
+              (prevIndex: number) =>
+                (prevIndex + 1) % rainBornTracksCycle.length,
+            );
+          } else {
+            console.log('Error =>');
+          }
+        });
+        setSound(newRainBornMusicSound);
+      },
+    );
+  };
+
+  useEffect(() => {
+    const setVolumeRainBornMusic = async () => {
+      try {
+        const rainBornMusicValue = await AsyncStorage.getItem(
+          'bg_app_music_enabled',
+        );
+
+        const isRainBornMusicOn = JSON.parse(rainBornMusicValue ?? 'true');
+        setRainBornSoundEnabled(!!isRainBornMusicOn);
+        if (sound) {
+          sound.setVolume(isRainBornMusicOn ? 1 : 0);
+        }
+      } catch (error) {
+        console.error('Error =>', error);
+      }
+    };
+
+    setVolumeRainBornMusic();
+  }, [sound]);
+
+  useEffect(() => {
+    if (sound) {
+      sound.setVolume(rainBornSoundEnabled ? 1 : 0);
+    }
+  }, [rainBornSoundEnabled]);
+
+  const loadRainBornBgMusic = async () => {
+    try {
+      const rainBornMusicValue = await AsyncStorage.getItem(
+        'bg_app_music_enabled',
+      );
+      const isRainBornMusicOn = JSON.parse(rainBornMusicValue ?? 'true');
+      setRainBornSoundEnabled(!!isRainBornMusicOn);
+    } catch (error) {
+      console.error('Error =>', error);
+    }
+  };
+
+  // ------------------------>
 
   useFocusEffect(
     useCallback(() => {
@@ -185,116 +275,6 @@ const RainBornHome: React.FC = () => {
   );
 
   const dailyRightsTodayKey = getTodayKey();
-
-  // dailyRightsState loaded via effect below
-
-  const dailyRightsRainBornTracksCycle = useMemo(
-    () => [
-      'turtlebeats-calm-acoustic-quiet-quest-251658.mp3',
-      'turtlebeats-calm-acoustic-quiet-quest-251658.mp3',
-    ],
-    [],
-  );
-  const {
-    rainBornSoundEnabled: dailyRightsRainBornSoundEnabled,
-    setRainBornSoundEnabled: setDailyRightsRainBornSoundEnabled,
-  } = useRainBornStore();
-
-  // bg music loading handled inside focus effect
-
-  useFocusEffect(
-    useCallback(() => {
-      const fn = async () => {
-        try {
-          const dailyRightsRainBornMusicValue = await AsyncStorage.getItem(
-            'bg_app_music_enabled',
-          );
-          const dailyRightsIsRainBornMusicOn = JSON.parse(
-            dailyRightsRainBornMusicValue ?? 'true',
-          );
-          setDailyRightsRainBornSoundEnabled(!!dailyRightsIsRainBornMusicOn);
-        } catch (error) {
-          console.error('Error settings =>', error);
-        }
-      };
-      fn();
-    }, [setDailyRightsRainBornSoundEnabled]),
-  );
-
-  // music play logic will be in effect below, no callback memoization required
-
-  useEffect(() => {
-    // play current track when idx changes
-    if (dailyRightsSound) {
-      dailyRightsSound.stop(() => {
-        dailyRightsSound.release();
-      });
-    }
-    const dailyRightsRainBornTrackPath =
-      dailyRightsRainBornTracksCycle[dailyRightsRainBornMusicIdx];
-    const newRainBornGameSound = new Sound(
-      dailyRightsRainBornTrackPath,
-      Sound.MAIN_BUNDLE,
-      (error: Error | null) => {
-        if (error) {
-          console.log('Error =>', error);
-          return;
-        }
-        newRainBornGameSound.play((success: boolean) => {
-          if (success) {
-            setDailyRightsRainBornMusicIdx(
-              (prevIndex: number) =>
-                (prevIndex + 1) % dailyRightsRainBornTracksCycle.length,
-            );
-          } else {
-            console.log('Error =>');
-          }
-        });
-        setDailyRightsSound(newRainBornGameSound);
-      },
-    );
-    return () => {
-      if (dailyRightsSound) {
-        dailyRightsSound.stop(() => {
-          dailyRightsSound.release();
-        });
-      }
-    };
-  }, [
-    dailyRightsRainBornMusicIdx,
-    dailyRightsSound,
-    dailyRightsRainBornTracksCycle,
-  ]);
-
-  useEffect(() => {
-    const setDailyRightsVolumeRainBornMusic = async () => {
-      try {
-        const dailyRightsRainBornMusicValue = await AsyncStorage.getItem(
-          'bg_app_music_enabled',
-        );
-
-        const dailyRightsIsRainBornMusicOn = JSON.parse(
-          dailyRightsRainBornMusicValue ?? 'true',
-        );
-        setDailyRightsRainBornSoundEnabled(!!dailyRightsIsRainBornMusicOn);
-        if (dailyRightsSound) {
-          dailyRightsSound.setVolume(dailyRightsIsRainBornMusicOn ? 1 : 0);
-        }
-      } catch (error) {
-        console.error('Error =>', error);
-      }
-    };
-
-    setDailyRightsVolumeRainBornMusic();
-  }, [dailyRightsSound, setDailyRightsRainBornSoundEnabled]);
-
-  useEffect(() => {
-    if (dailyRightsSound) {
-      dailyRightsSound.setVolume(dailyRightsRainBornSoundEnabled ? 1 : 0);
-    }
-  }, [dailyRightsRainBornSoundEnabled, dailyRightsSound]);
-
-  // profile loading handled in effects below
 
   useEffect(() => {
     const fn = async () => {
