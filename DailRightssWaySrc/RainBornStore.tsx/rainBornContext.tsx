@@ -1,4 +1,4 @@
-import React, { createContext, useMemo, useContext, useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 export interface RainBornStoreType {
   rainBornSoundEnabled: boolean;
@@ -22,21 +22,15 @@ export interface StoreProviderProps {
 }
 
 export const StoreProvider: React.FC<StoreProviderProps> = ({ children }) => {
-  const [rainBornSoundEnabled, setRainBornSoundEnabled] = useState<boolean>(
-    false,
-  );
+  const [rainBornSoundEnabled, setRainBornSoundEnabled] =
+    useState<boolean>(false);
 
-  const dailyRightsValue = useMemo<RainBornStoreType>(
-    () => ({
-      rainBornSoundEnabled,
-      setRainBornSoundEnabled,
-    }),
-    [rainBornSoundEnabled],
-  );
+  const value = {
+    rainBornSoundEnabled,
+    setRainBornSoundEnabled,
+  };
 
   return (
-    <StoreContext.Provider value={dailyRightsValue}>
-      {children}
-    </StoreContext.Provider>
+    <StoreContext.Provider value={value}>{children}</StoreContext.Provider>
   );
 };

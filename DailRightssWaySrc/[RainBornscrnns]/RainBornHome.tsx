@@ -71,7 +71,10 @@ function getQuoteForToday(): string {
   const key = getTodayKey();
   let hash = 0;
   for (let i = 0; i < key.length; i++) {
+    // use bitwise operations to produce a simple hash; disable lint rules
+    // eslint-disable-next-line no-bitwise
     hash = (hash << 5) - hash + key.charCodeAt(i);
+    // eslint-disable-next-line no-bitwise
     hash |= 0;
   }
   const index = Math.abs(hash) % QUOTES.length;
@@ -147,7 +150,10 @@ const RainBornHome: React.FC = () => {
     useState<MoodType>(null);
   const [dailyRightsModalVisible, setDailyRightsModalVisible] = useState(false);
   const [dailyRightsDailyQuote] = useState(() => getQuoteForToday());
-  const [dailyRightsLoaded, setDailyRightsLoaded] = useState(false);
+  // `dailyRightsLoaded` was previously used to gate rendering but is no longer
+  // referenced anywhere. We keep the setter in effects but drop the state
+  // variable to avoid unused-variable warnings.
+  // const [dailyRightsLoaded, setDailyRightsLoaded] = useState(false);
   const [dailyRightsSound, setDailyRightsSound] = useState<Sound | null>(null);
   const [dailyRightsRainBornMusicIdx, setDailyRightsRainBornMusicIdx] =
     useState(0);
@@ -180,29 +186,7 @@ const RainBornHome: React.FC = () => {
 
   const dailyRightsTodayKey = getTodayKey();
 
-  const loadDailyRightsState = useCallback(async () => {
-    try {
-      const dailyRightsMoodKey = `${STORAGE_KEY_PREFIX}mood_${dailyRightsTodayKey}`;
-      const dailyRightsQuoteKey = `${STORAGE_KEY_PREFIX}quoteShown_${dailyRightsTodayKey}`;
-      const [dailyRightsMood, dailyRightsQuoteShown] = await Promise.all([
-        AsyncStorage.getItem(dailyRightsMoodKey),
-        AsyncStorage.getItem(dailyRightsQuoteKey),
-      ]);
-      if (
-        dailyRightsMood &&
-        (dailyRightsMood === 'sad' ||
-          dailyRightsMood === 'calm' ||
-          dailyRightsMood === 'happy')
-      ) {
-        setDailyRightsMoodSelectedToday(dailyRightsMood as MoodType);
-        setDailyRightsSelectedMood(dailyRightsMood as MoodType);
-      }
-      if (dailyRightsQuoteShown === '1') setDailyRightsQuoteShownToday(true);
-    } catch (_) {
-    } finally {
-      setDailyRightsLoaded(true);
-    }
-  }, [dailyRightsTodayKey]);
+  // dailyRightsState loaded via effect below
 
   const dailyRightsRainBornTracksCycle = useMemo(
     () => [
@@ -216,62 +200,59 @@ const RainBornHome: React.FC = () => {
     setRainBornSoundEnabled: setDailyRightsRainBornSoundEnabled,
   } = useRainBornStore();
 
-  const loadDailyRightsRainBornBgMusic = useCallback(async () => {
-    try {
-      const dailyRightsRainBornMusicValue = await AsyncStorage.getItem(
-        'bg_app_music_enabled',
-      );
-      const dailyRightsIsRainBornMusicOn = JSON.parse(
-        dailyRightsRainBornMusicValue ?? 'true',
-      );
-      setDailyRightsRainBornSoundEnabled(!!dailyRightsIsRainBornMusicOn);
-    } catch (error) {
-      console.error('Error settings =>', error);
-    }
-  }, [setDailyRightsRainBornSoundEnabled]);
+  // bg music loading handled inside focus effect
 
   useFocusEffect(
     useCallback(() => {
-      loadDailyRightsRainBornBgMusic();
-    }, [loadDailyRightsRainBornBgMusic]),
+      const fn = async () => {
+        try {
+          const dailyRightsRainBornMusicValue = await AsyncStorage.getItem(
+            'bg_app_music_enabled',
+          );
+          const dailyRightsIsRainBornMusicOn = JSON.parse(
+            dailyRightsRainBornMusicValue ?? 'true',
+          );
+          setDailyRightsRainBornSoundEnabled(!!dailyRightsIsRainBornMusicOn);
+        } catch (error) {
+          console.error('Error settings =>', error);
+        }
+      };
+      fn();
+    }, [setDailyRightsRainBornSoundEnabled]),
   );
 
-  const playDailyRightsRainBornMusic = useCallback(
-    (dailyRightsIndex: number): void => {
-      if (dailyRightsSound) {
-        dailyRightsSound.stop(() => {
-          dailyRightsSound.release();
-        });
-      }
-      const dailyRightsRainBornTrackPath =
-        dailyRightsRainBornTracksCycle[dailyRightsIndex];
-      const newRainBornGameSound = new Sound(
-        dailyRightsRainBornTrackPath,
-        Sound.MAIN_BUNDLE,
-        (error: Error | null) => {
-          if (error) {
-            console.log('Error =>', error);
-            return;
-          }
-          newRainBornGameSound.play((success: boolean) => {
-            if (success) {
-              setDailyRightsRainBornMusicIdx(
-                (prevIndex: number) =>
-                  (prevIndex + 1) % dailyRightsRainBornTracksCycle.length,
-              );
-            } else {
-              console.log('Error =>');
-            }
-          });
-          setDailyRightsSound(newRainBornGameSound);
-        },
-      );
-    },
-    [dailyRightsSound, dailyRightsRainBornTracksCycle],
-  );
+  // music play logic will be in effect below, no callback memoization required
 
   useEffect(() => {
-    playDailyRightsRainBornMusic(dailyRightsRainBornMusicIdx);
+    // play current track when idx changes
+    if (dailyRightsSound) {
+      dailyRightsSound.stop(() => {
+        dailyRightsSound.release();
+      });
+    }
+    const dailyRightsRainBornTrackPath =
+      dailyRightsRainBornTracksCycle[dailyRightsRainBornMusicIdx];
+    const newRainBornGameSound = new Sound(
+      dailyRightsRainBornTrackPath,
+      Sound.MAIN_BUNDLE,
+      (error: Error | null) => {
+        if (error) {
+          console.log('Error =>', error);
+          return;
+        }
+        newRainBornGameSound.play((success: boolean) => {
+          if (success) {
+            setDailyRightsRainBornMusicIdx(
+              (prevIndex: number) =>
+                (prevIndex + 1) % dailyRightsRainBornTracksCycle.length,
+            );
+          } else {
+            console.log('Error =>');
+          }
+        });
+        setDailyRightsSound(newRainBornGameSound);
+      },
+    );
     return () => {
       if (dailyRightsSound) {
         dailyRightsSound.stop(() => {
@@ -281,8 +262,8 @@ const RainBornHome: React.FC = () => {
     };
   }, [
     dailyRightsRainBornMusicIdx,
-    playDailyRightsRainBornMusic,
     dailyRightsSound,
+    dailyRightsRainBornTracksCycle,
   ]);
 
   useEffect(() => {
@@ -313,50 +294,72 @@ const RainBornHome: React.FC = () => {
     }
   }, [dailyRightsRainBornSoundEnabled, dailyRightsSound]);
 
-  const loadDailyRightsProfileData = useCallback(async () => {
-    try {
-      const [dailyRightsSavedName, dailyRightsSavedPhoto] = await Promise.all([
-        AsyncStorage.getItem(PROFILE_NAME_KEY),
-        AsyncStorage.getItem(PROFILE_PHOTO_KEY),
-      ]);
-      setDailyRightsProfileName(dailyRightsSavedName ?? '');
-      setDailyRightsProfilePhotoUri(dailyRightsSavedPhoto ?? null);
-    } catch (_) {
-      setDailyRightsProfileName('');
-      setDailyRightsProfilePhotoUri(null);
-    }
-  }, []);
+  // profile loading handled in effects below
 
   useEffect(() => {
-    loadDailyRightsState();
-  }, [loadDailyRightsState]);
+    const fn = async () => {
+      try {
+        const dailyRightsMoodKey = `${STORAGE_KEY_PREFIX}mood_${dailyRightsTodayKey}`;
+        const dailyRightsQuoteKey = `${STORAGE_KEY_PREFIX}quoteShown_${dailyRightsTodayKey}`;
+        const [dailyRightsMood, dailyRightsQuoteShown] = await Promise.all([
+          AsyncStorage.getItem(dailyRightsMoodKey),
+          AsyncStorage.getItem(dailyRightsQuoteKey),
+        ]);
+        if (
+          dailyRightsMood &&
+          (dailyRightsMood === 'sad' ||
+            dailyRightsMood === 'calm' ||
+            dailyRightsMood === 'happy')
+        ) {
+          setDailyRightsMoodSelectedToday(dailyRightsMood as MoodType);
+          setDailyRightsSelectedMood(dailyRightsMood as MoodType);
+        }
+        if (dailyRightsQuoteShown === '1') setDailyRightsQuoteShownToday(true);
+      } catch (_) {
+      } finally {
+        // `dailyRightsLoaded` state removed; nothing to do here.
+      }
+    };
+    fn();
+  }, [dailyRightsTodayKey]);
 
   useFocusEffect(
     useCallback(() => {
-      loadDailyRightsProfileData();
-    }, [loadDailyRightsProfileData]),
+      const fn = async () => {
+        try {
+          const [dailyRightsSavedName, dailyRightsSavedPhoto] =
+            await Promise.all([
+              AsyncStorage.getItem(PROFILE_NAME_KEY),
+              AsyncStorage.getItem(PROFILE_PHOTO_KEY),
+            ]);
+          setDailyRightsProfileName(dailyRightsSavedName ?? '');
+          setDailyRightsProfilePhotoUri(dailyRightsSavedPhoto ?? null);
+        } catch (_) {
+          setDailyRightsProfileName('');
+          setDailyRightsProfilePhotoUri(null);
+        }
+      };
+      fn();
+    }, []),
   );
 
-  const selectDailyRightsMood = useCallback(
-    async (dailyRightsMood: MoodType) => {
-      if (!dailyRightsMood) return;
-      setDailyRightsSelectedMood(dailyRightsMood);
-      setDailyRightsMoodSelectedToday(dailyRightsMood);
-      try {
-        await AsyncStorage.setItem(
-          `${STORAGE_KEY_PREFIX}mood_${dailyRightsTodayKey}`,
-          dailyRightsMood,
-        );
-      } catch (_) {}
-    },
-    [dailyRightsTodayKey],
-  );
+  const selectDailyRightsMood = async (dailyRightsMood: MoodType) => {
+    if (!dailyRightsMood) return;
+    setDailyRightsSelectedMood(dailyRightsMood);
+    setDailyRightsMoodSelectedToday(dailyRightsMood);
+    try {
+      await AsyncStorage.setItem(
+        `${STORAGE_KEY_PREFIX}mood_${dailyRightsTodayKey}`,
+        dailyRightsMood,
+      );
+    } catch (_) {}
+  };
 
-  const openDailyRightsQuoteModal = useCallback(() => {
+  const openDailyRightsQuoteModal = () => {
     setDailyRightsModalVisible(true);
-  }, []);
+  };
 
-  const closeDailyRightsQuoteModal = useCallback(async () => {
+  const closeDailyRightsQuoteModal = async () => {
     setDailyRightsModalVisible(false);
     setDailyRightsQuoteShownToday(true);
     try {
@@ -365,24 +368,57 @@ const RainBornHome: React.FC = () => {
         '1',
       );
     } catch (_) {}
-  }, [dailyRightsTodayKey]);
+  };
 
-  const handleDailyRightsShare = useCallback(async () => {
+  const handleDailyRightsShare = async () => {
     try {
       await Share.share({
         message: dailyRightsDailyQuote,
         title: 'Quote of the day',
       });
     } catch (_) {}
-  }, [dailyRightsDailyQuote]);
+  };
 
-  const openDailyRightsMoodStats = useCallback(async () => {
-    const dailyRightsNow = new Date();
-    setDailyRightsCalendarMonth(dailyRightsNow);
-    setDailyRightsSelectedStatsDate(dailyRightsNow);
+  // function no longer called anywhere in the component; the various pieces of
+  // its logic are either invoked directly where needed or are redundant. Keep
+  // it if you plan to wire a "view stats" button later, otherwise remove.
+  // const openDailyRightsMoodStats = async () => {
+  //   const dailyRightsNow = new Date();
+  //   setDailyRightsCalendarMonth(dailyRightsNow);
+  //   setDailyRightsSelectedStatsDate(dailyRightsNow);
+  //   try {
+  //     const dailyRightsMood = await AsyncStorage.getItem(
+  //       `${STORAGE_KEY_PREFIX}mood_${getDateKey(dailyRightsNow)}`,
+  //     );
+  //     if (
+  //       dailyRightsMood === 'sad' ||
+  //       dailyRightsMood === 'calm' ||
+  //       dailyRightsMood === 'happy'
+  //     ) {
+  //       setDailyRightsSelectedStatsMood(dailyRightsMood);
+  //     } else {
+  //       setDailyRightsSelectedStatsMood(null);
+  //     }
+  //   } catch (_) {
+  //     setDailyRightsSelectedStatsMood(null);
+  //   }
+  //   setDailyRightsMoodStatsVisible(true);
+  // };
+
+  const closeDailyRightsMoodStats = () => {
+    setDailyRightsMoodStatsVisible(false);
+  };
+
+  const handleDailyRightsSelectStatsDate = async (dailyRightsDay: number) => {
+    const dailyRightsDate = new Date(
+      dailyRightsCalendarMonth.getFullYear(),
+      dailyRightsCalendarMonth.getMonth(),
+      dailyRightsDay,
+    );
+    setDailyRightsSelectedStatsDate(dailyRightsDate);
     try {
       const dailyRightsMood = await AsyncStorage.getItem(
-        `${STORAGE_KEY_PREFIX}mood_${getDateKey(dailyRightsNow)}`,
+        `${STORAGE_KEY_PREFIX}mood_${getDateKey(dailyRightsDate)}`,
       );
       if (
         dailyRightsMood === 'sad' ||
@@ -396,40 +432,7 @@ const RainBornHome: React.FC = () => {
     } catch (_) {
       setDailyRightsSelectedStatsMood(null);
     }
-    setDailyRightsMoodStatsVisible(true);
-  }, []);
-
-  const closeDailyRightsMoodStats = useCallback(() => {
-    setDailyRightsMoodStatsVisible(false);
-  }, []);
-
-  const handleDailyRightsSelectStatsDate = useCallback(
-    async (dailyRightsDay: number) => {
-      const dailyRightsDate = new Date(
-        dailyRightsCalendarMonth.getFullYear(),
-        dailyRightsCalendarMonth.getMonth(),
-        dailyRightsDay,
-      );
-      setDailyRightsSelectedStatsDate(dailyRightsDate);
-      try {
-        const dailyRightsMood = await AsyncStorage.getItem(
-          `${STORAGE_KEY_PREFIX}mood_${getDateKey(dailyRightsDate)}`,
-        );
-        if (
-          dailyRightsMood === 'sad' ||
-          dailyRightsMood === 'calm' ||
-          dailyRightsMood === 'happy'
-        ) {
-          setDailyRightsSelectedStatsMood(dailyRightsMood);
-        } else {
-          setDailyRightsSelectedStatsMood(null);
-        }
-      } catch (_) {
-        setDailyRightsSelectedStatsMood(null);
-      }
-    },
-    [dailyRightsCalendarMonth],
-  );
+  };
 
   if (dailyRightsMoodSelectedToday === null) {
     return (
@@ -493,7 +496,7 @@ const RainBornHome: React.FC = () => {
                 source={
                   dailyRightsProfilePhotoUri
                     ? { uri: dailyRightsProfilePhotoUri }
-                    : require('../RainBornAssets/images/homeLogo.png')
+                    : require('../RainBornAssets/images/180.png')
                 }
                 style={rainWayStyles.rainWayProfileAvatar}
               />
@@ -579,7 +582,7 @@ const RainBornHome: React.FC = () => {
                 />
               </ImageBackground>
             </TouchableOpacity>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => dailyRightsNavigation.navigate('RainBornLevels')}
             >
@@ -589,7 +592,7 @@ const RainBornHome: React.FC = () => {
               >
                 <Image source={require('../RainBornAssets/images/play.png')} />
               </ImageBackground>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() =>
@@ -992,8 +995,8 @@ const rainWayStyles = StyleSheet.create({
     alignItems: 'center',
   },
   rainWayOnboardStyleButton: {
-    width: 229,
-    height: 64,
+    width: 259,
+    height: 74,
     justifyContent: 'center',
     alignItems: 'center',
     resizeMode: 'contain',

@@ -3,11 +3,9 @@
 import TouchableOpacity from '../[RainBorncmpnts]/RainBornAnimatedTouchable';
 import type { StackNavigationProp } from '@react-navigation/stack';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { useNavigation } from '@react-navigation/native';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Easing,
@@ -54,8 +52,6 @@ const onboardDescriptions: string[] = [
   `Take the first step. The leprechaun is here — not to guide, but to remind: luck begins with attention to the moment.`,
 ];
 
-const PROFILE_NAME_KEY = '@RainBornDaily_profile_name';
-
 const RainBornOnboard: React.FC = () => {
   const [dailyRightsCurrentIndex, setDailyRightsCurrentIndex] = useState(0);
   const dailyRightsNavigation = useNavigation<NavigationProp>();
@@ -71,22 +67,14 @@ const RainBornOnboard: React.FC = () => {
     }).start();
   }, [dailyRightsCurrentIndex, dailyRightsImageFadeAnim]);
 
-  const handleRainBornNext = useCallback(async () => {
+  const handleRainBornNext = async () => {
     if (dailyRightsCurrentIndex < 3) {
       setDailyRightsCurrentIndex(prev => Math.min(prev + 1, 3));
       return;
     }
 
-    try {
-      const dailyRightsSavedName = await AsyncStorage.getItem(PROFILE_NAME_KEY);
-      if ((dailyRightsSavedName ?? '').trim()) {
-        dailyRightsNavigation.replace('RainBornHome');
-        return;
-      }
-    } catch (_) {}
-
-    dailyRightsNavigation.replace('RainBornCreateProfile');
-  }, [dailyRightsCurrentIndex, dailyRightsNavigation]);
+    dailyRightsNavigation.replace('RainBornHome');
+  };
 
   return (
     <ImageBackground

@@ -4,7 +4,7 @@ import type { RainBornRoutesList } from '../../RainWaystckrotes';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Image,
@@ -72,7 +72,9 @@ function getTaskIndexForToday(): number {
   const key = getTodayKey();
   let hash = 0;
   for (let i = 0; i < key.length; i++) {
+    // eslint-disable-next-line no-bitwise
     hash = (hash << 5) - hash + key.charCodeAt(i);
+    // eslint-disable-next-line no-bitwise
     hash |= 0;
   }
   return Math.abs(hash) % TASKS.length;
@@ -128,47 +130,48 @@ const RainBornDailyLuck: React.FC = () => {
     null,
   );
 
-  const loadDailyRightsState = useCallback(async () => {
-    try {
-      const dailyRightsDoneKey = `${STORAGE_KEY_PREFIX}dailyLuckDone_${dailyRightsTodayKey}`;
-      const dailyRightsCooldownEndKey = `${STORAGE_KEY_PREFIX}dailyLuckCooldownEnd_${dailyRightsTodayKey}`;
-      const [dailyRightsDone, dailyRightsCooldownEndRaw] = await Promise.all([
-        AsyncStorage.getItem(dailyRightsDoneKey),
-        AsyncStorage.getItem(dailyRightsCooldownEndKey),
-      ]);
-      const dailyRightsCooldownEndTs = Number(dailyRightsCooldownEndRaw ?? '0');
-      const dailyRightsRemainingSeconds = Math.max(
-        0,
-        Math.floor((dailyRightsCooldownEndTs - Date.now()) / 1000),
-      );
-
-      if (dailyRightsDone === '1' && dailyRightsRemainingSeconds > 0) {
-        setDailyRightsDoneToday(true);
-        setDailyRightsCooldownSeconds(dailyRightsRemainingSeconds);
-      } else {
-        setDailyRightsDoneToday(false);
-        setDailyRightsCooldownSeconds(SECONDS_24H);
-        await Promise.all([
-          AsyncStorage.removeItem(dailyRightsDoneKey),
-          AsyncStorage.removeItem(dailyRightsCooldownEndKey),
+  useEffect(() => {
+    // when dailyRightsTodayKey changes (once per day) reload state
+    const fn = async () => {
+      try {
+        const dailyRightsDoneKey = `${STORAGE_KEY_PREFIX}dailyLuckDone_${dailyRightsTodayKey}`;
+        const dailyRightsCooldownEndKey = `${STORAGE_KEY_PREFIX}dailyLuckCooldownEnd_${dailyRightsTodayKey}`;
+        const [dailyRightsDone, dailyRightsCooldownEndRaw] = await Promise.all([
+          AsyncStorage.getItem(dailyRightsDoneKey),
+          AsyncStorage.getItem(dailyRightsCooldownEndKey),
         ]);
+        const dailyRightsCooldownEndTs = Number(
+          dailyRightsCooldownEndRaw ?? '0',
+        );
+        const dailyRightsRemainingSeconds = Math.max(
+          0,
+          Math.floor((dailyRightsCooldownEndTs - Date.now()) / 1000),
+        );
+
+        if (dailyRightsDone === '1' && dailyRightsRemainingSeconds > 0) {
+          setDailyRightsDoneToday(true);
+          setDailyRightsCooldownSeconds(dailyRightsRemainingSeconds);
+        } else {
+          setDailyRightsDoneToday(false);
+          setDailyRightsCooldownSeconds(SECONDS_24H);
+          await Promise.all([
+            AsyncStorage.removeItem(dailyRightsDoneKey),
+            AsyncStorage.removeItem(dailyRightsCooldownEndKey),
+          ]);
+        }
+      } catch (_) {
+      } finally {
+        setDailyRightsLoaded(true);
       }
-    } catch (_) {
-    } finally {
-      setDailyRightsLoaded(true);
-    }
+    };
+    fn();
   }, [dailyRightsTodayKey]);
 
-  useEffect(() => {
-    AsyncStorage.clear();
-    loadDailyRightsState();
-  }, [loadDailyRightsState]);
-
-  const dailyRightsGoBack = useCallback(() => {
+  const dailyRightsGoBack = () => {
     if (dailyRightsNavigation.canGoBack()) dailyRightsNavigation.goBack();
-  }, [dailyRightsNavigation]);
+  };
 
-  const onDailyRightsStart = useCallback(() => {
+  const onDailyRightsStart = () => {
     setDailyRightsStep('loader');
     dailyRightsSpinAnim.setValue(0);
     dailyRightsLoaderLoopRef.current = Animated.loop(
@@ -179,7 +182,7 @@ const RainBornDailyLuck: React.FC = () => {
       }),
     );
     dailyRightsLoaderLoopRef.current.start();
-  }, [dailyRightsSpinAnim]);
+  };
 
   useEffect(() => {
     if (dailyRightsStep !== 'loader') return;
@@ -201,7 +204,7 @@ const RainBornDailyLuck: React.FC = () => {
     };
   }, [dailyRightsStep]);
 
-  const onDailyRightsDone = useCallback(async () => {
+  const onDailyRightsDone = async () => {
     setDailyRightsStep('done');
     setDailyRightsCooldownSeconds(SECONDS_24H);
     try {
@@ -216,13 +219,13 @@ const RainBornDailyLuck: React.FC = () => {
       );
     } catch (_) {}
     setDailyRightsDoneToday(true);
-  }, [dailyRightsTodayKey]);
+  };
 
-  const onDailyRightsBackHome = useCallback(() => {
+  const onDailyRightsBackHome = () => {
     if (dailyRightsNavigation.canGoBack()) dailyRightsNavigation.goBack();
-  }, [dailyRightsNavigation]);
+  };
 
-  const handleDailyRightsShare = useCallback(async () => {
+  const handleDailyRightsShare = async () => {
     const dailyRightsMessage =
       dailyRightsStep === 'task'
         ? `Daily Luck Moment: ${dailyRightsTask}`
@@ -235,7 +238,7 @@ const RainBornDailyLuck: React.FC = () => {
         title: 'Daily Luck Moment',
       });
     } catch (_) {}
-  }, [dailyRightsStep, dailyRightsTask, dailyRightsExecutionSeconds]);
+  };
 
   const dailyRightsSpin = dailyRightsSpinAnim.interpolate({
     inputRange: [0, 1],

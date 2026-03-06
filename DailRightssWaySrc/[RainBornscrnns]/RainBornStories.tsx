@@ -110,21 +110,13 @@ function getTodayKey(): string {
   )}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-function getStoryIndexForToday(): number {
-  const key = getTodayKey();
-  let hash = 0;
-  for (let i = 0; i < key.length; i++) {
-    hash = (hash << 5) - hash + key.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash);
-}
-
 function getStoryIndexForTodayWithUnlocked(unlockedCount: number): number {
   const key = getTodayKey();
   let hash = 0;
   for (let i = 0; i < key.length; i++) {
+    // eslint-disable-next-line no-bitwise
     hash = (hash << 5) - hash + key.charCodeAt(i);
+    // eslint-disable-next-line no-bitwise
     hash |= 0;
   }
   return Math.abs(hash) % Math.max(1, unlockedCount);
@@ -235,43 +227,7 @@ const RainBornStories: React.FC = () => {
     }, [dailyRightsReadModalVisible]),
   );
 
-  const loadDailyRightsState = useCallback(async () => {
-    try {
-      const [
-        dailyRightsRead,
-        dailyRightsAttentionDismissed,
-        dailyRightsLevelRaw,
-      ] = await Promise.all([
-        AsyncStorage.getItem(
-          `${STORAGE_KEY_PREFIX}storyRead_${dailyRightsTodayKey}`,
-        ),
-        AsyncStorage.getItem(
-          `${STORAGE_KEY_PREFIX}storyAttention_${dailyRightsTodayKey}`,
-        ),
-        AsyncStorage.getItem(`${STORAGE_KEY_PREFIX}currentLevel`),
-      ]);
-      setDailyRightsStoryReadToday(dailyRightsRead === '1');
-      setDailyRightsAttentionDismissedToday(
-        dailyRightsAttentionDismissed === '1',
-      );
-      const dailyRightsParsedLevel = Number(dailyRightsLevelRaw ?? '1');
-      if (
-        Number.isFinite(dailyRightsParsedLevel) &&
-        dailyRightsParsedLevel >= 1 &&
-        dailyRightsParsedLevel <= 10
-      ) {
-        setDailyRightsCurrentLevel(dailyRightsParsedLevel);
-      } else {
-        setDailyRightsCurrentLevel(1);
-      }
-    } catch (_) {
-      // ignore
-    } finally {
-      setDailyRightsLoaded(true);
-    }
-  }, [dailyRightsTodayKey]);
-
-  const dismissDailyRightsAttention = useCallback(async () => {
+  const dismissDailyRightsAttention = async () => {
     setDailyRightsAttentionDismissedToday(true);
     try {
       await AsyncStorage.setItem(
@@ -279,18 +235,51 @@ const RainBornStories: React.FC = () => {
         '1',
       );
     } catch (_) {}
-  }, [dailyRightsTodayKey]);
+  };
 
   useEffect(() => {
-    loadDailyRightsState();
+    const fn = async () => {
+      try {
+        const [
+          dailyRightsRead,
+          dailyRightsAttentionDismissed,
+          dailyRightsLevelRaw,
+        ] = await Promise.all([
+          AsyncStorage.getItem(
+            `${STORAGE_KEY_PREFIX}storyRead_${dailyRightsTodayKey}`,
+          ),
+          AsyncStorage.getItem(
+            `${STORAGE_KEY_PREFIX}storyAttention_${dailyRightsTodayKey}`,
+          ),
+          AsyncStorage.getItem(`${STORAGE_KEY_PREFIX}currentLevel`),
+        ]);
+        setDailyRightsStoryReadToday(dailyRightsRead === '1');
+        setDailyRightsAttentionDismissedToday(
+          dailyRightsAttentionDismissed === '1',
+        );
+        const dailyRightsParsedLevel = Number(dailyRightsLevelRaw ?? '1');
+        if (
+          Number.isFinite(dailyRightsParsedLevel) &&
+          dailyRightsParsedLevel >= 1 &&
+          dailyRightsParsedLevel <= 10
+        ) {
+          setDailyRightsCurrentLevel(dailyRightsParsedLevel);
+        } else {
+          setDailyRightsCurrentLevel(1);
+        }
+      } finally {
+        setDailyRightsLoaded(true);
+      }
+    };
+    fn();
     // AsyncStorage.clear();
-  }, [loadDailyRightsState]);
+  }, [dailyRightsTodayKey]);
 
-  const openDailyRightsReadModal = useCallback(() => {
+  const openDailyRightsReadModal = () => {
     setDailyRightsReadModalVisible(true);
-  }, []);
+  };
 
-  const closeDailyRightsReadModal = useCallback(async () => {
+  const closeDailyRightsReadModal = async () => {
     setDailyRightsReadModalVisible(false);
     setDailyRightsStoryReadToday(true);
     try {
@@ -299,22 +288,22 @@ const RainBornStories: React.FC = () => {
         '1',
       );
     } catch (_) {}
-  }, [dailyRightsTodayKey]);
+  };
 
-  const handleDailyRightsShare = useCallback(async () => {
+  const handleDailyRightsShare = async () => {
     try {
       await Share.share({
         title: dailyRightsStory.title,
         message: `${dailyRightsStory.title}\n\n${dailyRightsStory.fullText}`,
       });
     } catch (_) {}
-  }, [dailyRightsStory]);
+  };
 
-  const dailyRightsGoBack = useCallback(() => {
+  const dailyRightsGoBack = () => {
     if (dailyRightsNavigation.canGoBack()) {
       dailyRightsNavigation.goBack();
     }
-  }, [dailyRightsNavigation]);
+  };
 
   if (!dailyRightsLoaded) {
     return (

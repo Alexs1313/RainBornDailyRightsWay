@@ -4,9 +4,8 @@ import type { RainBornRoutesList } from '../../RainWaystckrotes';
 import { useRainBornStore } from '../RainBornStore.tsx/rainBornContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import {
-  Alert,
   Animated,
   Image,
   ImageBackground,
@@ -14,10 +13,9 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
-import { launchImageLibrary } from 'react-native-image-picker';
+
 import TouchableOpacity from '../[RainBorncmpnts]/RainBornAnimatedTouchable';
 import type { StackNavigationProp } from '@react-navigation/stack';
 
@@ -26,80 +24,24 @@ type NavigationProp = StackNavigationProp<
   'RainBornSettings'
 >;
 
-const PROFILE_NAME_KEY = '@RainBornDaily_profile_name';
-const PROFILE_PHOTO_KEY = '@RainBornDaily_profile_photo';
-
 const RainBornSettings: React.FC = () => {
   const dailyRightsNavigation = useNavigation<NavigationProp>();
   const dailyRightsThumbAnim = useRef(new Animated.Value(1)).current;
-  const {
-    rainBornSoundEnabled: dailyRightsRainBornSoundEnabled,
-    setRainBornSoundEnabled: setDailyRightsRainBornSoundEnabled,
-  } = useRainBornStore();
-  const [dailyRightsProfileName, setDailyRightsProfileName] = useState('');
-  const [dailyRightsProfilePhotoUri, setDailyRightsProfilePhotoUri] = useState<
-    string | null
-  >(null);
+  const { rainBornSoundEnabled, setRainBornSoundEnabled } = useRainBornStore();
 
-  const loadDailyRightsProfile = useCallback(async () => {
+  const toggleDailyRightsSound = async (dailyRightsSelectedValue: boolean) => {
     try {
-      const [dailyRightsSavedName, dailyRightsSavedPhoto] = await Promise.all([
-        AsyncStorage.getItem(PROFILE_NAME_KEY),
-        AsyncStorage.getItem(PROFILE_PHOTO_KEY),
-      ]);
-      setDailyRightsProfileName(dailyRightsSavedName ?? '');
-      setDailyRightsProfilePhotoUri(dailyRightsSavedPhoto ?? null);
-    } catch (_) {
-      setDailyRightsProfileName('');
-      setDailyRightsProfilePhotoUri(null);
+      await AsyncStorage.setItem(
+        'bg_app_music_enabled',
+        JSON.stringify(dailyRightsSelectedValue),
+      );
+      setRainBornSoundEnabled(dailyRightsSelectedValue);
+    } catch (error) {
+      console.log('Error', error);
     }
-  }, []);
+  };
 
-  const toggleDailyRightsSound = useCallback(
-    async (dailyRightsSelectedValue: boolean): Promise<void> => {
-      try {
-        await AsyncStorage.setItem(
-          'bg_app_music_enabled',
-          JSON.stringify(dailyRightsSelectedValue),
-        );
-        setDailyRightsRainBornSoundEnabled(dailyRightsSelectedValue);
-      } catch (error) {
-        console.log('Error', error);
-      }
-    },
-    [setDailyRightsRainBornSoundEnabled],
-  );
-
-  const dailyRightsGoBack = useCallback(() => {
-    if (dailyRightsNavigation.canGoBack()) dailyRightsNavigation.goBack();
-  }, [dailyRightsNavigation]);
-
-  const onPickProfilePhoto = useCallback(async () => {
-    try {
-      const dailyRightsPickResult = await launchImageLibrary({
-        mediaType: 'photo',
-        selectionLimit: 1,
-        quality: 0.9,
-      });
-      if (dailyRightsPickResult.didCancel) return;
-      const dailyRightsUri = dailyRightsPickResult.assets?.[0]?.uri;
-      if (!dailyRightsUri) return;
-      setDailyRightsProfilePhotoUri(dailyRightsUri);
-      await AsyncStorage.setItem(PROFILE_PHOTO_KEY, dailyRightsUri);
-    } catch (_) {
-      Alert.alert('Error', 'Unable to open photo library.');
-    }
-  }, []);
-
-  const onDailyRightsChangeProfileName = useCallback(
-    (dailyRightsText: string) => {
-      setDailyRightsProfileName(dailyRightsText);
-      AsyncStorage.setItem(PROFILE_NAME_KEY, dailyRightsText).catch(() => {});
-    },
-    [],
-  );
-
-  const resetDailyRightsData = useCallback(async () => {
+  const resetDailyRightsData = async () => {
     try {
       const dailyRightsKeys = await AsyncStorage.getAllKeys();
       const dailyRightsRainKeys = dailyRightsKeys.filter(
@@ -108,36 +50,12 @@ const RainBornSettings: React.FC = () => {
       );
       await AsyncStorage.multiRemove(dailyRightsRainKeys);
     } catch (_) {}
-
-    dailyRightsNavigation.replace('RainBornOnboard');
-  }, [dailyRightsNavigation]);
-
-  useEffect(() => {
-    dailyRightsThumbAnim.setValue(dailyRightsRainBornSoundEnabled ? 1 : 0);
-  }, [dailyRightsRainBornSoundEnabled, dailyRightsThumbAnim]);
-
-  useEffect(() => {
-    loadDailyRightsProfile();
-  }, [loadDailyRightsProfile]);
+  };
 
   const dailyRightsThumbTranslateX = dailyRightsThumbAnim.interpolate({
     inputRange: [0, 1],
     outputRange: [0, 24],
   });
-
-  const handleDailyRightsToggleSound = useCallback(() => {
-    const dailyRightsNext = !dailyRightsRainBornSoundEnabled;
-    Animated.timing(dailyRightsThumbAnim, {
-      toValue: dailyRightsNext ? 1 : 0,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
-    toggleDailyRightsSound(dailyRightsNext);
-  }, [
-    dailyRightsRainBornSoundEnabled,
-    dailyRightsThumbAnim,
-    toggleDailyRightsSound,
-  ]);
 
   return (
     <ImageBackground
@@ -154,7 +72,7 @@ const RainBornSettings: React.FC = () => {
       >
         <View style={rainWayStyles.rainWayHeader}>
           <TouchableOpacity
-            onPress={dailyRightsGoBack}
+            onPress={() => dailyRightsNavigation.goBack()}
             activeOpacity={0.8}
             style={rainWayStyles.rainWayHeaderBack}
           >
@@ -169,13 +87,13 @@ const RainBornSettings: React.FC = () => {
               <Image source={require('../RainBornAssets/images/mus.png')} />
               <TouchableOpacity
                 activeOpacity={1}
-                onPress={handleDailyRightsToggleSound}
+                onPress={() => toggleDailyRightsSound(!rainBornSoundEnabled)}
                 style={rainWayStyles.rainWaySwitchTrack}
               >
                 <Animated.View
                   style={[
                     rainWayStyles.rainWaySwitchThumb,
-                    dailyRightsRainBornSoundEnabled
+                    rainBornSoundEnabled
                       ? { backgroundColor: '#59d102' }
                       : { backgroundColor: '#D9D9D9' },
                     {
@@ -187,29 +105,7 @@ const RainBornSettings: React.FC = () => {
             </View>
           )}
 
-          <View style={rainWayStyles.rainWayProfilePanel}>
-            <TouchableOpacity onPress={onPickProfilePhoto} activeOpacity={0.85}>
-              <Image
-                source={
-                  dailyRightsProfilePhotoUri
-                    ? { uri: dailyRightsProfilePhotoUri }
-                    : require('../RainBornAssets/images/homeLogo.png')
-                }
-                style={rainWayStyles.rainWayProfileAvatar}
-              />
-            </TouchableOpacity>
-            <Text style={rainWayStyles.rainWayProfileLabel}>Nickname:</Text>
-            <TextInput
-              value={dailyRightsProfileName}
-              onChangeText={onDailyRightsChangeProfileName}
-              placeholder="Enter your name"
-              placeholderTextColor="rgba(255,255,255,0.6)"
-              style={rainWayStyles.rainWayProfileInput}
-              maxLength={32}
-            />
-          </View>
-
-          {/* <View
+          <View
             style={[
               rainWayStyles.rainWayPanelAbout,
               { marginTop: Platform.OS === 'ios' ? 0 : 20 },
@@ -217,15 +113,14 @@ const RainBornSettings: React.FC = () => {
           >
             <Image source={require('../RainBornAssets/images/aboutapp.png')} />
             <Text style={rainWayStyles.rainWayAboutText}>
-              RainBorn: Daily Rights Way is a calm daily app created for short
-              moments of attention. Each day you open one symbol and receive a
-              simple action — no choices, no rush, no ratings. You can leave a
-              short note, read a gentle story, or simply pause for a few
-              seconds. If you feel like a light distraction, take a short quiz
-              and unlock new stories along the way. RainBorn is designed for
-              those who want less noise and more presence in the moment.
+              A calm daily app for short moments of attention. Every day you
+              open one symbol and receive a simple action — no choices, no rush,
+              no ratings. You can leave a short note, read a gentle story, or
+              simply pause for a few seconds. No accounts or registrations.
+              Everything is stored only on your device. Designed for those who
+              want less noise and more presence in the moment.
             </Text>
-          </View> */}
+          </View>
 
           <TouchableOpacity
             onPress={resetDailyRightsData}

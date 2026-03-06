@@ -84,10 +84,10 @@ const RainBornPathJournal: React.FC = () => {
       }
 
       return () => Orientation.unlockAllOrientations();
-    }, [!!dailyRightsSelectedNote]),
+    }, [dailyRightsSelectedNote]),
   );
 
-  const loadDailyRightsNotes = useCallback(async () => {
+  const loadDailyRightsNotes = async () => {
     try {
       const dailyRightsRaw = await AsyncStorage.getItem(STORAGE_KEY);
       if (dailyRightsRaw) {
@@ -103,35 +103,35 @@ const RainBornPathJournal: React.FC = () => {
     } finally {
       setDailyRightsLoaded(true);
     }
-  }, []);
+  };
 
   useEffect(() => {
-    loadDailyRightsNotes();
-  }, [loadDailyRightsNotes]);
-
-  const saveDailyRightsNotes = useCallback(
-    async (dailyRightsNextNotes: JournalNote[]) => {
-      setDailyRightsNotes(dailyRightsNextNotes);
-      try {
-        await AsyncStorage.setItem(
-          STORAGE_KEY,
-          JSON.stringify(dailyRightsNextNotes),
-        );
-      } catch (_) {}
-    },
-    [],
-  );
-
-  const dailyRightsGoBack = useCallback(() => {
-    if (dailyRightsNavigation.canGoBack()) dailyRightsNavigation.goBack();
-  }, [dailyRightsNavigation]);
-
-  const onDailyRightsAddNote = useCallback(() => {
-    setDailyRightsNewNoteText('');
-    setDailyRightsShowAddNote(true);
+    const fn = async () => {
+      await loadDailyRightsNotes();
+    };
+    fn();
   }, []);
 
-  const onDailyRightsSaveNote = useCallback(() => {
+  const saveDailyRightsNotes = async (dailyRightsNextNotes: JournalNote[]) => {
+    setDailyRightsNotes(dailyRightsNextNotes);
+    try {
+      await AsyncStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(dailyRightsNextNotes),
+      );
+    } catch (_) {}
+  };
+
+  const dailyRightsGoBack = () => {
+    if (dailyRightsNavigation.canGoBack()) dailyRightsNavigation.goBack();
+  };
+
+  const onDailyRightsAddNote = () => {
+    setDailyRightsNewNoteText('');
+    setDailyRightsShowAddNote(true);
+  };
+
+  const onDailyRightsSaveNote = () => {
     const dailyRightsText = dailyRightsNewNoteText.trim();
     if (!dailyRightsText) return;
     const dailyRightsNote: JournalNote = {
@@ -142,25 +142,25 @@ const RainBornPathJournal: React.FC = () => {
     saveDailyRightsNotes([dailyRightsNote, ...dailyRightsNotes]);
     setDailyRightsNewNoteText('');
     setDailyRightsShowAddNote(false);
-  }, [dailyRightsNewNoteText, dailyRightsNotes, saveDailyRightsNotes]);
+  };
 
-  const onDailyRightsOpenNote = useCallback((dailyRightsNote: JournalNote) => {
+  const onDailyRightsOpenNote = (dailyRightsNote: JournalNote) => {
     setDailyRightsSelectedNote(dailyRightsNote);
-  }, []);
+  };
 
-  const onDailyRightsCloseNote = useCallback(() => {
+  const onDailyRightsCloseNote = () => {
     setDailyRightsSelectedNote(null);
-  }, []);
+  };
 
-  const onDailyRightsDeleteNote = useCallback(() => {
+  const onDailyRightsDeleteNote = () => {
     if (!dailyRightsSelectedNote) return;
     saveDailyRightsNotes(
       dailyRightsNotes.filter(note => note.id !== dailyRightsSelectedNote.id),
     );
     setDailyRightsSelectedNote(null);
-  }, [dailyRightsSelectedNote, dailyRightsNotes, saveDailyRightsNotes]);
+  };
 
-  const onDailyRightsShareNote = useCallback(async () => {
+  const onDailyRightsShareNote = async () => {
     if (!dailyRightsSelectedNote) return;
     try {
       await Share.share({
@@ -168,7 +168,7 @@ const RainBornPathJournal: React.FC = () => {
         message: dailyRightsSelectedNote.text,
       });
     } catch (_) {}
-  }, [dailyRightsSelectedNote]);
+  };
 
   if (!dailyRightsLoaded) {
     return (

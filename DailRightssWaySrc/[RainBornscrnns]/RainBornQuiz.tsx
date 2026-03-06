@@ -7,7 +7,7 @@ import { QUIZ_LEVELS } from '../../dailyqulevels';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Alert,
   Image,
@@ -45,28 +45,28 @@ const RainBornQuiz: React.FC = () => {
     passed: boolean;
   } | null>(null);
 
-  const dailyRightsGoBack = useCallback(() => {
+  const dailyRightsGoBack = () => {
     if (dailyRightsNavigation.canGoBack()) dailyRightsNavigation.goBack();
-  }, [dailyRightsNavigation]);
+  };
 
-  const onDailyRightsSelectAnswer = useCallback(
-    (dailyRightsQuestionIdx: number, dailyRightsOptionIdx: number) => {
-      if (!dailyRightsQuiz) return;
-      setDailyRightsAnswers(prev => ({
-        ...prev,
-        [dailyRightsQuestionIdx]: dailyRightsOptionIdx,
-      }));
-    },
-    [dailyRightsQuiz],
-  );
+  const onDailyRightsSelectAnswer = (
+    dailyRightsQuestionIdx: number,
+    dailyRightsOptionIdx: number,
+  ) => {
+    if (!dailyRightsQuiz) return;
+    setDailyRightsAnswers(prev => ({
+      ...prev,
+      [dailyRightsQuestionIdx]: dailyRightsOptionIdx,
+    }));
+  };
 
-  const onDailyRightsNextQuestion = useCallback(() => {
+  const onDailyRightsNextQuestion = () => {
     if (!dailyRightsQuiz) return;
     if (dailyRightsAnswers[dailyRightsCurrentQuestionIdx] === undefined) return;
     if (dailyRightsCurrentQuestionIdx < dailyRightsQuiz.questions.length - 1) {
       setDailyRightsCurrentQuestionIdx(prev => prev + 1);
     }
-  }, [dailyRightsAnswers, dailyRightsCurrentQuestionIdx, dailyRightsQuiz]);
+  };
 
   const dailyRightsAnsweredCount = useMemo(
     () => Object.keys(dailyRightsAnswers).length,
@@ -78,7 +78,7 @@ const RainBornQuiz: React.FC = () => {
     ? dailyRightsCurrentQuestionIdx === dailyRightsQuiz.questions.length - 1
     : false;
 
-  const onDailyRightsSubmitQuiz = useCallback(async () => {
+  const onDailyRightsSubmitQuiz = async () => {
     if (!dailyRightsQuiz) return;
     if (dailyRightsAnsweredCount < dailyRightsQuiz.questions.length) {
       Alert.alert(
@@ -125,14 +125,9 @@ const RainBornQuiz: React.FC = () => {
       percent: dailyRightsPercent,
       passed: dailyRightsPassed,
     });
-  }, [
-    dailyRightsQuiz,
-    dailyRightsAnsweredCount,
-    dailyRightsAnswers,
-    dailyRightsLevel,
-  ]);
+  };
 
-  const onDailyRightsShareResult = useCallback(async () => {
+  const onDailyRightsShareResult = async () => {
     if (!dailyRightsQuiz || !dailyRightsResult) return;
     try {
       const dailyRightsText = dailyRightsResult.passed
@@ -143,15 +138,15 @@ const RainBornQuiz: React.FC = () => {
         message: dailyRightsText,
       });
     } catch (_) {}
-  }, [dailyRightsQuiz, dailyRightsResult]);
+  };
 
-  const onDailyRightsTryAgain = useCallback(() => {
+  const onDailyRightsTryAgain = () => {
     setDailyRightsAnswers({});
     setDailyRightsCurrentQuestionIdx(0);
     setDailyRightsResult(null);
-  }, []);
+  };
 
-  const onDailyRightsNextLevel = useCallback(() => {
+  const onDailyRightsNextLevel = () => {
     const dailyRightsNextLevel = dailyRightsLevel + 1;
     if (dailyRightsNextLevel > TOTAL_LEVELS) {
       dailyRightsGoBack();
@@ -168,12 +163,7 @@ const RainBornQuiz: React.FC = () => {
     dailyRightsNavigation.replace('RainBornQuiz', {
       level: dailyRightsNextLevel,
     });
-  }, [
-    dailyRightsLevel,
-    dailyRightsGoBack,
-    dailyRightsNavigation,
-    dailyRightsQuiz,
-  ]);
+  };
 
   if (!dailyRightsQuiz) {
     return (
