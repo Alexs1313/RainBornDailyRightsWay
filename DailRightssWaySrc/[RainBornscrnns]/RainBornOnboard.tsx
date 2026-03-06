@@ -27,8 +27,8 @@ type NavigationProp = StackNavigationProp<
 >;
 
 const onboardImages: ImageSourcePropType[] = [
-  require('../RainBornAssets/images/onboard/lepricon.png'),
-  require('../RainBornAssets/images/onboard/hat.png'),
+  require('../RainBornAssets/images/onboard/1.png'),
+  require('../RainBornAssets/images/onboard/2.png'),
   require('../RainBornAssets/images/onboard/3.png'),
   require('../RainBornAssets/images/onboard/4.png'),
 ];
@@ -110,9 +110,7 @@ const RainBornOnboard: React.FC = () => {
             style={[
               rainWayStyles.rainWayOnboardImage,
               dailyRightsCurrentIndex === 0 && {
-                top: 160,
-                width: 300,
-                height: 420,
+                top: 70,
               },
               dailyRightsCurrentIndex === 1 && { width: 300, height: 300 },
               { opacity: dailyRightsImageFadeAnim },

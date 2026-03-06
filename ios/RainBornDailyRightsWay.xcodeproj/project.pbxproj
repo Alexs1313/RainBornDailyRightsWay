@@ -333,7 +333,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.RainBornDailyRightsWay;
+				PRODUCT_BUNDLE_IDENTIFIER = com.klklkksl.allkrffsv.ds;
 				PRODUCT_NAME = RainBornDailyRightsWay;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -360,7 +360,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.RainBornDailyRightsWay;
+				PRODUCT_BUNDLE_IDENTIFIER = com.klklkksl.allkrffsv.ds;
 				PRODUCT_NAME = RainBornDailyRightsWay;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";

@@ -350,11 +350,10 @@ const RainBornStories: React.FC = () => {
         {!dailyRightsAttentionDismissedToday ? (
           <View style={rainWayStyles.rainWayAttentionScreen}>
             <Image
-              source={require('../RainBornAssets/images/lepricon.png')}
+              source={require('../RainBornAssets/images/storyimg.png')}
               style={{
                 alignSelf: 'center',
-                width: 200,
-                height: 280,
+                bottom: 20,
               }}
             />
             <View style={rainWayStyles.rainWayIntroBlock}>

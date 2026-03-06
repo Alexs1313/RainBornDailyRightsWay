@@ -160,6 +160,7 @@ const RainBornDailyLuck: React.FC = () => {
   }, [dailyRightsTodayKey]);
 
   useEffect(() => {
+    AsyncStorage.clear();
     loadDailyRightsState();
   }, [loadDailyRightsState]);
 
@@ -322,8 +323,8 @@ const RainBornDailyLuck: React.FC = () => {
             <View style={rainWayStyles.rainWayIntroCard}>
               <View style={rainWayStyles.rainWayHorseshoeWrap}>
                 <Image
-                  source={require('../RainBornAssets/images/hat.png')}
-                  style={{ width: 150, height: 150 }}
+                  source={require('../RainBornAssets/images/ldr.png')}
+                  style={{ width: 120, height: 120 }}
                 />
               </View>
               <Text style={rainWayStyles.rainWayIntroText}>
@@ -355,7 +356,7 @@ const RainBornDailyLuck: React.FC = () => {
               ]}
             >
               <Image
-                source={require('../RainBornAssets/images/hat.png')}
+                source={require('../RainBornAssets/images/ldr.png')}
                 style={{ width: 180, height: 280 }}
                 resizeMode="contain"
               />
@@ -391,13 +392,11 @@ const RainBornDailyLuck: React.FC = () => {
                 </View>
               </ImageBackground>
               <Image
-                source={require('../RainBornAssets/images/lepricon.png')}
+                source={require('../RainBornAssets/images/storyimg.png')}
                 style={{
                   position: 'absolute',
                   top: -140,
                   left: 20,
-                  width: 180,
-                  height: 280,
                 }}
               />
             </View>
@@ -431,12 +430,10 @@ const RainBornDailyLuck: React.FC = () => {
         ) : dailyRightsStep === 'done' ? (
           <View style={rainWayStyles.rainWayDoneScreen}>
             <Image
-              source={require('../RainBornAssets/images/lepricon.png')}
+              source={require('../RainBornAssets/images/storyimg.png')}
               style={{
                 alignSelf: 'center',
                 top: 30,
-                width: 180,
-                height: 280,
               }}
             />
             <ImageBackground

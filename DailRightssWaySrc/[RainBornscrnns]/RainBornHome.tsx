@@ -431,14 +431,6 @@ const RainBornHome: React.FC = () => {
     [dailyRightsCalendarMonth],
   );
 
-  if (!dailyRightsLoaded) {
-    return (
-      <View style={rainWayStyles.rainWayCentered}>
-        <Text style={rainWayStyles.rainWayLoadingText}>...</Text>
-      </View>
-    );
-  }
-
   if (dailyRightsMoodSelectedToday === null) {
     return (
       <ImageBackground
@@ -523,10 +515,7 @@ const RainBornHome: React.FC = () => {
                 );
                 if (!dailyRightsOption) return null;
                 return (
-                  <TouchableOpacity
-                    onPress={openDailyRightsMoodStats}
-                    style={rainWayStyles.rainWayMoodChipsRow}
-                  >
+                  <View style={rainWayStyles.rainWayMoodChipsRow}>
                     <View
                       style={[
                         rainWayStyles.rainWayMoodChip,
@@ -539,7 +528,7 @@ const RainBornHome: React.FC = () => {
                         style={rainWayStyles.rainWayMoodChipEmoji}
                       />
                     </View>
-                  </TouchableOpacity>
+                  </View>
                 );
               })()}
           </View>
@@ -547,8 +536,7 @@ const RainBornHome: React.FC = () => {
           {dailyRightsQuoteShownToday ? (
             <View style={rainWayStyles.rainWayQuotePanel}>
               <Image
-                source={require('../RainBornAssets/images/lepricon.png')}
-                style={{ width: 90, height: 130, borderRadius: 32 }}
+                source={require('../RainBornAssets/images/quoteimg.png')}
               />
               <Text style={rainWayStyles.rainWayQuotePanelText}>
                 {dailyRightsDailyQuote.toUpperCase()}
@@ -684,8 +672,7 @@ const RainBornHome: React.FC = () => {
               </TouchableOpacity>
               <View style={rainWayStyles.rainWayModalCharacter}>
                 <Image
-                  source={require('../RainBornAssets/images/onboard/lepricon.png')}
-                  style={{ width: 260, height: 390, top: 10 }}
+                  source={require('../RainBornAssets/images/onboard/1.png')}
                 />
               </View>
               <View style={rainWayStyles.rainWayModalQuoteBox}>
@@ -1005,8 +992,8 @@ const rainWayStyles = StyleSheet.create({
     alignItems: 'center',
   },
   rainWayOnboardStyleButton: {
-    width: 269,
-    height: 84,
+    width: 229,
+    height: 64,
     justifyContent: 'center',
     alignItems: 'center',
     resizeMode: 'contain',

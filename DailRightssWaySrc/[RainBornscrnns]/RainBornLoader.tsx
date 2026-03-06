@@ -57,7 +57,7 @@ const RainBornLoader: React.FC = () => {
           ]}
         >
           <Image
-            source={require('../RainBornAssets/images/hat.png')}
+            source={require('../RainBornAssets/images/ldr.png')}
             style={rainWayStyles.rainWayHorseshoe}
             resizeMode="contain"
           />

@@ -428,9 +428,7 @@ const RainBornPathJournal: React.FC = () => {
         ) : dailyRightsIsEmpty ? (
           <View style={rainWayStyles.rainWayEmptyState}>
             <View style={rainWayStyles.rainWayAvatarWrap}>
-              <Image
-                source={require('../RainBornAssets/images/welcomeimg.png')}
-              />
+              <Image source={require('../RainBornAssets/images/s.png')} />
             </View>
             <Image
               source={require('../RainBornAssets/images/welcometxt.png')}
