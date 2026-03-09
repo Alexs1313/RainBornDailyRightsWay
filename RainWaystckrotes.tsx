@@ -5,7 +5,6 @@ import RainBornStories from './DailRightssWaySrc/[RainBornscrnns]/RainBornStorie
 import RainBornDailyLuck from './DailRightssWaySrc/[RainBornscrnns]/RainBornDailyLuck';
 import RainBornPathJournal from './DailRightssWaySrc/[RainBornscrnns]/RainBornPathJournal';
 import RainBornSettings from './DailRightssWaySrc/[RainBornscrnns]/RainBornSettings';
-import RainBornCreateProfile from './DailRightssWaySrc/[RainBornscrnns]/RainBornCreateProfile';
 import RainBornLevels from './DailRightssWaySrc/[RainBornscrnns]/RainBornLevels';
 import RainBornQuiz from './DailRightssWaySrc/[RainBornscrnns]/RainBornQuiz';
 
@@ -17,7 +16,6 @@ import RainBornOnboard from './DailRightssWaySrc/[RainBornscrnns]/RainBornOnboar
 export type RainBornRoutesList = {
   RainBornLoader: undefined;
   RainBornOnboard: undefined;
-  RainBornCreateProfile: undefined;
   RainBornHome: undefined;
   RainBornLevels: undefined;
   RainBornQuiz: { level: number };
@@ -37,10 +35,6 @@ const RainWaystckrotes: React.FC = () => {
     >
       <Stack.Screen name="RainBornLoader" component={RainBornLoader} />
       <Stack.Screen name="RainBornOnboard" component={RainBornOnboard} />
-      <Stack.Screen
-        name="RainBornCreateProfile"
-        component={RainBornCreateProfile}
-      />
       <Stack.Screen name="RainBornHome" component={RainBornHome} />
       <Stack.Screen name="RainBornLevels" component={RainBornLevels} />
       <Stack.Screen name="RainBornQuiz" component={RainBornQuiz} />

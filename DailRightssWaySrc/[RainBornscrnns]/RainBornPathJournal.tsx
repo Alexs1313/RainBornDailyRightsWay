@@ -185,7 +185,7 @@ const RainBornPathJournal: React.FC = () => {
       source={
         dailyRightsIsEmpty
           ? require('../RainBornAssets/images/empybg.png')
-          : require('../RainBornAssets/images/bgs/main.png')
+          : require('../RainBornAssets/images/bg.png')
       }
       style={rainWayStyles.rainWayBackground}
     >

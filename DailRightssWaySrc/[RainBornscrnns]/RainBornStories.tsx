@@ -207,19 +207,25 @@ const RainBornStories: React.FC = () => {
   const dailyRightsPrevStoryReadToday = useRef(false);
 
   useEffect(() => {
-    if (dailyRightsStoryReadToday && !dailyRightsPrevStoryReadToday.current) {
-      setDailyRightsCountdownSeconds(SECONDS_24H);
-    }
-    dailyRightsPrevStoryReadToday.current = dailyRightsStoryReadToday;
-  }, [dailyRightsStoryReadToday]);
-
-  useEffect(() => {
     if (!dailyRightsStoryReadToday) return;
     const dailyRightsIntervalId = setInterval(() => {
-      setDailyRightsCountdownSeconds(s => Math.max(0, s - 1));
+      setDailyRightsCountdownSeconds(s => {
+        const newS = Math.max(0, s - 1);
+        if (newS === 0) {
+          // Timer expired, reset read status
+          AsyncStorage.removeItem(
+            `${STORAGE_KEY_PREFIX}storyRead_${dailyRightsTodayKey}`,
+          ).catch(() => {});
+          AsyncStorage.removeItem(
+            `${STORAGE_KEY_PREFIX}storyTimerEnd_${dailyRightsTodayKey}`,
+          ).catch(() => {});
+          setDailyRightsStoryReadToday(false);
+        }
+        return newS;
+      });
     }, 1000);
     return () => clearInterval(dailyRightsIntervalId);
-  }, [dailyRightsStoryReadToday]);
+  }, [dailyRightsStoryReadToday, dailyRightsTodayKey]);
 
   const dailyRightsNextStoryTimer = formatCountdown(
     dailyRightsCountdownSeconds,
@@ -241,6 +247,7 @@ const RainBornStories: React.FC = () => {
         dailyRightsRead,
         dailyRightsAttentionDismissed,
         dailyRightsLevelRaw,
+        dailyRightsTimerEndRaw,
       ] = await Promise.all([
         AsyncStorage.getItem(
           `${STORAGE_KEY_PREFIX}storyRead_${dailyRightsTodayKey}`,
@@ -249,8 +256,45 @@ const RainBornStories: React.FC = () => {
           `${STORAGE_KEY_PREFIX}storyAttention_${dailyRightsTodayKey}`,
         ),
         AsyncStorage.getItem(`${STORAGE_KEY_PREFIX}currentLevel`),
+        AsyncStorage.getItem(
+          `${STORAGE_KEY_PREFIX}storyTimerEnd_${dailyRightsTodayKey}`,
+        ),
       ]);
-      setDailyRightsStoryReadToday(dailyRightsRead === '1');
+      const dailyRightsIsRead = dailyRightsRead === '1';
+      const dailyRightsTimerEnd = dailyRightsTimerEndRaw
+        ? Number(dailyRightsTimerEndRaw)
+        : null;
+      const dailyRightsNow = Date.now();
+      let dailyRightsRemainingSeconds = SECONDS_24H;
+      if (dailyRightsIsRead) {
+        if (dailyRightsTimerEnd) {
+          dailyRightsRemainingSeconds = Math.max(
+            0,
+            Math.floor((dailyRightsTimerEnd - dailyRightsNow) / 1000),
+          );
+          if (dailyRightsRemainingSeconds === 0) {
+            // Timer expired, reset read status for next day
+            await AsyncStorage.removeItem(
+              `${STORAGE_KEY_PREFIX}storyRead_${dailyRightsTodayKey}`,
+            );
+            await AsyncStorage.removeItem(
+              `${STORAGE_KEY_PREFIX}storyTimerEnd_${dailyRightsTodayKey}`,
+            );
+            setDailyRightsStoryReadToday(false);
+          } else {
+            setDailyRightsStoryReadToday(true);
+          }
+        } else {
+          // If read but no timerEnd, reset (should not happen)
+          await AsyncStorage.removeItem(
+            `${STORAGE_KEY_PREFIX}storyRead_${dailyRightsTodayKey}`,
+          );
+          setDailyRightsStoryReadToday(false);
+        }
+      } else {
+        setDailyRightsStoryReadToday(false);
+      }
+      setDailyRightsCountdownSeconds(dailyRightsRemainingSeconds);
       setDailyRightsAttentionDismissedToday(
         dailyRightsAttentionDismissed === '1',
       );
@@ -283,7 +327,6 @@ const RainBornStories: React.FC = () => {
 
   useEffect(() => {
     loadDailyRightsState();
-    // AsyncStorage.clear();
   }, [loadDailyRightsState]);
 
   const openDailyRightsReadModal = useCallback(() => {
@@ -293,10 +336,15 @@ const RainBornStories: React.FC = () => {
   const closeDailyRightsReadModal = useCallback(async () => {
     setDailyRightsReadModalVisible(false);
     setDailyRightsStoryReadToday(true);
+    const dailyRightsTimerEnd = Date.now() + SECONDS_24H * 1000;
     try {
       await AsyncStorage.setItem(
         `${STORAGE_KEY_PREFIX}storyRead_${dailyRightsTodayKey}`,
         '1',
+      );
+      await AsyncStorage.setItem(
+        `${STORAGE_KEY_PREFIX}storyTimerEnd_${dailyRightsTodayKey}`,
+        dailyRightsTimerEnd.toString(),
       );
     } catch (_) {}
   }, [dailyRightsTodayKey]);
@@ -326,7 +374,7 @@ const RainBornStories: React.FC = () => {
 
   return (
     <ImageBackground
-      source={require('../RainBornAssets/images/bgs/main.png')}
+      source={require('../RainBornAssets/images/bg.png')}
       style={rainWayStyles.rainWayBackground}
     >
       <ScrollView

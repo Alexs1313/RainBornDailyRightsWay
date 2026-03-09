@@ -106,7 +106,7 @@ const RainBornLevels: React.FC = () => {
 
   return (
     <ImageBackground
-      source={require('../RainBornAssets/images/bgs/main.png')}
+      source={require('../RainBornAssets/images/bg.png')}
       style={rainWayStyles.rainWayBackground}
     >
       <ScrollView

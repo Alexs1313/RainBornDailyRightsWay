@@ -141,7 +141,7 @@ const RainBornSettings: React.FC = () => {
 
   return (
     <ImageBackground
-      source={require('../RainBornAssets/images/settBg.png')}
+      source={require('../RainBornAssets/images/bg.png')}
       style={rainWayStyles.rainWayBackground}
     >
       <ScrollView
@@ -186,7 +186,7 @@ const RainBornSettings: React.FC = () => {
               </TouchableOpacity>
             </View>
           )}
-
+          {/* 
           <View style={rainWayStyles.rainWayProfilePanel}>
             <TouchableOpacity onPress={onPickProfilePhoto} activeOpacity={0.85}>
               <Image
@@ -207,9 +207,9 @@ const RainBornSettings: React.FC = () => {
               style={rainWayStyles.rainWayProfileInput}
               maxLength={32}
             />
-          </View>
+          </View> */}
 
-          {/* <View
+          <View
             style={[
               rainWayStyles.rainWayPanelAbout,
               { marginTop: Platform.OS === 'ios' ? 0 : 20 },
@@ -217,15 +217,15 @@ const RainBornSettings: React.FC = () => {
           >
             <Image source={require('../RainBornAssets/images/aboutapp.png')} />
             <Text style={rainWayStyles.rainWayAboutText}>
-              RainBorn: Daily Rights Way is a calm daily app created for short
-              moments of attention. Each day you open one symbol and receive a
-              simple action — no choices, no rush, no ratings. You can leave a
-              short note, read a gentle story, or simply pause for a few
-              seconds. If you feel like a light distraction, take a short quiz
-              and unlock new stories along the way. RainBorn is designed for
-              those who want less noise and more presence in the moment.
+              The app is a calm daily experience created for short moments of
+              attention. You can leave a short note, read a gentle story, or
+              simply pause for a few seconds. It also includes a light quiz that
+              you can explore at your own pace. Completing quiz levels gradually
+              unlocks new stories, adding more reflections to discover over
+              time. Everything is designed for people who want less noise, fewer
+              distractions, and a little more presence in the moment.
             </Text>
-          </View> */}
+          </View>
 
           <TouchableOpacity
             onPress={resetDailyRightsData}
@@ -261,6 +261,7 @@ const rainWayStyles = StyleSheet.create({
     minHeight: 66,
     width: '86%',
     alignSelf: 'center',
+    marginBottom: 30,
   },
   rainWayHeaderBack: { position: 'absolute', left: 16 },
 

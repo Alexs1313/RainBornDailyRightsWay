@@ -45,7 +45,7 @@ const RainBornLoader: React.FC = () => {
 
   return (
     <ImageBackground
-      source={require('../RainBornAssets/images/bgs/onboard.png')}
+      source={require('../RainBornAssets/images/bg.png')}
       style={rainWayStyles.rainWayBackground}
       resizeMode="cover"
     >

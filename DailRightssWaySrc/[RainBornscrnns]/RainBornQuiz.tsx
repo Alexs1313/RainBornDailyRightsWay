@@ -178,7 +178,7 @@ const RainBornQuiz: React.FC = () => {
   if (!dailyRightsQuiz) {
     return (
       <ImageBackground
-        source={require('../RainBornAssets/images/bgs/main.png')}
+        source={require('../RainBornAssets/images/bg.png')}
         style={rainWayStyles.rainWayBackground}
       >
         <View style={rainWayStyles.rainWayCentered}>
@@ -195,7 +195,7 @@ const RainBornQuiz: React.FC = () => {
 
   return (
     <ImageBackground
-      source={require('../RainBornAssets/images/bgs/main.png')}
+      source={require('../RainBornAssets/images/bg.png')}
       style={rainWayStyles.rainWayBackground}
     >
       <ScrollView
@@ -433,6 +433,7 @@ const rainWayStyles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 20,
     marginTop: 20,
+    alignSelf: 'center',
   },
   rainWayQuizTitle: {
     color: '#fff',

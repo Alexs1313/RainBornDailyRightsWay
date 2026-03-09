@@ -275,8 +275,8 @@ const RainBornDailyLuck: React.FC = () => {
 
   const dailyRightsBackgroundSource =
     dailyRightsStep === 'task' || dailyRightsStep === 'done'
-      ? require('../RainBornAssets/images/bgs/onboard.png')
-      : require('../RainBornAssets/images/bgs/main.png');
+      ? require('../RainBornAssets/images/bg.png')
+      : require('../RainBornAssets/images/bg.png');
 
   return (
     <ImageBackground
@@ -441,7 +441,10 @@ const RainBornDailyLuck: React.FC = () => {
             />
             <ImageBackground
               source={require('../RainBornAssets/images/onboard/textboard.png')}
-              style={[rainWayStyles.rainWayTaskBg, { top: -60 }]}
+              style={[
+                rainWayStyles.rainWayTaskBg,
+                { top: -60, alignSelf: 'center' },
+              ]}
               resizeMode="contain"
             >
               <View style={rainWayStyles.rainWayDoneCard}>

@@ -442,7 +442,7 @@ const RainBornHome: React.FC = () => {
   if (dailyRightsMoodSelectedToday === null) {
     return (
       <ImageBackground
-        source={require('../RainBornAssets/images/bgs/main.png')}
+        source={require('../RainBornAssets/images/bg.png')}
         style={rainWayStyles.rainWayBackground}
       >
         <ScrollView
@@ -480,7 +480,7 @@ const RainBornHome: React.FC = () => {
   // Step 2: main home with START TODAY or quote on screen
   return (
     <ImageBackground
-      source={require('../RainBornAssets/images/bgs/main.png')}
+      source={require('../RainBornAssets/images/bg.png')}
       style={rainWayStyles.rainWayBackground}
     >
       <ScrollView
@@ -498,23 +498,9 @@ const RainBornHome: React.FC = () => {
           >
             <View style={rainWayStyles.rainWayProfileWrap}>
               <Image
-                source={
-                  dailyRightsProfilePhotoUri
-                    ? { uri: dailyRightsProfilePhotoUri }
-                    : require('../RainBornAssets/images/homeLogo.png')
-                }
+                source={require('../RainBornAssets/images/icon.png')}
                 style={rainWayStyles.rainWayProfileAvatar}
               />
-              {!!dailyRightsProfileName && (
-                <View style={{ gap: 5 }}>
-                  <Image
-                    source={require('../RainBornAssets/images/goddday.png')}
-                  />
-                  <Text style={rainWayStyles.rainWayProfileGreetingText}>
-                    {dailyRightsProfileName}
-                  </Text>
-                </View>
-              )}
             </View>
             {dailyRightsSelectedMood &&
               (() => {

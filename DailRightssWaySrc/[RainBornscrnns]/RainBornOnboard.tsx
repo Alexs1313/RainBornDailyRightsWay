@@ -3,8 +3,6 @@
 import TouchableOpacity from '../[RainBorncmpnts]/RainBornAnimatedTouchable';
 import type { StackNavigationProp } from '@react-navigation/stack';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { useNavigation } from '@react-navigation/native';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -29,32 +27,30 @@ type NavigationProp = StackNavigationProp<
 const onboardImages: ImageSourcePropType[] = [
   require('../RainBornAssets/images/onboard/lepricon.png'),
   require('../RainBornAssets/images/onboard/hat.png'),
-  require('../RainBornAssets/images/onboard/3.png'),
-  require('../RainBornAssets/images/onboard/4.png'),
+
+  require('../RainBornAssets/images/ff.png'),
 ];
 
 const onboardTexts: ImageSourcePropType[] = [
   require('../RainBornAssets/images/onboard/boardTxt1.png'),
   require('../RainBornAssets/images/onboard/boardTxt2.png'),
-  require('../RainBornAssets/images/onboard/boardTxt3.png'),
+
   require('../RainBornAssets/images/onboard/boardTxt4.png'),
 ];
 
 const onboardButtonTexts: ImageSourcePropType[] = [
   require('../RainBornAssets/images/onboard/btnTxt1.png'),
   require('../RainBornAssets/images/onboard/btnTxt2.png'),
-  require('../RainBornAssets/images/onboard/btnTxt3.png'),
+
   require('../RainBornAssets/images/onboard/btnTxt4.png'),
 ];
 
 const onboardDescriptions: string[] = [
   `This is a space for your daily mood. No rush, no rules, no unnecessary noise. Just a path that you walk at your own pace.`,
   `Every day is a small moment for yourself. A short action, a calm thought or a mood that you want to capture. No ratings. Just you and today.`,
-  `No accounts or registrations. Everything is stored only on your device. This is your personal path — no one looks into it.`,
+
   `Take the first step. The leprechaun is here — not to guide, but to remind: luck begins with attention to the moment.`,
 ];
-
-const PROFILE_NAME_KEY = '@RainBornDaily_profile_name';
 
 const RainBornOnboard: React.FC = () => {
   const [dailyRightsCurrentIndex, setDailyRightsCurrentIndex] = useState(0);
@@ -72,25 +68,17 @@ const RainBornOnboard: React.FC = () => {
   }, [dailyRightsCurrentIndex, dailyRightsImageFadeAnim]);
 
   const handleRainBornNext = useCallback(async () => {
-    if (dailyRightsCurrentIndex < 3) {
+    if (dailyRightsCurrentIndex < 2) {
       setDailyRightsCurrentIndex(prev => Math.min(prev + 1, 3));
       return;
     }
 
-    try {
-      const dailyRightsSavedName = await AsyncStorage.getItem(PROFILE_NAME_KEY);
-      if ((dailyRightsSavedName ?? '').trim()) {
-        dailyRightsNavigation.replace('RainBornHome');
-        return;
-      }
-    } catch (_) {}
-
-    dailyRightsNavigation.replace('RainBornCreateProfile');
+    dailyRightsNavigation.replace('RainBornHome');
   }, [dailyRightsCurrentIndex, dailyRightsNavigation]);
 
   return (
     <ImageBackground
-      source={require('../RainBornAssets/images/bgs/onboard.png')}
+      source={require('../RainBornAssets/images/bg.png')}
       style={rainWayStyles.rainWayBackground}
     >
       <ScrollView
@@ -115,6 +103,7 @@ const RainBornOnboard: React.FC = () => {
                 height: 420,
               },
               dailyRightsCurrentIndex === 1 && { width: 300, height: 300 },
+              dailyRightsCurrentIndex === 2 && { width: 300, height: 300 },
               { opacity: dailyRightsImageFadeAnim },
             ]}
           />
