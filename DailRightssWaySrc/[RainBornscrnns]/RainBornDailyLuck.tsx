@@ -397,7 +397,7 @@ const RainBornDailyLuck: React.FC = () => {
                   top: -140,
                   left: 20,
                   width: 180,
-                  height: 280,
+                  height: 281,
                 }}
               />
             </View>
