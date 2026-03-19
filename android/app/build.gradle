@@ -79,7 +79,7 @@ android {
 
     namespace "com.rainborndailyrightsway"
     defaultConfig {
-        applicationId "com.rainborndailyrightsway"
+        applicationId "com.rainborn.daily.rights"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

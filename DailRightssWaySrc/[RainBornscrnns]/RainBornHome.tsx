@@ -577,7 +577,7 @@ const RainBornHome: React.FC = () => {
                 />
               </ImageBackground>
             </TouchableOpacity>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => dailyRightsNavigation.navigate('RainBornLevels')}
             >
@@ -587,7 +587,7 @@ const RainBornHome: React.FC = () => {
               >
                 <Image source={require('../RainBornAssets/images/play.png')} />
               </ImageBackground>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() =>
